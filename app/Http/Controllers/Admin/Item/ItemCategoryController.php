@@ -46,6 +46,7 @@ class ItemCategoryController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
+            'status' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -53,6 +54,7 @@ class ItemCategoryController extends Controller
         }
 
         $category->name = $request->name;
+        $category->status = $request->status;
         $category->save();
 
         $notify[] = $message;

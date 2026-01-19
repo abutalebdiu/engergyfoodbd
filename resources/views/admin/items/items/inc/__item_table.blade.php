@@ -18,13 +18,13 @@
             $totalqty = 0;
             $totalvalue = 0;
         @endphp
-        @foreach ($itemsgroupes as $items)
+        @forelse($itemsgroupes as $categoryId => $items)
             @php
                 $categoryName = optional($items->first()->category)->name;
             @endphp
 
             <tr>
-                <td colspan="8" class="font-weight-bold text-primary text-start">
+                <td colspan="9" class="font-weight-bold text-primary text-start">
                     {{ $categoryName ?: 'No Category' }}
                 </td>
             </tr>
@@ -75,7 +75,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td class="text-center text-muted" colspan="100%">No Data Found</td>
+                    <td class="text-center text-muted" colspan="9">No Data Found</td>
                 </tr>
             @endforelse
                 <tr>
@@ -84,7 +84,11 @@
                 <th>{{ en2bn(number_format($totalgroupvalue, 2, '.', ',')) }}</th>
                 </tr>
 
-        @endforeach
+        @empty
+            <tr>
+                <td class="text-center text-muted" colspan="9">No Data Found</td>
+            </tr>
+        @endforelse
     </tbody>
     <tfoot>
         <tr>

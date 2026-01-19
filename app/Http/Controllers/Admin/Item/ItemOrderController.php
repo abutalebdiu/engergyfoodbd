@@ -37,17 +37,13 @@ class ItemOrderController extends Controller
             $data['start_date'] = $request->start_date;
             $data['end_date'] = $request->end_date;
             $query->whereBetween('date', [$request->start_date, $request->end_date]);
-        }
-        else {
+        } else {
             $query->where('created_at', '>=', Carbon::now()->subHours(100));
         }
 
-
-
-
         if($request->ajax()){
 
-            $data['items'] = $query->latest()->paginate(200);
+            $data['items'] = $query->latest()->paginate(20);
 
             return response()->json([
                 "status" => true,
@@ -109,13 +105,12 @@ class ItemOrderController extends Controller
     public function updateProduct(Request $request, $id)
     {
         $item = Item::find($id);
+
         if (!$item) {
             return response()->json(['error' => 'Item not found.'], 404);
         }
 
-        // Retrieve the existing products from the session, or initialize an empty array if none exist
         $items = session()->get('items', []);
-        // Check if the product ID is already in the session
 
         $key = array_search($id, array_column($items, 'id'));
         if ($key !== false) {
@@ -125,7 +120,6 @@ class ItemOrderController extends Controller
 
         session()->forget('items');
 
-        // Add the remaining products back to the session
         session()->put('items', $items);
 
         return response()->json(['success' => 'Items updated successfully.']);
@@ -135,15 +129,18 @@ class ItemOrderController extends Controller
     public function getProducts()
     {
 
-        $items = session()->get('items');
+        $items = session()->get('items', []);
 
+        if (!empty($items)) {
+            $html = view(
+                'admin.items.item-orders.inc.response_table_body',
+                compact('items')
+            )->render();
 
-        if ($items) {
-            $html = view('admin.items.item-orders.inc.response_table_body', compact('items'))->render();
             return response()->json(['html' => $html]);
-        } else {
-            return response()->json(['error' => 'Add item first.'], 404);
         }
+
+        return response()->json(['error' => 'Add item first'], 404);
     }
 
     public function removeProduct(Request $request, $id)
@@ -166,7 +163,6 @@ class ItemOrderController extends Controller
 
         session()->forget('items');
 
-        // Add the remaining items back to the session
 
         session()->put('items', $items);
 

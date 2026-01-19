@@ -20,37 +20,57 @@ class ItemController extends Controller
     public function index(Request $request)
     {
         Gate::authorize('admin.item.list');
-        $data['categories'] = ItemCategory::get();
 
-        $query = Item::query();
+        $data['categories'] = cache()->remember('item_categories', 86400, function() {
+            return ItemCategory::select('id', 'name')->get();
+        });
 
-        if($request->item_category_id)
-        {
-            $query->where('item_category_id',$request->item_category_id);
+        $query = Item::query()
+            ->select('items.*')
+            ->with('category:id,name')
+            ->with('unit:id,name')
+            ->orderBy('items.name', 'asc');
+
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
         }
-        // else{
-        //     $query->where('item_category_id',1);
-        // }
 
-        $data['itemsgroupes'] = $query->orderby('name', 'asc')->with('category')->get()->groupby('item_category_id');
+        if ($request->filled('item_category_id')) {
+            $query->where('item_category_id', $request->item_category_id);
+        }
 
-        if($request->ajax())
-        {
+        if ($request->ajax()) {
+            $perPage = $request->get('per_page', 10);
+            $items = $query->paginate($perPage);
+            $data['itemsgroupes'] = $items->groupBy('item_category_id');
+            $data['pagination'] = $items;
+
             return response()->json([
                 "status" => true,
                 "message" => "Data show successfully!",
-                "html" => view('admin.items.items.inc.__item_table', $data)->render()
+                "html" => view('admin.items.items.inc.__item_table', $data)->render(),
+                "pagination" => view('admin.items.items.inc.__pagination', $data)->render()
             ], 200);
         }
 
         if ($request->has('pdf')) {
+            $data['itemsgroupes'] = $query->get()->groupBy('item_category_id');
             $pdf = PDF::loadView('admin.items.items.index_pdf', $data);
             return $pdf->stream('items_list.pdf');
-        } elseif ($request->has('excel')) {
-            return Excel::download(new ItemExport($data), 'Item_list.xlsx');
-        } else {
-            return view('admin.items.items.index', $data);
         }
+
+        if ($request->has('excel')) {
+            $data['itemsgroupes'] = $query->get()->groupBy('item_category_id');
+            return Excel::download(new ItemExport($data), 'Item_list.xlsx');
+        }
+
+        $perPage = $request->get('per_page', 15);
+        $items = $query->paginate($perPage);
+        $data['itemsgroupes'] = $items->groupBy('item_category_id');
+        $data['pagination'] = $items;
+
+        return view('admin.items.items.index', $data);
     }
 
     public function create($id = null)

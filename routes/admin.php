@@ -267,7 +267,7 @@ Route::group(['middleware' => ['auth:web,admin']], function () {
             Route::get('index', [ItemCategoryController::class, 'index'])->name('index');
             Route::get('create/{id?}', [ItemCategoryController::class, 'create'])->name('create');
             Route::post('store/{id?}', [ItemCategoryController::class, 'store'])->name('store');
-            Route::delete('destroy/{id}', [ItemCategoryController::class, 'destroy'])->name('destroy');
+            Route::get('destroy/{id}', [ItemCategoryController::class, 'destroy'])->name('destroy');
             Route::get('status/{id}', [ItemCategoryController::class, 'status'])->name('status');
         });
 
@@ -275,7 +275,7 @@ Route::group(['middleware' => ['auth:web,admin']], function () {
             Route::get('index', [ItemBrandController::class, 'index'])->name('index');
             Route::get('create/{id?}', [ItemBrandController::class, 'create'])->name('create');
             Route::post('store/{id?}', [ItemBrandController::class, 'store'])->name('store');
-            Route::delete('destroy/{id}', [ItemBrandController::class, 'destroy'])->name('destroy');
+            Route::get('destroy/{id}', [ItemBrandController::class, 'destroy'])->name('destroy');
             Route::get('status/{id}', [ItemBrandController::class, 'status'])->name('status');
         });
 

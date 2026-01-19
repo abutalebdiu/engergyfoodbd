@@ -173,9 +173,9 @@
 
             function getProducts() {
                 var url = "{{ route('admin.items.itemOrder.getProducts') }}";
-                // Send AJAX request
 
                 $('.tbodyappend').empty();
+
                 $.ajax({
                     type: "get",
                     url: url,

@@ -17,6 +17,18 @@
                                 value="{{ old('name', @$category->name) }}">
                         </div>
                     </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label text-capitalize">@lang('Status')</label>
+                            <select name="status" id="status" class="form-select">
+                                <option value="Active" {{ old('status', @$category->status) == 'Active' ? 'selected' : '' }}> Active</option>
+                                <option value="Inactive" {{ old('status', @$category->status) == 'Inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+
                 </div>
                 <div class="col-12 col-md-3">
                     <button type="submit" class="mt-4 btn btn-primary w-100">@lang('Submit')
