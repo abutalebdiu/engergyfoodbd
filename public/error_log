@@ -1,0 +1,123 @@
+[10-Oct-2024 20:12:37 Asia/Dhaka] PHP Fatal error:  Maximum execution time of 30 seconds exceeded in /home/softtech/bakery.softech.com.bd/vendor/laravel/framework/src/Illuminate/Database/Connection.php on line 430
+[10-Oct-2024 20:16:08 Asia/Dhaka] PHP Fatal error:  Maximum execution time of 30 seconds exceeded in /home/softtech/bakery.softech.com.bd/vendor/laravel/framework/src/Illuminate/Events/Dispatcher.php on line 243
+[10-Oct-2024 20:52:35 Asia/Dhaka] PHP Fatal error:  Maximum execution time of 30 seconds exceeded in /home/softtech/bakery.softech.com.bd/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Relations/Concerns/InteractsWithDictionary.php on line 21
+[22-Oct-2024 01:18:33 Asia/Dhaka] PHP Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 156660264 bytes) in /home/softtech/bakery.softech.com.bd/vendor/intervention/image/src/Drivers/Gd/Decoders/FilePathImageDecoder.php on line 37
+[22-Oct-2024 01:20:16 Asia/Dhaka] PHP Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 156660264 bytes) in /home/softtech/bakery.softech.com.bd/vendor/intervention/image/src/Drivers/Gd/Decoders/FilePathImageDecoder.php on line 37
+[22-Oct-2024 01:20:46 Asia/Dhaka] PHP Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 156660264 bytes) in /home/softtech/bakery.softech.com.bd/vendor/intervention/image/src/Drivers/Gd/Decoders/FilePathImageDecoder.php on line 37
+[22-Oct-2024 01:21:57 Asia/Dhaka] PHP Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 156660264 bytes) in /home/softtech/bakery.softech.com.bd/vendor/intervention/image/src/Drivers/Gd/Decoders/FilePathImageDecoder.php on line 37
+[22-Oct-2024 01:22:47 Asia/Dhaka] PHP Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 156660264 bytes) in /home/softtech/bakery.softech.com.bd/vendor/intervention/image/src/Drivers/Gd/Decoders/FilePathImageDecoder.php on line 37
+[22-Oct-2024 01:24:12 Asia/Dhaka] PHP Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 156660264 bytes) in /home/softtech/bakery.softech.com.bd/vendor/intervention/image/src/Drivers/Gd/Decoders/FilePathImageDecoder.php on line 37
+[23-Oct-2024 01:02:22 Asia/Dhaka] PHP Fatal error:  Maximum execution time of 30 seconds exceeded in /home/softtech/bakery.softech.com.bd/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Concerns/HasAttributes.php on line 1758
+[24-Oct-2024 06:27:15 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:27:15 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:27:15 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php(45): {closure}('48a637564212566...', '/home/softtech/...')
+#1 /home/softtech/bakery.softech.com.bd/vendor/autoload.php(25): ComposerAutoloaderInitf46cb0fc175dd292c8d1d2d3e5080d67::getLoader()
+#2 /home/softtech/bakery.softech.com.bd/public/index.php(34): require('/home/softtech/...')
+#3 {main}
+  thrown in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:27:20 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:27:20 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:27:20 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php(45): {closure}('48a637564212566...', '/home/softtech/...')
+#1 /home/softtech/bakery.softech.com.bd/vendor/autoload.php(25): ComposerAutoloaderInitf46cb0fc175dd292c8d1d2d3e5080d67::getLoader()
+#2 /home/softtech/bakery.softech.com.bd/public/index.php(34): require('/home/softtech/...')
+#3 {main}
+  thrown in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:27:26 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:27:26 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:27:26 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php(45): {closure}('48a637564212566...', '/home/softtech/...')
+#1 /home/softtech/bakery.softech.com.bd/vendor/autoload.php(25): ComposerAutoloaderInitf46cb0fc175dd292c8d1d2d3e5080d67::getLoader()
+#2 /home/softtech/bakery.softech.com.bd/public/index.php(34): require('/home/softtech/...')
+#3 {main}
+  thrown in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:27:33 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:27:33 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:27:33 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php(45): {closure}('48a637564212566...', '/home/softtech/...')
+#1 /home/softtech/bakery.softech.com.bd/vendor/autoload.php(25): ComposerAutoloaderInitf46cb0fc175dd292c8d1d2d3e5080d67::getLoader()
+#2 /home/softtech/bakery.softech.com.bd/public/index.php(34): require('/home/softtech/...')
+#3 {main}
+  thrown in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:28:03 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:28:03 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:28:03 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php(45): {closure}('48a637564212566...', '/home/softtech/...')
+#1 /home/softtech/bakery.softech.com.bd/vendor/autoload.php(25): ComposerAutoloaderInitf46cb0fc175dd292c8d1d2d3e5080d67::getLoader()
+#2 /home/softtech/bakery.softech.com.bd/public/index.php(34): require('/home/softtech/...')
+#3 {main}
+  thrown in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:28:10 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:28:10 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[24-Oct-2024 06:28:10 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php(45): {closure}('48a637564212566...', '/home/softtech/...')
+#1 /home/softtech/bakery.softech.com.bd/vendor/autoload.php(25): ComposerAutoloaderInitf46cb0fc175dd292c8d1d2d3e5080d67::getLoader()
+#2 /home/softtech/bakery.softech.com.bd/public/index.php(34): require('/home/softtech/...')
+#3 {main}
+  thrown in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[01-Nov-2024 18:09:48 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[01-Nov-2024 18:09:48 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[01-Nov-2024 18:09:48 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php(45): {closure}('48a637564212566...', '/home/softtech/...')
+#1 /home/softtech/bakery.softech.com.bd/vendor/autoload.php(25): ComposerAutoloaderInitf46cb0fc175dd292c8d1d2d3e5080d67::getLoader()
+#2 /home/softtech/bakery.softech.com.bd/public/index.php(34): require('/home/softtech/...')
+#3 {main}
+  thrown in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[01-Nov-2024 18:09:48 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[01-Nov-2024 18:09:48 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[01-Nov-2024 18:09:48 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php(45): {closure}('48a637564212566...', '/home/softtech/...')
+#1 /home/softtech/bakery.softech.com.bd/vendor/autoload.php(25): ComposerAutoloaderInitf46cb0fc175dd292c8d1d2d3e5080d67::getLoader()
+#2 /home/softtech/bakery.softech.com.bd/public/index.php(34): require('/home/softtech/...')
+#3 {main}
+  thrown in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[01-Nov-2024 18:09:52 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[01-Nov-2024 18:09:52 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[01-Nov-2024 18:09:52 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php(45): {closure}('48a637564212566...', '/home/softtech/...')
+#1 /home/softtech/bakery.softech.com.bd/vendor/autoload.php(25): ComposerAutoloaderInitf46cb0fc175dd292c8d1d2d3e5080d67::getLoader()
+#2 /home/softtech/bakery.softech.com.bd/public/index.php(34): require('/home/softtech/...')
+#3 {main}
+  thrown in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[30-Nov-2024 06:33:14 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[30-Nov-2024 06:33:14 UTC] PHP Warning:  require(/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php): Failed to open stream: No such file or directory in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[30-Nov-2024 06:33:14 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/softtech/bakery.softech.com.bd/vendor/composer/../../app/Http/Helpers/helpers.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php(45): {closure}('48a637564212566...', '/home/softtech/...')
+#1 /home/softtech/bakery.softech.com.bd/vendor/autoload.php(25): ComposerAutoloaderInitf46cb0fc175dd292c8d1d2d3e5080d67::getLoader()
+#2 /home/softtech/bakery.softech.com.bd/public/index.php(34): require('/home/softtech/...')
+#3 {main}
+  thrown in /home/softtech/bakery.softech.com.bd/vendor/composer/autoload_real.php on line 41
+[30-Dec-2024 11:11:12 Asia/Dhaka] PHP Fatal error:  Trait "App\Http\Controllers\Admin\Report\getItemOrderPayments" not found in /home/softtech/bakery.softech.com.bd/app/Http/Controllers/Admin/Report/ReportController.php on line 46
+[30-Dec-2024 11:11:22 Asia/Dhaka] PHP Fatal error:  Trait "App\Http\Controllers\Admin\Report\getItemOrderPayments" not found in /home/softtech/bakery.softech.com.bd/app/Http/Controllers/Admin/Report/ReportController.php on line 46
+[30-Dec-2024 11:11:36 Asia/Dhaka] PHP Fatal error:  Trait "App\Http\Controllers\Admin\Report\getItemOrderPayments" not found in /home/softtech/bakery.softech.com.bd/app/Http/Controllers/Admin/Report/ReportController.php on line 46
+[04-Jan-2025 13:59:50 Asia/Dhaka] PHP Fatal error:  Cannot use App\Models\Reports\DailyReport as DailyReport because the name is already in use in /home/softtech/energyfoodbd.xyz/app/Http/Controllers/Admin/Report/DailyReportController.php on line 7
+[07-Jan-2025 23:33:20 Asia/Dhaka] PHP Fatal error:  Cannot use Illuminate\Support\Facades\DB as DB because the name is already in use in /home/softtech/energyfoodbd.xyz/app/Traits/SummeryReportTrait.php on line 36
+[13-Apr-2025 21:38:36 Asia/Dhaka] PHP Fatal error:  Class App\Exports\OrderDemandReport contains 1 abstract method and must therefore be declared abstract or implement the remaining methods (Maatwebsite\Excel\Concerns\FromView::view) in /home/softtech/energyfoodbd.xyz/app/Exports/OrderDemandReport.php on line 9
+[13-Apr-2025 21:38:58 Asia/Dhaka] PHP Fatal error:  Class App\Exports\OrderDemandReport contains 1 abstract method and must therefore be declared abstract or implement the remaining methods (Maatwebsite\Excel\Concerns\FromView::view) in /home/softtech/energyfoodbd.xyz/app/Exports/OrderDemandReport.php on line 9
+[04-Sep-2025 11:22:25 Asia/Dhaka] PHP Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 20480 bytes) in /home/softtech/energyfoodbd.xyz/vendor/dompdf/dompdf/src/Frame/Factory.php on line 198
+[02-Nov-2025 14:33:53 Asia/Dhaka] PHP Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 20117816 bytes) in /home/ncmymedu/energyfoodbd.xyz/vendor/laravel/framework/src/Illuminate/View/Concerns/ManagesLayouts.php on line 102
+[02-Nov-2025 22:26:16 Asia/Dhaka] PHP Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 20480 bytes) in /home/ncmymedu/energyfoodbd.xyz/vendor/laravel/framework/src/Illuminate/Database/Connection.php on line 430
+[06-Dec-2025 11:44:47 Asia/Dhaka] PHP Fatal error:  Maximum execution time of 300 seconds exceeded in /home/ncmymedu/energyfoodbd.xyz/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php on line 324
+[06-Dec-2025 11:47:13 Asia/Dhaka] PHP Fatal error:  Maximum execution time of 300 seconds exceeded in /home/ncmymedu/energyfoodbd.xyz/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Concerns/HasAttributes.php on line 604
+[06-Dec-2025 11:48:55 Asia/Dhaka] PHP Fatal error:  Maximum execution time of 300 seconds exceeded in /home/ncmymedu/energyfoodbd.xyz/vendor/laravel/framework/src/Illuminate/Database/Connection.php on line 1436
+[18-Dec-2025 10:55:55 Asia/Dhaka] PHP Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 20987904 bytes) in /home/ncmymedu/energyfoodbd.xyz/storage/framework/views/ed49c7bcc96d12708c4db9397f0d638a.php on line 44
+[21-Dec-2025 18:43:13 Asia/Dhaka] PHP Fatal error:  Cannot redeclare App\Models\Distribution\Distribution::distributionorderpayments() in /home/ncmymedu/energyfoodbd.xyz/app/Models/Distribution/Distribution.php on line 42
+[21-Dec-2025 18:43:51 Asia/Dhaka] PHP Fatal error:  Cannot redeclare App\Models\Distribution\Distribution::distributionorderpayments() in /home/ncmymedu/energyfoodbd.xyz/app/Models/Distribution/Distribution.php on line 42
+[03-Jan-2026 14:41:56 Asia/Dhaka] PHP Fatal error:  Namespace declaration statement has to be the very first statement or after any declare call in the script in /home/ncmymedu/energyfood.xyz/app/Models/Account/AccountCloseStatement.php on line 3
+[03-Jan-2026 14:42:12 Asia/Dhaka] PHP Fatal error:  Namespace declaration statement has to be the very first statement or after any declare call in the script in /home/ncmymedu/energyfood.xyz/app/Models/Account/AccountCloseStatement.php on line 3
+[14-Jan-2026 13:49:23 Asia/Dhaka] PHP Fatal error:  Cannot use App\Models\Setting\Year as Year because the name is already in use in /home/ncmymedu/energyfood.xyz/app/Http/Controllers/Admin/HR/SalaryPaymentHistoryController.php on line 11
+[14-Jan-2026 13:49:24 Asia/Dhaka] PHP Fatal error:  Cannot use App\Models\Setting\Year as Year because the name is already in use in /home/ncmymedu/energyfood.xyz/app/Http/Controllers/Admin/HR/SalaryPaymentHistoryController.php on line 11
+[14-Jan-2026 13:49:47 Asia/Dhaka] PHP Fatal error:  Cannot use App\Models\Setting\Year as Year because the name is already in use in /home/ncmymedu/energyfood.xyz/app/Http/Controllers/Admin/HR/SalaryPaymentHistoryController.php on line 11
+[14-Jan-2026 13:49:49 Asia/Dhaka] PHP Fatal error:  Cannot use App\Models\Setting\Year as Year because the name is already in use in /home/ncmymedu/energyfood.xyz/app/Http/Controllers/Admin/HR/SalaryPaymentHistoryController.php on line 11
+[14-Jan-2026 13:50:01 Asia/Dhaka] PHP Fatal error:  Cannot use App\Models\Setting\Year as Year because the name is already in use in /home/ncmymedu/energyfood.xyz/app/Http/Controllers/Admin/HR/SalaryPaymentHistoryController.php on line 11

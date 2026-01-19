@@ -1,0 +1,38 @@
+body {
+    font-size: 13px;
+}
+
+.table th {
+    font-size: 13px;
+}
+
+.table td {
+    font-size: 12px;
+}
+
+.table {
+    padding: 5px 3px;
+}
+
+.table>:not(caption)>*>* {
+    padding: 3px 5px;
+}
+
+
+.sidebar-wrapper .metismenu a {
+    font-size: 13px;
+    padding: 5px 10px;
+}
+
+.sidebar-wrapper .metismenu ul a {
+    font-size: 13px;
+    padding: 4px 10px 4px 10px;
+}
+
+input.form-control {
+    padding: 5px;
+}
+
+select.form-select {
+    padding: 5px;
+}

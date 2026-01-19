@@ -1,0 +1,85 @@
+{
+    "breadcrumb": {
+        "builder": true,
+        "no_selection": true,
+        "name": "Breadcrumb Section",
+        "content": {
+            "images": {
+                "image": {
+                    "size": "1350x360"
+                }
+            }
+        }
+    },
+   
+    "social_media": {
+        "builder": true,
+        "no_selection": true,
+        "name": "Social Media Section",
+        "element": {
+            "name": "text",
+            "link": "text",
+            "icon": "icon",
+            "modal": true
+
+        }
+    },
+    
+    "footer": {
+        "builder": true,
+        "no_selection": true,
+        "name": "Footer Section",
+        "content": {
+            "address": "text",
+            "address_ar": "text",
+            "email": "text",
+            "mobile": "text"
+        }
+    },
+    "about_section": {
+        "builder": true,
+        "no_selection": false,
+        "name": "About Section",
+        "content": {
+            "images": {
+                "image": {
+                    "size": "615x340"
+                }
+            },
+            "title": "text",
+            "title_ar": "text",
+            "description": "textarea-nic",
+            "description_ar": "textarea-nic"
+        }
+    },
+   
+    "banner": {
+        "builder": true,
+        "no_selection": true,
+        "name": "Banner Section",
+        "element": {
+            "images": {
+                "slider": {
+                    "size": "1350x360"
+                },
+                "slider_ar": {
+                    "size": "1350x360"
+                }
+            },
+            "title": "text",
+            "modal": false
+        }
+    },
+    
+    "policy_pages": {
+        "builder": true,
+        "no_selection":true,
+        "name": "Policy Pages",
+        "element": {
+            "title": "text",
+            "details": "textarea-nic",
+            "details_ar": "textarea-nic",
+            "modal": false
+        }
+    }
+}

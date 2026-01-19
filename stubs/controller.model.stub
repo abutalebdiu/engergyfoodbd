@@ -1,0 +1,71 @@
+<?php
+
+namespace {{ namespace }}\Admin;
+
+use {{ namespace }}\Controller;
+use {{ namespacedModel }};
+use {{ namespacedRequests }}
+
+
+class {{ class }} extends Controller
+{
+
+    public function index()
+    {
+        $data['{{ model }}s'] = {{ model }}::active()->get();
+
+        return view('admin.{{ model }}.view',$data);
+    }
+
+    public function create()
+    {
+        return view('admin.{{ model }}.create');
+    }
+
+    public function store({{ storeRequest }} $request)
+    {
+        $request->validate([
+            'name' => 'required',
+        ]);
+
+        {{ model }}::create(array_merge($request->all(), [
+            'entry_id'  => auth('admin')->user()->id,
+            'status'    => 'Active'
+        ]));
+
+        $notify[] = ['success', '{{ model }} successfully Added'];
+        return to_route('admin.{{ model }}.index')->withNotify($notify);
+    }
+
+    public function show({{ model }} ${{ modelVariable }})
+    {
+         return view('admin.{{ model }}.show',compact('{{ modelVariable }}'));
+    }
+
+    public function edit({{ model }} ${{ modelVariable }})
+    {
+        return view('admin.{{ model }}.edit',compact('{{ modelVariable }}'));
+    }
+
+    public function update({{ updateRequest }} $request, {{ model }} ${{ modelVariable }})
+    {
+        $request->validate([
+            'name' => 'required',
+        ]);
+
+        ${{ modelVariable }}->update(array_merge($request->all(), [
+            'edit_id'  => auth('admin')->user()->id,
+            'edit_at'  => now(),
+        ]));
+
+        $notify[] = ['success', '{{ model }} successfully Updated'];
+        return to_route('admin.{{ model }}.index')->withNotify($notify);
+    }
+
+    public function destroy({{ model }} ${{ modelVariable }})
+    {
+        ${{ modelVariable }}->delete();
+        $notify[] = ['success', "{{ model }} deleted successfully"];
+        return back()->withNotify($notify);
+    }
+}
