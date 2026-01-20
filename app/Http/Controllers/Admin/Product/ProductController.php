@@ -32,7 +32,6 @@ class ProductController extends Controller
 
         $query = Product::with('department');
 
-        // Filters
         if ($request->code) {
             $data['code'] = $request->code;
             $query->where('code', 'like', '%' . $request->code . '%');
@@ -45,18 +44,15 @@ class ProductController extends Controller
             $data['department_id'] = $request->department_id;
             $query->where('department_id', $request->department_id);
         }
-        // else{
-        //      $query->where('department_id', 2);
-        // }
         
-        // For grouped products (not paginated, grouped properly)
-        $data['productswithgroupes'] = $query->get()->groupBy('department_id');
+
 
         // Handle AJAX request
         if ($request->ajax()) {
-             // For main listing
-            $productList = $query->latest()->paginate(15)->withQueryString();
+            $productList = $query->latest()->paginate(10)->withQueryString();
+
             $data['productss'] = $productList;
+            $data['productswithgroupes'] = $productList->getCollection()->groupBy('department_id');
 
             return response()->json([
                 "status" => true,
@@ -64,6 +60,9 @@ class ProductController extends Controller
                 "html"   => view('admin.products.products.inc.product_table', $data)->render(),
             ]);
         }
+
+
+        $data['productswithgroupes'] = $query->get()->groupBy('department_id');
 
         $productList = $query->latest()->get();
         $data['productss'] = $productList;

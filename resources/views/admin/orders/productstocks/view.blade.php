@@ -77,15 +77,21 @@
                             $phystockvalue = 0;
                             $getstockvalue = 0;
                         @endphp
+
+
+                         @php
+                            $i = ($productstocks->currentPage() - 1) * $productstocks->perPage() + 1;
+                        @endphp
+
                         @forelse($productstocks as $item)
                         
-                        @php
-                            $phystockvalue += $item->physical_stock * $item->product->sale_price;
-                            $getstockvalue += $item->current_stock * $item->product->sale_price;
-                        @endphp
+                            @php
+                                $phystockvalue += $item->physical_stock * $item->product->sale_price;
+                                $getstockvalue += $item->current_stock * $item->product->sale_price;
+                            @endphp
                           
                             <tr>
-                                <td> {{ en2bn($loop->iteration) }} </td>
+                                <td> {{ en2bn($i++) }} </td>
                                 <td> {{ en2bn(Date('d-m-Y', strtotime($item->date))) }} </td>
                                 <td style="text-align: left"> {{ optional($item->month)->name }}-{{ $item->year }}</td>
                                 <td style="text-align: left"> {{ optional($item->product)->name }}</td>
@@ -171,6 +177,11 @@
                         </tr>
                     </tfoot>
                 </table><!-- table end -->
+            </div>
+
+            <!-- pagination start -->
+            <div class="d-flex justify-content-start mt-3">
+                {!! $productstocks->links() !!}
             </div>
         </div>
     </div>

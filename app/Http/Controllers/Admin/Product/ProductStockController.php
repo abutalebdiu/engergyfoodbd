@@ -39,14 +39,22 @@ class ProductStockController extends Controller
              $query->where('year', Date('Y'));
         }
 
-        $data['productstocks'] = $query->get();
 
         if ($request->has('search')) {
+
+            $data['productstocks'] = $query->paginate(50)->withQueryString();
+            
             return view('admin.orders.productstocks.view', $data);
         } elseif ($request->has('pdf')) {
+
+            $data['productstocks'] = $query->get();
+
             $pdf =  PDF::loadView('admin.orders.productstocks.product_stock_export', $data);
             return $pdf->stream('product_stock_list.pdf');
         } else {
+            $data['productstocks'] = $query->paginate(50)->withQueryString();
+
+
             return view('admin.orders.productstocks.view', $data);
         }
     }

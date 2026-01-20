@@ -59,12 +59,6 @@
                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
             });
-            $("#name").on("keyup", function() {
-                var value = $(this).val().toLowerCase();
-                $("#productsTable tr").filter(function() {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                });
-            });
         });
     </script>
 
@@ -74,12 +68,18 @@
 
             $('#search').on('click', function(e){
                 e.preventDefault();
-
                 getLists("{{ route('admin.product.index') }}", "table", "searchForm");
             });
 
-
             getLists("{{ route('admin.product.index') }}", "table");
+
+        });
+
+
+        $(document).on('click', '.pagination a', function(e) {
+            e.preventDefault();
+            let page = $(this).attr('href').split('page=')[1];
+            getLists("{{ route('admin.product.index') }}", "table", "searchForm", page);
         });
     </script>
 @endpush

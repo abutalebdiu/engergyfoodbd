@@ -20,7 +20,7 @@
     </thead>
     <tbody>
         @php
-            $i = 1;
+            $i = ($productss->currentPage() - 1) * $productss->perPage() + 1;
         @endphp
         @foreach ($productswithgroupes as $departmentId => $products)
             @php
@@ -113,3 +113,10 @@
         @endforeach
     </tbody>
 </table>
+
+
+@if ($productss->hasPages())
+    <div class="card-footer">
+        {{ $productss->links() }}
+    </div>
+@endif
