@@ -65,111 +65,6 @@ class ItemOrderController extends Controller
         }
     }
 
-
-    public function addProduct(Request $request, $id)
-    {
-        $product = Item::find($id);
-
-
-        if (!$product) {
-            return response()->json(['error' => 'Product not found.'], 404);
-        }
-
-        // find customer
-
-        if ($request->user_id) {
-            $user = User::find($request->user_id);
-            if ($user) {
-                session()->put('customer', $user);
-            }
-        }
-
-        // Retrieve the existing products from the session, or initialize an empty array if none exist
-        $items = session()->get('items') ?? ['id' => $id, 'qty' => 1];
-
-        // Check if the product ID is already in the session
-        if (!in_array($product->id, array_column($items, 'id'))) {
-            // Add the item to the session if it's not already there
-            // previous qty unset
-            unset($product['qty']);
-            // set product qty to 1
-            $product['qty'] = 1;
-            session()->push('items', $product);
-        } else {
-            return response()->json(['error' => 'Item already added.'], 400);
-        }
-
-        return response()->json(['success' => 'Product added successfully.']);
-    }
-
-    public function updateProduct(Request $request, $id)
-    {
-        $item = Item::find($id);
-
-        if (!$item) {
-            return response()->json(['error' => 'Item not found.'], 404);
-        }
-
-        $items = session()->get('items', []);
-
-        $key = array_search($id, array_column($items, 'id'));
-        if ($key !== false) {
-            unset($items[$key][$request->type]);
-            $items[$key][$request->type] = $request->val;
-        }
-
-        session()->forget('items');
-
-        session()->put('items', $items);
-
-        return response()->json(['success' => 'Items updated successfully.']);
-    }
-
-
-    public function getProducts()
-    {
-
-        $items = session()->get('items', []);
-
-        if (!empty($items)) {
-            $html = view(
-                'admin.items.item-orders.inc.response_table_body',
-                compact('items')
-            )->render();
-
-            return response()->json(['html' => $html]);
-        }
-
-        return response()->json(['error' => 'Add item first'], 404);
-    }
-
-    public function removeProduct(Request $request, $id)
-    {
-
-        $items = session()->get('items');
-
-
-        if (!$items) {
-            return response()->json(['error' => 'No items found.'], 404);
-        }
-
-        // Remove the items from the session
-
-        $key = array_search($id, array_column($items, 'id'));
-
-        if ($key !== false) {
-            unset($items[$key]);
-        }
-
-        session()->forget('items');
-
-
-        session()->put('items', $items);
-
-        return response()->json(['success' => 'Items removed successfully.']);
-    }
-
-
     /**
      * Show the form for creating a new resource.
      */
@@ -179,6 +74,9 @@ class ItemOrderController extends Controller
 
         $data['itemcategories'] = ItemCategory::get();
         $data['items'] = Item::orderby('name', 'asc')->get();
+
+        // return $data;
+
         $data['suppliers'] = User::where('type', 'supplier')->get();
         return view('admin.items.item-orders.create', $data);
     }
@@ -189,82 +87,75 @@ class ItemOrderController extends Controller
     public function store(Request $request)
     {
         Gate::authorize('admin.itemorder.store');
+
         $request->validate([
-            'product_id' => 'required|array',
-            'product_id.*' => 'required|exists:items,id',
-            'supplier_id' => 'required|exists:users,id',
-            'qty' => 'required|array',
-            'qty.*' => 'required|numeric|min:0',
-            'amount' => 'required|array',
-            'amount.*' => 'required|numeric|min:0',
-            'grand_total' => 'required|numeric|min:0',
+            'supplier_id'        => 'required|exists:users,id',
+            'date'               => 'required|date',
+            'items'              => 'required|array|min:1',
+
+            'items.*.id'         => 'required|exists:items,id',
+            'items.*.qty'        => 'required|numeric|min:1',
+            'items.*.price'      => 'required|numeric|min:0',
+            'items.*.total'      => 'required|numeric|min:0',
+
+            'sub_total'          => 'required|numeric|min:0',
+            'discount'           => 'nullable|numeric|min:0',
+            'transport_cost'     => 'nullable|numeric|min:0',
+            'labour_cost'        => 'nullable|numeric|min:0',
+            'grand_total'        => 'required|numeric|min:0',
         ]);
 
-        // return $request->product_id[0];
-        $supplier = User::find($request->supplier_id);
-        // DB::beginTransaction();
-        // try {
-        //  Create ItemOrder
+        $supplier = User::findOrFail($request->supplier_id);
+
         $order = ItemOrder::create([
-            "date" => $request->date ?? date('Y-m-d'),
-            "reference_invoice_no" => $request->reference_invoice_no,
-            "supplier_id" => $request->supplier_id,
-            "subtotal" => $request->sub_total,
-            "discount" => $request->discount,
-            "transport_cost" => $request->transport_cost,
-            "labour_cost"  => $request->labour_cost,
-            "totalamount"  => $request->grand_total,
-            "previous_due" => $supplier->payable($supplier->id),
-            "payment_status" => "Unpaid",
-            "status" => "Active",
-            "entry_id" => auth('admin')->user()->id,
+            'date'                 => $request->date,
+            'reference_invoice_no' => $request->reference_invoice_no,
+            'supplier_id'          => $supplier->id,
+
+            'subtotal'             => $request->sub_total,
+            'discount'             => $request->discount ?? 0,
+            'transport_cost'       => $request->transport_cost ?? 0,
+            'labour_cost'          => $request->labour_cost ?? 0,
+            'totalamount'          => $request->grand_total,
+
+            'previous_due'         => $supplier->payable($supplier->id),
+            'payment_status'       => 'Unpaid',
+            'status'               => 'Active',
+            'entry_id'             => auth('admin')->id(),
         ]);
 
-        // Set a custom order ID
-        $order->iid = "I000" . $order->id;
-        $order->due_balance = $supplier->payable($supplier->id);
+        $order->iid = 'I000' . $order->id;
         $order->paid_amount = 0;
+        $order->due_balance = $supplier->payable($supplier->id);
         $order->supplier_total_payable = $supplier->payable($supplier->id);
         $order->save();
 
-        foreach ($request->product_id as $key => $productId) {
-            if (!isset($request->qty[$key], $request->amount[$key])) {
-                $notify[] = ['error', "Incomplete data for product at index $key"];
-                return back()->withNotify($notify);
-            }
-            $detail =  ItemOrderDetail::create([
-                "item_order_id" => $order->id,
-                "item_id"       => $productId,
-                "price"         => round($request->amount[$key] / $request->qty[$key], 2),
-                "qty"           => $request->qty[$key],
-                "total"         => $request->amount[$key],
-                "stock"         => $request->qty[$key],
-                "status"        => 'Active',
+        foreach ($request->items as $item) {
+
+            ItemOrderDetail::create([
+                'item_order_id' => $order->id,
+                'item_id'       => $item['id'],
+                'price'         => $item['price'],
+                'qty'           => $item['qty'],
+                'total'         => $item['total'],
+                'stock'         => $item['qty'],
+                'status'        => 'Active',
             ]);
 
-            $product = Item::findOrFail($productId);
-            $product->price = $detail->price;
-            $product->qty = $product->stock($product->id);
+            $product = Item::findOrFail($item['id']);
+            $product->price = $item['price'];
+            $product->qty   = $product->stock($product->id);
             $product->save();
         }
 
-
-        // Clear specific sessions
         session()->forget('items');
         session()->forget('customer');
 
-        // Notify success
-        $notify[] = ['success', "Item Order created successfully"];
+        $notify[] = ['success', 'Item Order created successfully'];
 
-        //   DB::commit();
-        return to_route('admin.items.itemOrder.show', $order->id)->withNotify($notify);
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     $notify[] = ['error', "An error occurred while processing your request: " . $e->getMessage()];
-        //     return back()->withNotify($notify);
-        // }
+        return to_route('admin.items.itemOrder.show', $order->id)
+            ->withNotify($notify);
     }
-
 
     /**
      * Display the specified resource.
@@ -286,6 +177,7 @@ class ItemOrderController extends Controller
 
         $data['itemorder'] = ItemOrder::find($id);
         $data['items'] = Item::get();
+        $data['suppliers'] = User::where('type', 'supplier')->get();
         return view('admin.items.item-orders.edit', $data);
     }
 
@@ -297,94 +189,87 @@ class ItemOrderController extends Controller
         Gate::authorize('admin.itemorder.update');
 
         DB::beginTransaction();
+
         try {
-            // Find the order
-            $order = ItemOrder::where('id', $id)->where('payment_status', 'Unpaid')->first();
+
+            $order = ItemOrder::where('id', $id)
+                ->where('payment_status', 'Unpaid')
+                ->first();
 
             if (!$order) {
-                $notify[] = ['error', 'Order not found or is already paid.'];
+                $notify[] = ['error', 'Order not found or already paid'];
                 return back()->withNotify($notify);
             }
 
-            // Update the order
             $order->update([
-                "date" => $request->date ?? date('Y-m-d'),
-                "reference_invoice_no" => $request->reference_invoice_no,
-                "supplier_id" => $request->supplier_id,
-                "subtotal" => $request->sub_total,
-                "discount" => $request->discount,
-                "transport_cost" => $request->transport_cost,
-                "labour_cost" => $request->labour_cost,
-                "totalamount" => $request->grand_total,
-                "payment_status" => "Unpaid",
-                "status" => "Active",
-                "entry_id" => auth('admin')->user()->id,
+                'date'               => $request->date ?? now()->format('Y-m-d'),
+                'reference_invoice_no' => $request->reference_invoice_no,
+                'supplier_id'        => $request->supplier_id,
+                'subtotal'           => $request->sub_total ?? 0,
+                'discount'           => $request->discount ?? 0,
+                'transport_cost'     => $request->transport_cost ?? 0,
+                'labour_cost'        => $request->labour_cost ?? 0,
+                'totalamount'        => $request->grand_total ?? 0,
+                'status'             => 'Active',
+                'entry_id'           => auth('admin')->id(),
             ]);
 
-            // Set a custom order ID
-            $order->iid = "I000" . $order->id;
-            $order->save();
-
-            // Process the products
-
-            $order->itemOrderDetail()->each(function ($itemOrderDetail) {
-                $itemOrderDetail->delete();
-            });
-
-
-            foreach ($request->product_id as $key => $productId) {
-                if (!isset($request->qty[$key], $request->price[$key])) {
-                    $notify[] = ['error', "Incomplete data for product at index $key"];
-                    return back()->withNotify($notify);
-                }
-
-
-                ItemOrderDetail::create([
-                    "item_order_id" => $order->id,
-                    "item_id" => $productId,
-                    "price" => $request->price[$key],
-                    "qty" => $request->qty[$key],
-                    "total" => floor($request->price[$key] * $request->qty[$key]),
-                    "stock" => $request->qty[$key],
-                    "status" => 'Active',
-                ]);
-
-                $product = Item::findOrFail($productId);
-                $product->qty = $product->stock($product->id);
-                $product->save();
-
-                // ItemOrderDetail::updateOrCreate(
-                //     [
-                //         "id" => $request->order_detial_id[$key],
-                //         "item_order_id" => $order->id,
-                //         "item_id" => $productId,
-                //     ],
-                //     [
-                //         "price" => $request->price[$key],
-                //         "qty" => $request->qty[$key],
-                //         "total" => round($request->price[$key] * $request->qty[$key]),
-                //         "stock" => $request->qty[$key],
-                //         "status" => 'Active',
-                //     ]
-                // );
+            if (!$order->iid) {
+                $order->iid = 'I000' . $order->id;
+                $order->save();
             }
 
-            // Clear specific sessions
-            session()->forget('items');
-            session()->forget('customer');
+            $order->itemOrderDetail()->delete();
 
-            // Notify success
-            $notify[] = ['success', "Item Order updated successfully"];
+
+            foreach ($request->items as $item) {
+
+                $productId = $item['id'] ?? null;
+                $qty       = (float) ($item['qty'] ?? 0);
+                $price     = (float) ($item['price'] ?? 0);
+
+                if (!$productId || $qty <= 0 || $price <= 0) {
+                    continue;
+                }
+
+                $total = round($qty * $price, 2);
+
+                ItemOrderDetail::create([
+                    'item_order_id' => $order->id,
+                    'item_id'       => $productId,
+                    'price'         => $price,
+                    'qty'           => $qty,
+                    'total'         => $total,
+                    'stock'         => $qty,
+                    'status'        => 'Active',
+                ]);
+
+                /* UPDATE PRODUCT STOCK */
+                $product = Item::find($productId);
+                if ($product) {
+                    $product->qty = $product->stock($product->id);
+                    $product->save();
+                }
+            }
+
+
+            session()->forget(['items', 'customer']);
+
             DB::commit();
-            return redirect()->route('admin.items.itemOrder.index')->withNotify($notify);
-        } catch (\Exception $e) {
+
+            $notify[] = ['success', 'Item Order updated successfully'];
+            return redirect()
+                ->route('admin.items.itemOrder.index')
+                ->withNotify($notify);
+        } catch (\Throwable $e) {
+
             DB::rollBack();
 
-            return $e->getMessage();
-            $notify[] = ['error', "An error occurred while processing your request: " . $e->getMessage()];
+            $notify[] = ['error', 'Something went wrong: ' . $e->getMessage()];
             return back()->withNotify($notify);
         }
     }
+
 
     /**
      * Remove the specified resource from storage.
