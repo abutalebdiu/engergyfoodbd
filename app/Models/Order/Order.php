@@ -9,6 +9,7 @@ use App\Models\HR\Employee;
 use App\Models\HR\Marketer;
 use App\Models\Account\OrderPayment;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Distribution\Distribution;
 
 class Order extends Model
 {
@@ -81,5 +82,10 @@ class Order extends Model
         return OrderPayment::where('order_id', $id)->sum('amount');
     }
 
+
+    public function distribution()
+    {
+        return $this->belongsTo(Distribution::class, 'distribution_id', 'id');
+    }
 
 }

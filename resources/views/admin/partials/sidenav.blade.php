@@ -503,6 +503,46 @@
                 <a href="javascript:;" class="has-arrow">
                     <div class="parent-icon"><i class="bi bi-gear"></i>
                     </div>
+                    <div class="menu-title">@lang('Distributor Panel') </div>
+                </a>
+                <ul>
+                    @if (Auth::guard('admin')->user()->hasPermission('admin.employee.list'))
+                        <li>
+                            <a href="{{ route('admin.distribution.index') }}"><i class="bi bi-circle"></i>
+                                @lang('Distributor List')</a>
+                        </li>
+                    @endif
+
+                    @if (Auth::guard('admin')->user()->hasPermission('admin.employee.list'))
+                        <li>
+                            <a href="{{ route('admin.distributor-quotations.index') }}"><i class="bi bi-circle"></i>
+                                @lang('Distributor Quotation List')</a>
+                        </li>
+                    @endif
+
+                    @if (Auth::guard('admin')->user()->hasPermission('admin.employee.list'))
+                        <li>
+                            <a href="{{ route('admin.distributor-orders.index') }}"><i class="bi bi-circle"></i>
+                                @lang('Distributor Orders List')</a>
+                        </li>
+                    @endif
+
+                    @if (Auth::guard('admin')->user()->hasPermission('admin.employee.list'))
+                        <li>
+                            <a href="{{ route('admin.distributor-payments.index') }}"><i class="bi bi-circle"></i>
+                                @lang('Distributor Payments')</a>
+                        </li>
+                    @endif
+
+                </ul>
+            </li>
+        @endif
+
+        @if (Auth::guard('admin')->user()->hasPermission('admin.setting.access.payroll'))
+            <li>
+                <a href="javascript:;" class="has-arrow">
+                    <div class="parent-icon"><i class="bi bi-gear"></i>
+                    </div>
                     <div class="menu-title">@lang('Payroll') </div>
                 </a>
                 <ul>
@@ -525,13 +565,7 @@
                                 @lang('Marketers')</a>
                         </li>
                     @endif
-                    
-                    @if (Auth::guard('admin')->user()->hasPermission('admin.employee.list'))
-                        <li>
-                            <a href="{{ route('admin.distribution.index') }}"><i class="bi bi-circle"></i>
-                                @lang('Distributor List')</a>
-                        </li>
-                    @endif
+                
 
 
 

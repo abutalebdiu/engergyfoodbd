@@ -11,19 +11,19 @@ use App\Http\Controllers\Admin\Item\UnitController;
 use App\Http\Controllers\Admin\Order\OrderController;
 
 use App\Http\Controllers\Admin\Report\AssetController;
-use App\Http\Controllers\Admin\Report\LiabilitieController;
 use App\Http\Controllers\Admin\HR\AttendanceController;
 use App\Http\Controllers\Admin\Product\StockController;
 use App\Http\Controllers\Admin\Item\ItemBrandController;
 use App\Http\Controllers\Admin\Item\ItemOrderController;
-
 use App\Http\Controllers\Admin\Item\ItemStockController;
-use App\Http\Controllers\Admin\Order\PerchaseController;
 
+use App\Http\Controllers\Admin\Order\PerchaseController;
 use App\Http\Controllers\Admin\Account\AccountController;
 
 use App\Http\Controllers\Admin\Account\DepositController;
+
 use App\Http\Controllers\Admin\Expense\ExpenseController;
+use App\Http\Controllers\Admin\HR\DistributionController;
 
 use App\Http\Controllers\Admin\Item\ItemReturnController;
 use App\Http\Controllers\Admin\Product\ProductController;
@@ -33,15 +33,15 @@ use App\Http\Controllers\Admin\Order\OrderDetailController;
 use App\Http\Controllers\Admin\Order\OrderReturnController;
 
 use App\Http\Controllers\Admin\Order\PointOfSaleController;
+use App\Http\Controllers\Admin\Report\LiabilitieController;
 use App\Http\Controllers\Admin\Account\ModuleTypeController;
 use App\Http\Controllers\Admin\Account\WithdrawalController;
 use App\Http\Controllers\Admin\Warehouse\WarehouseController;
-use App\Http\Controllers\Admin\Account\OfficialLoanController;
 
+use App\Http\Controllers\Admin\Account\OfficialLoanController;
 use App\Http\Controllers\Admin\Account\OrderPaymentController;
 use App\Http\Controllers\Admin\Expense\AssetExpenseController;
 use App\Http\Controllers\Admin\HR\OverTimeAllowanceController;
-use App\Http\Controllers\Admin\HR\DistributionController;
 use App\Http\Controllers\Admin\Order\PurchaseReturnController;
 use App\Http\Controllers\Admin\Product\ProductBrandController;
 use App\Http\Controllers\Admin\Product\ProductStockController;
@@ -78,9 +78,12 @@ use App\Http\Controllers\Admin\Expense\ExpensePaymentHistoryController;
 use App\Http\Controllers\Admin\Expense\MonthlyExpensePaymentController;
 use App\Http\Controllers\Admin\Product\CustomerProductDamageController;
 use App\Http\Controllers\Admin\Account\SupplierPayablePaymentController;
+use App\Http\Controllers\Admin\Distributors\DistributorPaymentController;
 use App\Http\Controllers\Admin\Expense\TransportExpensePaymentController;
 use App\Http\Controllers\Admin\Order\Quotation\QuotationDetailController;
 use App\Http\Controllers\Admin\Account\MarketerCommissionPaymentController;
+use App\Http\Controllers\Admin\Distributors\DistributorOrderReportController;
+use App\Http\Controllers\Admin\Distributors\DistributorQuotationReportController;
 
 Route::group(['middleware' => ['auth:web,admin']], function () {
 
@@ -334,5 +337,23 @@ Route::group(['middleware' => ['auth:web,admin']], function () {
     Route::resource('distribution', DistributionController::class);
     Route::get('distribution/status/change/{id}', [DistributionController::class, 'status'])->name('distribution.status.change');
     Route::get('distribution/{distribution}/statement', [DistributionController::class, 'statement'])->name('distribution.statement');
+
+
+    Route::group(['prefix' => 'distributor-quotations', 'as' => 'distributor-quotations.'], function () {
+        Route::get('/', [DistributorQuotationReportController::class, 'index'])->name('index');
+        Route::get('show', [DistributorQuotationReportController::class, 'show'])->name('show');
+    });
+
+
+    Route::group(['prefix' => 'distributor-orders', 'as' => 'distributor-orders.'], function () {
+        Route::get('/', [DistributorOrderReportController::class, 'index'])->name('index');
+        Route::get('show', [DistributorOrderReportController::class, 'show'])->name('show');
+        Route::get('show-pdf', [DistributorOrderReportController::class, 'downloadShowPdf'])->name('downloadShowPdf');
+    });
+
+    Route::group(['prefix' => 'distributor-payments', 'as' => 'distributor-payments.'], function () {
+        Route::get('/', [DistributorPaymentController::class, 'index'])->name('index');
+        Route::get('exportPdf', [DistributorPaymentController::class, 'exportPdf'])->name('exportPdf');
+    });
     
 });
