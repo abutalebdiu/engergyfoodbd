@@ -27,67 +27,65 @@ class EmployeeController extends Controller
     {
         Gate::authorize('admin.employee.list');
 
-        $query = Employee::query()->with('department');
+ 
+        $employeeQuery = Employee::with('department');
 
         if ($request->department_id) {
             $data['department_id'] = $request->department_id;
-            $query->where('department_id', $request->department_id);
+            $employeeQuery->where('department_id', $request->department_id);
         }
 
-        if($request->status)
-        {
-            $query->where('status', $request->status);
-        }
-        else{
-            $query->where('status', 'Active');
+        if ($request->status) {
+            $employeeQuery->where('status', $request->status);
+        } else {
+            $employeeQuery->where('status', 'Active');
         }
 
-        $data['employeesByDepartment'] = $query->get()->groupBy('department_id');
 
+        $departments = Department::whereHas('employees', function ($q) use ($employeeQuery) {
+            $q->mergeConstraintsFrom($employeeQuery);
+        })
+            ->with(['employees' => function ($q) use ($employeeQuery) {
+                $q->mergeConstraintsFrom($employeeQuery);
+            }])
+            ->paginate(2);
 
-        $data['salarySums'] = $query->get()->groupBy('department_id')->map(function ($employees) {
-            return $employees->sum('salary');
-        });
+ 
+        $data['employeesByDepartment'] = $departments->getCollection()
+            ->mapWithKeys(function ($department) {
+                return [
+                    $department->id => $department->employees
+                ];
+            });
 
-        $data['foodallowanceSums'] = $query->get()->groupBy('department_id')->map(function ($employees) {
-            return $employees->sum('food_allowance');
-        });
-        $data['empLoanAmountSums'] = $query->get()->groupBy('department_id')->map(function ($employees) {
-            return $employees->sum('loan_amount');
-        });
+        $data['salarySums'] = [];
+        $data['foodallowanceSums'] = [];
+        $data['empLoanAmountSums'] = [];
+        $data['empLoanPaidAmountSums'] = [];
+        $data['empLoanDueAmountSums'] = [];
 
-        $data['empLoanPaidAmountSums'] = $query->get()->groupBy('department_id')->map(function ($employees) {
-            return $employees->sum('loan_paid');
-        });
+        foreach ($data['employeesByDepartment'] as $deptId => $employees) {
+            $data['salarySums'][$deptId] = $employees->sum(function ($e) {
+                return $e->salary(); 
+            });
 
-        $data['empLoanDueAmountSums'] = $query->get()->groupBy('department_id')->map(function ($employees) {
-            return $employees->sum('loan_due');
-        });
+            $data['foodallowanceSums'][$deptId] = $employees->sum(fn($e) => $e->food_allowance);
+            $data['empLoanAmountSums'][$deptId] = $employees->sum(fn($e) => $e->loan_amount);
+            $data['empLoanPaidAmountSums'][$deptId] = $employees->sum(fn($e) => $e->loan_paid);
+            $data['empLoanDueAmountSums'][$deptId] = $employees->sum(fn($e) => $e->loan_due);
+        }
+
 
         $data['departments'] = Department::get();
-        
-        
-        
-        
-        // $getemployees = Employee::get();
-        
-        // foreach($getemployees as $emp)
-        // {
-        //     $emp->loan_amount   = $emp->totalloan($emp->id);
-        //     $emp->loan_paid     = $emp->paidloan($emp->id);
-        //     $emp->loan_due      = $emp->receiableloan($emp->id);
-        //     $emp->save();
-        // }
-     
+        $data['pagination'] = $departments;
 
-        if ($request->has('search')) {
-            return view('admin.hr.employees.view', $data);
-        } elseif ($request->has('pdf')) {
+     
+        if ($request->has('pdf')) {
             $pdf = PDF::loadView('admin.hr.employees.employee_pdf', $data);
             return $pdf->stream('Employee_list.pdf');
-        } else {
-            return view('admin.hr.employees.view', $data);
         }
+
+        return view('admin.hr.employees.view', $data);
     }
 
     public function create()

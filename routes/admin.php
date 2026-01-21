@@ -35,9 +35,10 @@ use App\Http\Controllers\Admin\Order\OrderReturnController;
 use App\Http\Controllers\Admin\Order\PointOfSaleController;
 use App\Http\Controllers\Admin\Report\LiabilitieController;
 use App\Http\Controllers\Admin\Account\ModuleTypeController;
+use App\Http\Controllers\Admin\Account\SettlementController;
 use App\Http\Controllers\Admin\Account\WithdrawalController;
-use App\Http\Controllers\Admin\Warehouse\WarehouseController;
 
+use App\Http\Controllers\Admin\Warehouse\WarehouseController;
 use App\Http\Controllers\Admin\Account\OfficialLoanController;
 use App\Http\Controllers\Admin\Account\OrderPaymentController;
 use App\Http\Controllers\Admin\Expense\AssetExpenseController;
@@ -63,6 +64,7 @@ use App\Http\Controllers\Admin\Order\Quotation\QuotationController;
 use App\Http\Controllers\Admin\Production\MakeProductionController;
 use App\Http\Controllers\Admin\Production\ProductionLossController;
 use App\Http\Controllers\Admin\Account\CustomerDuePaymentController;
+use App\Http\Controllers\Admin\Account\CustomerSettlementController;
 use App\Http\Controllers\Admin\Account\OrderReturnPaymentController;
 use App\Http\Controllers\Admin\Account\SupplierDuePaymentController;
 use App\Http\Controllers\Admin\Account\TransactionHistoryController;
@@ -161,6 +163,7 @@ Route::group(['middleware' => ['auth:web,admin']], function () {
 
     // Payroll
     Route::resource('employee', App\Http\Controllers\Admin\HR\EmployeeController::class);
+    
     Route::get('employee/status/change/{id}', [App\Http\Controllers\Admin\HR\EmployeeController::class, 'status'])->name('employee.status.change');
     Route::get('employee/payment/history/{id}', [App\Http\Controllers\Admin\HR\EmployeeController::class, 'paymenthistory'])->name('employee.payment.history');
     Route::get('employee/payment/history/pdf/{id}', [App\Http\Controllers\Admin\HR\EmployeeController::class, 'paymenthistorypdf'])->name('employee.payment.history.pdf');
@@ -224,6 +227,7 @@ Route::group(['middleware' => ['auth:web,admin']], function () {
     Route::resource('officialloan', OfficialLoanController::class);
     Route::resource('officialloanpayment', OfficialLoanPaymentController::class);
     Route::resource('overtimeallowance', OverTimeAllowanceController::class);
+    Route::resource('customersettlement', CustomerSettlementController::class);
 
 
 

@@ -150,12 +150,14 @@ class ManageCustomerController extends Controller
     public function detail($id)
     {
         Gate::authorize('admin.customer.detail');
+
         $user = User::findOrFail($id);
         $data['marketers']          = Marketer::where('status', 'Active')->get();
         $data['totalorders']        = Order::where('customer_id', $id)->count();
         $data['pendingorder']       = Order::where('customer_id', $id)->count();
         $data['deliveredorder']     = Order::where('customer_id', $id)->count();
         $data['distributors']       = Distribution::where('status', 'Active')->get();
+
         return view('admin.customers.detail', compact('user'), $data);
     }
 
@@ -259,28 +261,64 @@ class ManageCustomerController extends Controller
     {
         Gate::authorize('admin.customer.statement');
 
-        $start_date = $request->start_date ?? Date('Y-m-01');
-        $end_date = $request->end_date ?? Carbon::now()->format('Y-m-d');
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
 
         $data['customer'] = $this->getCustomer($id);
-        $data['transactionhistories'] = $this->getTransactionHistories($id, $start_date, $end_date);
-        $data['customerduepayments']   = $this->getCustomerDuePaymentHistories($id, $start_date, $end_date);
+
+        $currentMonthStart = date('Y-m-01'); 
+        $currentMonthEnd = date('Y-m-t');
+
+        $data['current_month_total_orders'] = $this->getTotalOrders($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_total_amount'] = $this->getTotalAmount($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_total_paid'] = $this->getTotalPaidAmount($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_total_commission_paid'] = $this->getTotalCommission($id, $currentMonthStart, $currentMonthEnd) + $this->getTotalCommissionInvoice($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_total_returns'] = $this->getTotalReturns($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_total_advance'] = $this->getTotalAdvance($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_total_due_payment'] = $this->getTotalCustomerDue($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_total_due'] = $this->calculateTotalDue($id, $currentMonthStart, $currentMonthEnd);
+
+        $data['overall_total_orders'] = $this->getTotalOrders($id, null, null);
+        $data['overall_total_amount'] = $this->getTotalAmount($id, null, null);
+        $data['overall_total_paid'] = $this->getTotalPaidAmount($id, null, null);
+        $data['overall_total_commission_paid'] = $this->getTotalCommission($id, null, null) + $this->getTotalCommissionInvoice($id, null, null);
+        $data['overall_total_returns'] = $this->getTotalReturns($id, null, null);
+        $data['overall_total_advance'] = $this->getTotalAdvance($id, null, null);
+        $data['overall_total_due_payment'] = $this->getTotalCustomerDue($id, null, null);
+        $data['overall_total_due'] = $this->calculateTotalDue($id, null, null);
+
+        $data['totalorders'] = $this->getTotalOrders($id, $start_date, $end_date);
+        $data['totalamount'] = $this->getTotalAmount($id, $start_date, $end_date);
+        $data['totalreturns'] = $this->getTotalReturns($id, $start_date, $end_date);
         $data['total_advance'] = $this->getTotalAdvance($id, $start_date, $end_date);
         $data['total_due_payment'] = $this->getTotalCustomerDue($id, $start_date, $end_date);
-        $data['totalorders'] = $this->getTotalOrders($id, $start_date, $end_date);
-        $data['totalreturns'] = $this->getTotalReturns($id, $start_date, $end_date);
-        $data['totalamount'] = $this->getTotalAmount($id, $start_date, $end_date);
         $data['total_due'] = $this->calculateTotalDue($id, $start_date, $end_date);
         $data['total_paid'] = $this->getTotalPaidAmount($id, $start_date, $end_date);
-        $data['opening_due'] = $this->getOpeningDue($id, $start_date, $end_date);
+        $data['opening_due'] = $this->getOpeningDue($id);
         $data['total_commission_paid'] = $this->getTotalCommission($id, $start_date, $end_date) + $this->getTotalCommissionInvoice($id, $start_date, $end_date);
-        $data['orderpayments'] = OrderPayment::where('customer_id', $id)->whereBetween('date', [$start_date, $end_date])->get();
- 
-        $data['orders'] = Order::where('customer_id', $id)->whereBetween('date', [$start_date, $end_date])->latest()->get();
-       
-        // Merge orders and customer due payments
-        $mergedData = collect();        
-        // Add orders to collection
+
+        $data['transactionhistories'] = $this->getTransactionHistories($id, $start_date, $end_date);
+        $data['customerduepayments'] = $this->getCustomerDuePaymentHistories($id, $start_date, $end_date);
+
+
+        $start_date = $request->start_date ?? $currentMonthStart;
+        $end_date = $request->end_date ?? $currentMonthEnd;
+
+        $data['orderpayments'] = OrderPayment::where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->get();
+
+        $data['orders'] = Order::where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->latest()
+            ->get();
+
+        $mergedData = collect();
+
         foreach ($data['orders'] as $order) {
             $mergedData->push([
                 'type' => 'order',
@@ -288,35 +326,31 @@ class ManageCustomerController extends Controller
                 'data' => $order
             ]);
         }
-        
-        // Add customer due payments to collection
+
         foreach ($data['customerduepayments'] as $payment) {
             $mergedData->push([
                 'type' => 'payment',
                 'date' => $payment->date,
                 'data' => $payment
             ]);
-        }        
-        // Sort by date
-        $data['mergedData'] = $mergedData->sortBy('date')->values();
+        }
 
-        //  return $this->calculateTotalDue($id);
+        $data['mergedData'] = $mergedData->sortBy('date')->values();
 
         $data['start_date'] = $start_date;
         $data['end_date'] = $end_date;
 
-
-       if($request->ajax()){
-            if($request->tab == 'v-pills-order-tab'){
+        if ($request->ajax()) {
+            if ($request->tab == 'v-pills-order-tab') {
                 return view('admin.customers.partials.__order_list', $data)->render();
-            } elseif($request->tab == 'v-pills-home-tab'){
+            } elseif ($request->tab == 'v-pills-home-tab') {
                 return view('admin.customers.partials.__transaction_history', $data)->render();
-            } elseif($request->tab == 'v-pills-profile-tab'){
+            } elseif ($request->tab == 'v-pills-profile-tab') {
                 return view('admin.customers.partials.__payment_history', $data)->render();
-            } elseif($request->tab == 'v-pills-customerduepayment-tab'){
+            } elseif ($request->tab == 'v-pills-customerduepayment-tab') {
                 return view('admin.customers.partials.__due_payment_history', $data)->render();
             }
-       }
+        }
 
         return view('admin.customers.statement', $data);
     }
@@ -326,94 +360,139 @@ class ManageCustomerController extends Controller
         return User::findOrFail($id);
     }
 
-    private function getTransactionHistories($id, $start_date, $end_date)
+    private function getTransactionHistories($id, $start_date = null, $end_date = null)
     {
-        return TransactionHistory::active()->where('client_id', $id)->whereBetween('date', [$start_date, $end_date])->get();
+        return TransactionHistory::active()
+            ->where('client_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->get();
     }
 
-    private function getCustomerDuePaymentHistories($id, $start_date, $end_date)
+    private function getCustomerDuePaymentHistories($id, $start_date = null, $end_date = null)
     {
-        return CustomerDuePayment::where('customer_id', $id)->whereBetween('date', [$start_date, $end_date])->get();
+        return CustomerDuePayment::where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->get();
     }
 
-    private function getTotalAdvance($id, $start_date, $end_date)
+    private function getTotalAdvance($id, $start_date = null, $end_date = null)
     {
-        return CustomerAdvance::where('customer_id', $id)->whereBetween('date', [$start_date, $end_date])->sum('amount') - CustomerAdvance::where('customer_id', $id)->whereBetween('date', [$start_date, $end_date])->sum('used_amount');
+        $advances = CustomerAdvance::where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            });
+
+        $usedAdvance = CustomerAdvance::where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            });
+
+        return $advances->sum('amount') - $usedAdvance->sum('used_amount');
     }
 
-    private function getTotalCustomerDue($id, $start_date, $end_date)
+    private function getTotalCustomerDue($id, $start_date = null, $end_date = null)
     {
-        return CustomerDuePayment::where('customer_id', $id)->whereBetween('date', [$start_date, $end_date])->sum('amount');
+        return CustomerDuePayment::where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->sum('amount');
     }
 
-    private function getTotalOrders($id, $start_date, $end_date)
+    private function getTotalOrders($id, $start_date = null, $end_date = null)
     {
-        return Order::where('customer_id', $id)->whereBetween('date', [$start_date, $end_date])->count();
+        return Order::where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->count();
     }
 
-    private function getTotalReturns($id, $start_date, $end_date)
+    private function getTotalReturns($id, $start_date = null, $end_date = null)
     {
-        return OrderReturn::where('customer_id', $id)->whereBetween('date', [$start_date, $end_date])->whereIn('payment_status', ['Unpaid', 'Partial'])->sum('net_amount');
+        return OrderReturn::where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->whereIn('payment_status', ['Unpaid', 'Partial'])
+            ->sum('net_amount');
     }
 
-    private function getTotalAmount($id, $start_date, $end_date)
+    private function getTotalAmount($id, $start_date = null, $end_date = null)
     {
-        return  Order::where('customer_id', $id)->whereBetween('date', [$start_date, $end_date])->sum('net_amount');
+        return Order::where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->sum('net_amount');
     }
 
-    private function getOpeningDue($id, $start_date, $end_date)
+    private function getOpeningDue($id)
     {
-        $totalAmount = $this->getCustomer($id)->opening;
-        return $totalAmount;
+        return $this->getCustomer($id)->opening;
     }
 
-
-    private function getTotalPaidAmount($id, $start_date, $end_date)
+    private function getTotalPaidAmount($id, $start_date = null, $end_date = null)
     {
-        $paidAmount = OrderPayment::where('customer_id', $id)->whereBetween('date', [$start_date, $end_date])->sum('amount');
-        return $paidAmount;
+        return OrderPayment::where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->sum('amount');
     }
 
-    private function getTotalOrderPaid($id, $start_date, $end_date)
+    private function getTotalOrderPaid($id, $start_date = null, $end_date = null)
     {
-        $paidAmount = OrderPayment::where('customer_id', $id)->whereBetween('date', [$start_date, $end_date])->where('order_id', '!=', 0)->sum('amount');
-
-        return $paidAmount;
+        return OrderPayment::where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->where('order_id', '!=', 0)
+            ->sum('amount');
     }
 
-    public function getTotalCommission($id, $start_date, $end_date)
+    public function getTotalCommission($id, $start_date = null, $end_date = null)
     {
-        return Order::where('commission_status', 'Paid')->where('customer_id', $id)->whereBetween('date', [$start_date, $end_date])->sum('commission');
+        return Order::where('commission_status', 'Paid')
+            ->where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->sum('commission');
     }
 
-    public function getTotalCommissionInvoice($id, $start_date, $end_date)
+    public function getTotalCommissionInvoice($id, $start_date = null, $end_date = null)
     {
-        return CommissionInvoice::where('payment_status', 'Unpaid')->where('customer_id', $id)->whereBetween('date', [$start_date, $end_date])->sum('commission_amount');
+        return CommissionInvoice::where('payment_status', 'Unpaid')
+            ->where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->sum('commission_amount');
     }
 
-    public function calculateTotalDue($id, $start_date, $end_date)
+    public function calculateTotalDue($id, $start_date = null, $end_date = null)
     {
         $customer = User::find($id);
 
-        $totalAmount    = $this->getTotalAmount($id, $start_date, $end_date);
-        $openingDue     = $this->getOpeningDue($id, $start_date, $end_date);
-        $order_paid     = $this->getTotalOrderPaid($id, $start_date, $end_date);
-        $commission     = $this->getTotalCommission($id, $start_date, $end_date);
-        $customerduepayment         = $this->getTotalCustomerDue($id, $start_date, $end_date);
+        $totalAmount = $this->getTotalAmount($id, $start_date, $end_date);
+        $openingDue = $this->getOpeningDue($id);
+        $order_paid = $this->getTotalOrderPaid($id, $start_date, $end_date);
+        $commission = $this->getTotalCommission($id, $start_date, $end_date);
+        $customerduepayment = $this->getTotalCustomerDue($id, $start_date, $end_date);
 
-        if($customer->commission_type == "Monthly")
-        {
-            $totalcommissionInvoice     = $this->getTotalCommissionInvoice($id, $start_date, $end_date);
-        }
-        else{
+        if ($customer->commission_type == "Monthly") {
+            $totalcommissionInvoice = $this->getTotalCommissionInvoice($id, $start_date, $end_date);
+        } else {
             $totalcommissionInvoice = 0;
         }
 
-
-
         return ($totalAmount + $openingDue) - ($order_paid + $commission + $customerduepayment + $totalcommissionInvoice);
     }
-
 
     // Customer List
     public function customerlist()
@@ -425,9 +504,7 @@ class ManageCustomerController extends Controller
         return $pdf->stream('Customer_List.pdf');
     }
 
-
     // Customer Commission
-
     public function customerproductcomissionlist($id)
     {
         Gate::authorize('admin.customer.customerproductcomissionlist');

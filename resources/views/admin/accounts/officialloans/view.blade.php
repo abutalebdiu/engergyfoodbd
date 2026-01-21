@@ -47,6 +47,8 @@
                             <th>@lang('Interest')</th>
                             <th>@lang('Total Amount')</th>
                             <th>@lang('Monthly Installment')</th>
+                            <th>@lang('Paid')</th>
+                            <th>@lang('Due')</th>
                             <th>@lang('Note')</th>
                             <th>@lang('Status')</th>
                         </tr>
@@ -90,6 +92,8 @@
                                 <td> {{ en2bn(number_format($item->interest)) }}</td>
                                 <td> {{ en2bn(number_format($item->total_amount)) }}</td>
                                 <td> {{ en2bn(number_format($item->monthly_settlement)) }}</td>
+                                <td> {{ en2bn(number_format($item->officeloanpayments->sum('amount'))) }}</td>
+                                <td> {{ en2bn(number_format($item->total_amount - $item->officeloanpayments->sum('amount'))) }}</td>
                                 <td> {{ $item->note }}</td>
                                 <td> <span
                                         class="btn btn-{{ statusButton($item->status) }} btn-sm">{{ $item->status }}</span>
@@ -107,7 +111,20 @@
                             <td> {{ en2bn(number_format($officialloans->sum('amount'))) }}</td>
                             <td> {{ en2bn(number_format($officialloans->sum('interest'))) }}</td>
                             <td> {{ en2bn(number_format($officialloans->sum('total_amount'))) }}</td>
-                            <td colspan="3"></td>
+                            <td></td>
+                           @php
+                                $loans = $officialloans->getCollection();
+
+                                $paidAmount = $loans->flatMap->officeloanpayments->sum('amount');
+                                $totalAmount = $loans->sum('total_amount');
+                            @endphp
+
+                            <td>{{ en2bn(number_format($paidAmount)) }}</td>
+
+                            <td>{{ en2bn(number_format($totalAmount - $paidAmount)) }}</td>
+
+                            <td colspan="2"></td>
+
                         </tr>
                     </tfoot>
                 </table><!-- table end -->

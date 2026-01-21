@@ -110,17 +110,63 @@
                 </div>
                 <div class="col-12 col-md-6">
                     <h4 class="pb-2 mb-3 border-bottom">@lang('Customer Financial Information')</h4>
-                    <p>
-                        Total Order : {{ en2bn(number_format($totalorders, 2, '.', ',')) }}<br>
-                        Total Amount : {{ en2bn(number_format($totalamount, 2, '.', ',')) }} <br>
-                        Opening Due : {{ en2bn(number_format($opening_due, 2, '.', ',')) }} <br>
-                        Total Paid : {{ en2bn(number_format($total_paid, 2, '.', ',')) }} <br>
-                        Total Commission Paid : {{ en2bn(number_format($total_commission_paid, 2, '.', ',')) }} <br>
-                        Total Return : {{ en2bn(number_format($totalreturns, 2, '.', ',')) }}<br>
-                        Total Advance: {{ en2bn(number_format($total_advance, 2, '.', ',')) }}<br>
-                        Total Due Payment: {{ en2bn(number_format($total_due_payment, 2, '.', ',')) }}<br>
-                        Total Due : {{ en2bn(number_format($total_due, 2, '.', ',')) }}<br>
-                    </p>
+                    
+                    <table class="table table-bordered mb-4">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Current Month ({{ date('F') }})</th>
+                                <th>Overall Statistics</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Total Order</td>
+                                <td>{{ en2bn(number_format($current_month_total_orders, 2, '.', ',')) }}</td>
+                                <td>{{ en2bn(number_format($overall_total_orders, 2, '.', ',')) }}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Amount</td>
+                                <td>{{ en2bn(number_format($current_month_total_amount, 2, '.', ',')) }}</td>
+                                <td>{{ en2bn(number_format($overall_total_amount, 2, '.', ',')) }}</td>
+                            </tr>
+                            <tr>
+                                <td>Opening Due</td>
+                                <td>0.00</td> 
+                                <td>{{ en2bn(number_format($opening_due, 2, '.', ',')) }}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Paid</td>
+                                <td>{{ en2bn(number_format($current_month_total_paid, 2, '.', ',')) }}</td>
+                                <td>{{ en2bn(number_format($overall_total_paid, 2, '.', ',')) }}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Commission Paid</td>
+                                <td>{{ en2bn(number_format($current_month_total_commission_paid, 2, '.', ',')) }}</td>
+                                <td>{{ en2bn(number_format($overall_total_commission_paid, 2, '.', ',')) }}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Return</td>
+                                <td>{{ en2bn(number_format($current_month_total_returns, 2, '.', ',')) }}</td>
+                                <td>{{ en2bn(number_format($overall_total_returns, 2, '.', ',')) }}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Advance</td>
+                                <td>{{ en2bn(number_format($current_month_total_advance, 2, '.', ',')) }}</td>
+                                <td>{{ en2bn(number_format($overall_total_advance, 2, '.', ',')) }}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Due Payment</td>
+                                <td>{{ en2bn(number_format($current_month_total_due_payment, 2, '.', ',')) }}</td>
+                                <td>{{ en2bn(number_format($overall_total_due_payment, 2, '.', ',')) }}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Due</td>
+                                <td>{{ en2bn(number_format($current_month_total_due, 2, '.', ',')) }}</td>
+                                <td>{{ en2bn(number_format($overall_total_due, 2, '.', ',')) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

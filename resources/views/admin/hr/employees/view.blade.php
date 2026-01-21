@@ -1,5 +1,6 @@
 @extends('admin.layouts.app', ['title' => 'Employee List'])
 @section('panel')
+
     <!--breadcrumb-->
     <div class="page-breadcrumb d-flex align-items-center mb-2 border-bottom pb-2">
         <div>
@@ -189,6 +190,11 @@
                     </tfoot>
                 </table>
             </div>
+
+            <div class="mt-3">
+                {{ $pagination->withQueryString()->links() }}
+            </div>
+            
         </div>
 
     </div>

@@ -371,6 +371,14 @@
                                     class="bi bi-record-circle"></i>@lang('All Customers')</a>
                         </li>
                     @endif
+
+                    @if (Auth::guard('admin')->user()->hasPermission('admin.customer.all'))
+                        <li class="{{ menuActive('admin.customersettlement.index') }}">
+                            <a href="{{ route('admin.customersettlement.index') }}"><i
+                                    class="bi bi-record-circle"></i>@lang('Customer Settlement')</a>
+                        </li>
+                    @endif
+
                 </ul>
             </li>
         @endif

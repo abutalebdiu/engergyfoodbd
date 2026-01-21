@@ -54,4 +54,9 @@ class OfficialLoan extends Model
     {
         return $this->belongsTo(Admin::class,'deleted_id');
     }
+
+    public function officeloanpayments()
+    {
+        return $this->hasMany(OfficialLoanPayment::class, 'official_loan_id', 'id');
+    }
 }
