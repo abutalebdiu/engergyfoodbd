@@ -65,8 +65,9 @@
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>@lang('Item')</th>
+                            <th width="20">#</th>
+                            <th width="200">@lang('Item')</th>
+                            <th width="90">@lang('Unit')</th>
                             <th width="90">@lang('Qty')</th>
                             <th width="120">@lang('Price')</th>
                             <th width="140">@lang('Total')</th>
@@ -175,6 +176,9 @@
         $('.grand-total').val(grand.toFixed(2));
     }
 
+
+    let units = {!! json_encode($units) !!};
+
     function renderTable(){
         let html = '';
         let i = 1;
@@ -187,6 +191,14 @@
                     ${item.name}
                     <input type="hidden" name="items[${id}][id]" value="${id}">
                 </td>
+
+                <td>
+                    <select name="items[${id}][unit]" class="form-select">
+                        <option value="">Select Unit</option>
+                        ${units.map(unit => `<option value="${unit.id}"  ${unit.id == item.unit ? 'selected' : ''}>${unit.name}</option>`).join('')}
+                    </select>
+                </td>
+
                 <td>
                     <input type="number" min="1"
                            class="form-control qty"
@@ -221,7 +233,8 @@
         let opt = `<option value="">Select Item</option>`;
         items.forEach(item=>{
             opt += `<option value="${item.id}"
-                        data-price="${item.price}">
+                        data-price="${item.price}"
+                        data-unit="${item.unit_id}">
                         ${item.name}
                     </option>`;
         });
@@ -239,7 +252,8 @@
             cart[id] = {
                 name: op.text(),
                 qty: 1,
-                price: num(op.data('price'))
+                price: num(op.data('price')),
+                unit: op.data('unit')
             };
         }
         renderTable();

@@ -1,8 +1,11 @@
 @extends('report.print.layouts.app')
 
 @section('title')
-বিতরণ কোটেশন বিস্তারিত রিপোর্ট - {{ en2bn(\Carbon\Carbon::parse($date)->format('d-m-Y')) }}
+বিতরণ কোটেশন বিস্তারিত রিপোর্ট - {{ en2bn(\Carbon\Carbon::parse($date)->format('d-m-Y')) }}  
+<br>
+প্রদানকারীঃ {{ $distribtion_name }}
 @endsection
+
 
 @section('content')
 <table class="table table-bordered">

@@ -16,6 +16,7 @@
             <th>@lang('Box Item')</th>
             <th>@lang('Striker Item')</th>
             <th>@lang('Status')</th>
+            <th>@lang('Entry By')</th>
         </tr>
     </thead>
     <tbody>
@@ -103,6 +104,12 @@
                             <a href="{{ route('admin.product.status', $item->id) }}"
                                 class="btn btn-danger btn-sm">@lang('Inactive')</a>
                         @endif
+                    </td>
+
+                    <td> 
+                        {{ optional($item->entryuser)->name }}
+                        </br>
+                        {{ optional($item->entryuser)->updated_at?->format('d-m-Y h:i A') }} 
                     </td>
                 </tr>
             @empty

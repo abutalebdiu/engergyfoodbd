@@ -70,12 +70,13 @@
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Item</th>
-                            <th width="90">Qty</th>
+                            <th width="20">#</th>
+                            <th width="300">Item</th>
+                            <th width="120">Unit</th>
+                            <th width="120">Qty</th>
                             <th width="120">Price</th>
-                            <th width="140">Total</th>
-                            <th width="60">Action</th>
+                            <th width="120">Total</th>
+                            <th width="30">Action</th>
                         </tr>
                     </thead>
                     <tbody class="tbodyappend"></tbody>
@@ -163,8 +164,9 @@
     @foreach($itemorder->itemOrderDetail as $d)
     cart[{{ $d->item_id }}] = {
         name  : "{{ $d->product->name }}",
-        qty   : {{ $d->qty }},
-        price : {{ $d->price }}
+        qty   : {{ $d->purchase_qty }},
+        price : {{ $d->price }},
+        unit  : {{ $d->purchase_unit_id }}
     };
     @endforeach
 
@@ -174,6 +176,7 @@
         $('.tbodyappend tr').each(function(){
             let qty   = n($(this).find('.qty').val());
             let price = n($(this).find('.price').val());
+            let unit  = $(this).find('.unit').val();
             let total = qty * price;
 
             $(this).find('.amount').val(total.toFixed(2));
@@ -189,6 +192,8 @@
         $('.grand-total').val((sub - discount + transport + labour).toFixed(2));
     }
 
+    let units = {!! json_encode($units) !!};
+
     function renderTable(){
         let html = '';
         let i = 1;
@@ -201,6 +206,14 @@
                     ${item.name}
                     <input type="hidden" name="items[${id}][id]" value="${id}">
                 </td>
+
+                <td>
+                    <select name="items[${id}][unit]" class="form-select unit">
+                        <option value="">Select Unit</option>
+                        ${units.map(unit => `<option value="${unit.id}"  ${unit.id == item.unit ? 'selected' : ''}>${unit.name}</option>`).join('')}
+                    </select>
+                </td>
+
                 <td>
                     <input type="number" min="1"
                         class="form-control qty"

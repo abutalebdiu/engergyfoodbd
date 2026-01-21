@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin\Item;
 
 use PDF;
+use Carbon\Carbon;
 use App\Models\Item;
+use App\Models\Unit;
 use App\Models\User;
 use App\Models\ItemOrder;
 use App\Models\ItemCategory;
@@ -13,7 +15,6 @@ use App\Models\ItemOrderPayment;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
-use Carbon\Carbon;
 
 class ItemOrderController extends Controller
 {
@@ -74,6 +75,7 @@ class ItemOrderController extends Controller
 
         $data['itemcategories'] = ItemCategory::get();
         $data['items'] = Item::orderby('name', 'asc')->get();
+        $data['units'] = Unit::where('status', 'Active')->get();
 
         // return $data;
 
@@ -97,6 +99,7 @@ class ItemOrderController extends Controller
             'items.*.qty'        => 'required|numeric|min:1',
             'items.*.price'      => 'required|numeric|min:0',
             'items.*.total'      => 'required|numeric|min:0',
+            'items.*.unit'      => 'required|exists:units,id',
 
             'sub_total'          => 'required|numeric|min:0',
             'discount'           => 'nullable|numeric|min:0',
@@ -132,11 +135,17 @@ class ItemOrderController extends Controller
 
         foreach ($request->items as $item) {
 
+
+            $qty = convertUnitQty($item['unit'], $item['qty']);
+
+            
             ItemOrderDetail::create([
                 'item_order_id' => $order->id,
                 'item_id'       => $item['id'],
                 'price'         => $item['price'],
-                'qty'           => $item['qty'],
+                'purchase_unit_id'          => $item['unit'],
+                'purchase_qty'              => $item['qty'],
+                'qty'           => $qty,
                 'total'         => $item['total'],
                 'stock'         => $item['qty'],
                 'status'        => 'Active',
@@ -178,6 +187,8 @@ class ItemOrderController extends Controller
         $data['itemorder'] = ItemOrder::find($id);
         $data['items'] = Item::get();
         $data['suppliers'] = User::where('type', 'supplier')->get();
+        $data['units'] = Unit::where('status', 'Active')->get();
+
         return view('admin.items.item-orders.edit', $data);
     }
 
@@ -232,13 +243,17 @@ class ItemOrderController extends Controller
                     continue;
                 }
 
+                $baseUnit = convertUnitQty($item['unit'], $qty);
+
                 $total = round($qty * $price, 2);
 
                 ItemOrderDetail::create([
                     'item_order_id' => $order->id,
                     'item_id'       => $productId,
                     'price'         => $price,
-                    'qty'           => $qty,
+                    'purchase_unit_id'          => $item['unit'],
+                    'purchase_qty'              => $qty,
+                    'qty'           => $baseUnit,
                     'total'         => $total,
                     'stock'         => $qty,
                     'status'        => 'Active',

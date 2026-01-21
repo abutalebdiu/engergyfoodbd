@@ -1,122 +1,131 @@
 @extends('admin.layouts.app', ['title' => 'Add Damage Product'])
+
 @section('panel')
-    <form action="{{ route('admin.productdamage.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0 text-capitalize">Add Damage Product<a href="{{ route('admin.productdamage.index') }}"
-                        class="btn btn-outline-primary btn-sm float-end"> <i class="fa fa-list"></i> Damage Product
-                        List</a>
-                </h6>
-            </div>
-            <div class="card-body">
-                <div class="mt-2 mb-4 row">
-                    <div class="col-12 col-md-4">
-                        <div class="form-group">
-                            <label class="form-label">Search Product</label>
-                            <div class="input-group">
-                                <select class="form-select select2" name="product_id" id="search" required>
-                                    <option value="">Search Product name or code</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <div class="form-group">
-                            <label class="form-label">@lang('Qty')</label>
-                            <div class="input-group">
-                                <input type="text" name="qty" class="form-control" min="1" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <div class="form-group">
-                            <label class="form-label">@lang('Date')</label>
-                            <div class="input-group">
-                                <input type="date" name="date" class="form-control"
-                                    value="{{ old('date') ? old('date') : Date('Y-m-d') }}" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-12">
-                        <div class="form-group py-3">
-                            <label class="form-label">Reason</label>
-                            <div class="input-group">
-                                <textarea name="reason" class="form-control" required></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-     
-                <div class="row">
-                    <div class="col-12">
-                        <a href="{{ route('admin.productstock.index') }}" class="btn btn-outline-info float-start">Back</a>
-                        <button type="submit" class="btn btn-primary mx-1"> <i class="fa fa-check"></i> @lang('Submit')
-                        </button>
-                    </div>
-                </div>
-            </div>
+<form action="{{ route('admin.productdamage.store') }}" method="POST">
+    @csrf
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">
+                Add Damage Product
+                <a href="{{ route('admin.productdamage.index') }}"
+                   class="btn btn-outline-primary btn-sm float-end">
+                    <i class="fa fa-list"></i> Damage List
+                </a>
+            </h5>
         </div>
-    </form>
+
+        <div class="card-body">
+
+            {{-- Date --}}
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <label class="form-label">@lang('Date')</label>
+                    <input type="date"
+                           name="date"
+                           class="form-control"
+                           value="{{ old('date', date('Y-m-d')) }}"
+                           required>
+                </div>
+            </div>
+
+            <div class="row">
+                @foreach ($productswithgroupes as $departmentId => $products)
+                    @php
+                        $departmentName = optional($products->first()->department)->name;
+                    @endphp
+
+                    <div class="col-12">
+                        <h6 class="text-primary fw-bold mb-2">
+                            {{ $departmentName ?: 'No Department' }}
+                        </h6>
+                    </div>
+
+                    @foreach ($products->chunk(ceil($products->count() / 2)) as $chunk)
+                        <div class="col-12 col-md-6">
+                            <table class="table table-bordered">
+
+                                <thead>
+                                    <tr>
+                                        <th width="60%">Product</th>
+                                        <th width="15%">Qty</th>
+                                        <th width="25%">Reason</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    
+                                    @foreach ($chunk as $key => $product)
+                                        <tr>
+                                            <input type="hidden" name="product_id[]" value="{{ $product->id }}">
+
+                                            <td class="text-start">
+                                                {{ $product->name }}
+                                            </td>
+
+                                            <td>
+                                                <input type="number"
+                                                       name="qty[]"
+                                                       class="form-control qty"
+                                                       min="0"
+                                                       placeholder="0">
+                                            </td>
+
+                                            <td>
+                                                <input type="text"
+                                                       name="reason[]"
+                                                       class="form-control"
+                                                       placeholder="Damage reason">
+                                            </td>
+                                        </tr>
+                                    @endforeach
+
+                                </tbody>
+                            </table>
+                        </div>
+                    @endforeach
+                @endforeach
+            </div>
+
+            {{-- Submit --}}
+            <div class="row mt-3">
+                <div class="col-12">
+                    <a href="{{ route('admin.productstock.index') }}"
+                       class="btn btn-outline-info">
+                        Back
+                    </a>
+
+                    <button type="submit" class="btn btn-primary float-end">
+                        <i class="fa fa-check"></i> Submit
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
 @endsection
 
-@push('style')
-    <style>
-        .select2-container--default .select2-selection--single {
-            border-radius: .375rem !important;
-            height: 42px !important;
-        }
-
-        .no-focus:focus {
-            outline: none;
-        }
-
-        .no-border {
-            border: none;
-        }
-
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 28px;
-        }
-
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            top: 0px !important;
-        }
-    </style>
-@endpush
 
 @push('script')
-    <script>
-        $(document).ready(function() {
-            $('#search').select2({
-                ajax: {
-                    url: "{{ route('admin.purchase.searchProduct') }}",
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            search: params.term, // search term
-                            type: 'public'
-                        };
-                    },
-                    processResults: function(data) {
-                        if (data && Array.isArray(data)) {
-                            return {
-                                results: data
-                            };
-                        } else {
-                            console.error('Invalid data format:', data);
-                            return {
-                                results: []
-                            };
-                        }
-                    },
-                    cache: true,
-                    error: function(xhr, status, error) {
-                        console.error('AJAX error:', status, error);
-                    }
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const qtyInputs = document.querySelectorAll('.qty');
+
+        qtyInputs.forEach((input, index) => {
+            input.addEventListener('keydown', function (e) {
+
+                if (e.key === 'Enter' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    qtyInputs[index + 1]?.focus();
+                }
+
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    qtyInputs[index - 1]?.focus();
                 }
             });
         });
-    </script>
+    });
+</script>
 @endpush

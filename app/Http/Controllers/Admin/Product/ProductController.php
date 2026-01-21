@@ -44,12 +44,18 @@ class ProductController extends Controller
             $data['department_id'] = $request->department_id;
             $query->where('department_id', $request->department_id);
         }
-        
 
+
+        $data['pagination'] = 10;
+
+        if ($request->pagination)   {
+            $data['pagination'] = $request->pagination;
+        }
+        
 
         // Handle AJAX request
         if ($request->ajax()) {
-            $productList = $query->latest()->paginate(10)->withQueryString();
+            $productList = $query->latest()->paginate($data['pagination'])->withQueryString();
 
             $data['productss'] = $productList;
             $data['productswithgroupes'] = $productList->getCollection()->groupBy('department_id');

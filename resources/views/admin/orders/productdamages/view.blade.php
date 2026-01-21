@@ -69,7 +69,11 @@
                                 <td>{{ en2bn($item->qty) }}</td>
                                 <td>{{ en2bn(number_format($item->qty * $item->product->sale_price), 2) }}</td>
                                 <td>{{ $item->reason }}</td>
-                                <td> {{ optional($item->entryuser)->name }}</td>
+                                <td> 
+                                    {{ optional($item->entryuser)->name }} 
+                                    </br>
+                                    {{ optional($item->entryuser)->updated_at->format('d-m-Y h:i A') }}
+                                </td>
                                 <td>
                                     <div class="btn-group">
                                         <button data-bs-toggle="dropdown">

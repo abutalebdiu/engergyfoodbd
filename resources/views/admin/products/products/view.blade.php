@@ -9,15 +9,15 @@
         </div>
         <div class="card-body">
             <form action="" id="searchForm">
-                <div class="row row-cols-3 row-cols-md-3 mb-3 g-2">
-                    <div class="col">
+                <div class="row mb-3 g-2">
+                    <div class="col-3">
                         <div class="form-group">
                             <input class="form-control" type="text" name="name" id="name"
                                 @if (isset($name)) value="{{ $name }}" @endif
                                 placeholder="Product Name">
                         </div>
                     </div>
-                    <div class="col">
+                    <div class="col-3">
                         <div class="form-group">
                             <select name="department_id" class="select2 form-control department_id">
                                 <option value="">Select</option>
@@ -27,7 +27,20 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col">
+
+                    <div class="col-2">
+                        <div class="form-group">
+                            <select name="pagination" class="select2 form-select">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-4">
                         <div class="form-group">
                             <button type="submit" name="search" id="search" class="btn btn-primary"><i class="fa fa-search"></i>
                                 @lang('Search')</button>

@@ -56,26 +56,51 @@ class ProductDamageController extends Controller
     public function create()
     {
         Gate::authorize('admin.productdamage.create');
-        return view('admin.orders.productdamages.create');
+
+        $data['productswithgroupes'] = Product::where('status', 'Active')->with('department')->get()->groupby('department_id');
+
+        return view('admin.orders.productdamages.create', $data);
     }
 
     public function store(Request $request)
     {
         Gate::authorize('admin.productdamage.store');
+
         $request->validate([
-            'product_id' => 'required',
-            'qty' => 'required',
+            'product_id'   => 'required|array',
+            'product_id.*' => 'required|exists:products,id',
+
+            'qty'          => 'required|array',
+            'qty.*'        => 'nullable|numeric|min:0',
+
+            'reason'       => 'required|array',
+            'reason.*'     => 'nullable|string',
+
+            'date'         => 'required|date',
         ]);
 
-        ProductDamage::create(array_merge($request->all(), [
-            'qty'       => bn2en($request->qty),
-            'entry_id'  => auth('admin')->user()->id,
-            'status'    => 'Active'
-        ]));
+        foreach ($request->product_id as $index => $productId) {
 
-        $notify[] = ['success', 'Product Damage successfully Added'];
+            $qty = bn2en($request->qty[$index] ?? 0);
+
+            if ($qty <= 0) {
+                continue;
+            }
+
+            ProductDamage::create([
+                'product_id' => $productId,
+                'qty'        => $qty,
+                'reason'     => $request->reason[$index] ?? null,
+                'date'       => $request->date,
+                'entry_id'   => auth('admin')->id(),
+                'status'     => 'Active',
+            ]);
+        }
+
+        $notify[] = ['success', 'Product Damage successfully added'];
         return to_route('admin.productdamage.index')->withNotify($notify);
     }
+
 
     public function show(ProductDamage $productdamage)
     {

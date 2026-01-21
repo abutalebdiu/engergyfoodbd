@@ -1,7 +1,12 @@
 @extends('report.print.layouts.app')
 
 @section('title')
-বিতরণ অর্ডার বিস্তারিত রিপোর্ট - {{  en2bn(\Carbon\Carbon::parse($date)->format('d-m-Y')) }}
+{!! 
+    'বিতরণ অর্ডার বিস্তারিত রিপোর্ট - ' 
+    . en2bn(\Carbon\Carbon::parse($date)->format('d-m-Y')) 
+    . '<br>প্রদানকারীঃ ' 
+    . e($distribtion_name) 
+!!}
 @endsection
 
 @section('content')

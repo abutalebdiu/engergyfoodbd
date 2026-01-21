@@ -99,6 +99,7 @@ class DistributorOrderReportController extends Controller
             $data['details'] = $details;
             $data['date'] = $date;
             $data['distributionId'] = $distributionId;
+            $data['distribtion_name'] = Distribution::find($distributionId)->name ?? '';
             $data['grandTotal'] = $grandTotal;
             return $this->downloadShowPdf($request, $data);
         }

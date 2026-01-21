@@ -2,19 +2,20 @@
 
 use Carbon\Carbon;
 use App\Lib\Captcha;
+use App\Models\Unit;
 use App\Notify\Notify;
+
+
 use App\Lib\ClientInfo;
-
-
 use App\Lib\FileManager;
 use App\Constants\Status;
 use Illuminate\Support\Str;
 use App\Models\Setting\Frontend;
 use App\Models\Setting\Extension;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Setting\GeneralSetting;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Log;
 
 function getIpInfo()
 {
@@ -756,4 +757,24 @@ function en2bn($number)
     $en = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
 
     return str_replace($en, $bn, $number);
+}
+
+
+if (!function_exists('convertUnitQty')) {
+    function convertUnitQty($unitId, $qty)
+    {
+        $unit = Unit::where('id', $unitId)
+            ->where('status', 'Active')
+            ->first();
+
+        if (!$unit || $unit->value <= 0) {
+            return $qty;
+        }
+
+        if (!$unit->base_unit) {
+            return $qty;
+        }
+
+        return $qty * $unit->value;
+    }
 }
