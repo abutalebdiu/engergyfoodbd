@@ -18,10 +18,11 @@ class AdminPermissionMiddleware
     public function handle(Request $request, Closure $next)
     {
         $admin = auth('admin')->user();
+
         if ($admin->id != 1 && $admin->status == 0) {
             auth('admin')->logout();
             $notify[] = ['error', 'Your account has been blocked'];
-            return back()->withNotify($notify);
+            return to_route('admin.login')->withNotify($notify);
         }
 
 

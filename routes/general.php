@@ -38,7 +38,8 @@ Route::prefix('password')->name('password.')->group(function () {
 Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset.form');
 Route::post('password/reset/change', [ResetPasswordController::class, 'reset'])->name('password.change');
 
-Route::group(['middleware' => ['auth:web,admin']], function () {
+Route::group(['middleware' => ['auth:web,admin', 'adminPermission']], function () {
+
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('profile', [AdminController::class, 'profile'])->name('profile');
     Route::post('profile', [AdminController::class, 'profileUpdate'])->name('profile.update');

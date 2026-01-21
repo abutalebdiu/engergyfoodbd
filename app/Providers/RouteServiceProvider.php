@@ -42,7 +42,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->name('user.')
                 ->group(base_path('routes/user.php'));
 
-            Route::middleware(['web'])
+            Route::middleware(['web', 'adminPermission'])
                 ->prefix('admin')
                 ->name('admin.')
                 ->group(base_path('routes/admin.php'));
@@ -53,13 +53,13 @@ class RouteServiceProvider extends ServiceProvider
                 ->name('admin.')
                 ->group(base_path('routes/general.php'));
 
-            Route::middleware(['web'])
+            Route::middleware(['web', 'adminPermission'])
                 ->namespace('Admin')
                 ->prefix('admin')
                 ->name('admin.')
                 ->group(base_path('routes/report.php'));
 
-            Route::middleware(['web'])
+            Route::middleware(['web', 'adminPermission'])
                 ->prefix('admin')
                 ->name('admin.')
                 ->group(base_path('routes/mail.php'));

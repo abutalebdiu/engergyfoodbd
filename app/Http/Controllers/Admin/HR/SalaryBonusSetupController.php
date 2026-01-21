@@ -20,9 +20,13 @@ class SalaryBonusSetupController extends Controller
     {
         Gate::authorize('admin.salarybonussetup.list');
 
+        $data['departments'] = Department::orderBy('position', 'ASC')->get();
+
         $data['employees'] = Employee::where('status', 'Active')->get();
 
         $query = SalaryBonusSetup::query();
+
+
 
         if ($request->employee_id) {
             $data['employee'] = $request->employee_id;

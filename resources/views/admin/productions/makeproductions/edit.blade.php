@@ -27,7 +27,7 @@
                                                 value="{{ $department->id }}">{{ $department->name }}</option>
                                         @endforeach
                                     </select>
-                                </div>2
+                                </div>
                             </div>
                             <div class="pb-3 col-md-3">
                                 <div class="form-group">
@@ -39,32 +39,38 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-12 col-md-6">
-                                <table>
-                                    <thead>
-                                        <tr class="border-bottom">
-                                            <th style="width: 10%">@lang('SL No')</th>
-                                            <th style="width: 70%">@lang('Product')</th>
-                                            <th>@lang('Quantity')</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @php $i=1; @endphp
-                                        @foreach ($itemsgroupes as $items)
-                                            @php
-                                                $categoryName = optional($items->first()->category)->name;
-                                            @endphp
+                            
+                            @php $i=1; @endphp
 
-                                            <tr class="bg-secondary text-white">
-                                                <td colspan="3" class="font-weight-bold  text-start p-1">
-                                                    {{ $categoryName ?: 'No Category' }}
-                                                </td>
-                                            </tr>
+                            @foreach ($itemsgroupes as $items)
+                                @php
+                                    $categoryName = optional($items->first()->category)->name;
+                                @endphp
 
-                                            @forelse($items as $key => $item)
+                                 <div class="col-12">
+                                    <h5 class="font-weight-bold text-primary mb-2">
+                                        {{ $categoryName ?: 'No Category' }}
+                                    </h5>
+                                </div>
+
+                                @forelse($items->chunk(ceil($items->count() / 2)) as $chunk)
+
+                                    <div class="col-12 col-md-6">
+                                        <table class="table table-bordered table-hover">
+                                            <thead>
+                                                <tr class="border-bottom">
+                                                    <th style="width: 10%">@lang('SL No')</th>
+                                                    <th style="width: 70%">@lang('Product')</th>
+                                                    <th>@lang('Quantity')</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                                @foreach ($chunk as $key => $item)
+                                                    
                                                 <tr>
                                                     <input type="hidden" name="item_id[]" value="{{ $item->id }}">
-                                                    <td>{{ en2bn($i++) }} - </td>
+                                                    <td>{{ en2bn($i++) }}</td>
                                                     <td style="text-align: left">
                                                         {{ $item->name }}
                                                     </td>
@@ -73,15 +79,17 @@
                                                             value="{{ $item->makeproductionqty($date,$item->id,$department_id) }}"
                                                             class="border form-control qty"></td>
                                                 </tr>
-                                            @empty
-                                                <tr>
-                                                    <td class="text-center text-muted" colspan="100%">No Data Found</td>
-                                                </tr>
-                                            @endforelse
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                @empty
+                                    <div> No Data Found </div>
+                                @endforelse
+                            @endforeach
+
                         </div>
 
                         <div class="row">

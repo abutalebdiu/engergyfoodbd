@@ -18,7 +18,7 @@
                             <select name="department_id" id="department_id" class="form-select department_id">
                                 <option value=""> -- Select -- </option>
                                 @foreach ($departments as $department)
-                                    <option data-employees="{{ $department->employees }}" value="{{ $department->id }}">
+                                    <option data-employees="{{ $department->employees }}" value="{{ $department->id }}" {{ $department->id == request('department_id') ? 'selected' : '' }}>
                                         {{ $department->name }}</option>
                                 @endforeach
                             </select>
@@ -30,7 +30,7 @@
                                     class="text-danger">*</span></label>
                             <select name="employee_id" id="employee_id" class="form-select employee_id">
                                 <option value=""> -- Select -- </option>
-
+                                
                             </select>
                         </div>
                     </div>

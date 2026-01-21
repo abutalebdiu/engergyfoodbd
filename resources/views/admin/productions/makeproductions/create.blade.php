@@ -35,49 +35,51 @@
                             </div>
                         </div>
                         
-                        <div class="row">
-                            <div class="col-12 col-md-6">
-                            <table>
-                            <thead>
-                                <tr class="border-bottom">
-                                    <th style="width: 10%">@lang('SL No')</th>
-                                    <th style="width: 70%">@lang('Product')</th>
-                                    <th>@lang('Quantity')</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                             @php $i=1; @endphp
-                                @foreach($itemsgroupes as $items)
-                                   @php
-                                        $categoryName = optional($items->first()->category)->name;
-                                    @endphp
+                        <div class="row"> 
+                            @php $i=1; @endphp
+                            @foreach($itemsgroupes as $items)
+                                @php
+                                    $categoryName = optional($items->first()->category)->name;
+                                @endphp
+                                
+                                <div class="col-12">
+                                    <h5 class="font-weight-bold text-primary mb-2">
+                                            {{ $categoryName ?: 'No Category' }}
+                                    </h5>
+                                </div>
                                     
-                                       <tr class="bg-secondary text-white">
-                                            <td colspan="3" class="font-weight-bold  text-start p-1">
-                                                {{ $categoryName ?: 'No Category' }}
-                                            </td> 
-                                        </tr>
-                                        
-                                    @forelse($items as $key => $item)
-                                        <tr> 
-                                           <input type="hidden" name="item_id[]" value="{{ $item->id }}">
-                                            <td>{{ en2bn($i++) }} - </td>
-                                            <td style="text-align: left">
-                                                {{ $item->name }}
-                                            </td>
-                                            <td><input type="text" name="item_qty[]"
-                                                    id="item_qty_{{ $key }}" value=""
-                                                    class="border form-control qty"></td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td class="text-center text-muted" colspan="100%">No Data Found</td>
-                                        </tr>
-                                    @endforelse
+                                @forelse($items->chunk(ceil($items->count() / 2)) as $chunk)
+
+                                    <div class="col-12 col-md-6">
+                                        <table class="table table-bordered table-hover">
+                                            <thead>
+                                                <tr class="border-bottom">
+                                                    <th style="width: 10%">@lang('SL No')</th>
+                                                    <th style="width: 70%">@lang('Product')</th>
+                                                    <th>@lang('Quantity')</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($chunk as $key => $item)
+                                                <tr> 
+                                                        <input type="hidden" name="item_id[]" value="{{ $item->id }}">
+                                                        <td>{{ en2bn($i++) }} </td>
+                                                        <td style="text-align: left">
+                                                            {{ $item->name }}
+                                                        </td>
+                                                        <td><input type="text" name="item_qty[]"
+                                                                id="item_qty_{{ $key }}" value=""
+                                                                class="border form-control qty"></td>
+                                                </tr>
+
+                                                 @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @empty
+                                    <div class="text-center text-muted">No Data Found</div>
+                                @endforelse
                             @endforeach
-                             </tbody>
-                        </table>
-                              </div>  
                         </div>
                         
                         <div class="row">

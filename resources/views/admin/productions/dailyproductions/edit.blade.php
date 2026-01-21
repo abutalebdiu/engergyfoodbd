@@ -4,14 +4,15 @@
         @csrf
         @method('PUT')
         <div class="card">
+
             <div class="card-header">
                 <h5 class="card-title">{{ __('Edit Daily Production') }}
                     <a href="{{ route('admin.dailyproduction.index') }}" class="btn btn-outline-primary btn-sm float-end"> <i
                             class="bi bi-list"></i> @lang('Daily Production List')</a>
                 </h5>
             </div>
-            <div class="card-body">
 
+            <div class="card-body">
                 <div class="mb-4 row">
                     <div class="col-12 col-md-4">
                         <div class="form-group">
@@ -23,32 +24,34 @@
                 </div>
 
                  <div class="row">
-                    <div class="col-12 col-md-6">
-                        <table class="table table-bordered table-hover">
-                            <thead>
-                                <tr class="border-bottom">
-                                    <th style="width: 10%">@lang('SL No')</th>
-                                    <th style="width: 70%">@lang('Product')</th>
-                                    <th>@lang('Quantity')</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($productswithgroupes as $departmentId => $products)
-                                    @php
-                                        $departmentName = optional($products->first()->department)->name;
-                                    @endphp
-                                    <tr>
-                                        <td colspan="4" class="font-weight-bold text-primary text-start">
-                                            {{ $departmentName ?: 'No Department' }}
-                                        </td>
-                                    </tr>
-                                    @php
-                                        $i = 1;
-                                    @endphp
-                                    @foreach ($products as $key => $product)
+                    
+                    @foreach ($productswithgroupes as $departmentId => $products)
+                        @php
+                            $departmentName = optional($products->first()->department)->name;
+                        @endphp
+                        <div class="col-12">
+                            <h5 class="font-weight-bold text-primary mb-2">
+                                {{ $departmentName ?: 'No Department' }}
+                            </h5>
+                        </div>
+                        @php
+                            $i = 1;
+                        @endphp
+                        @foreach ($products->chunk(ceil($products->count() / 2)) as $chunk)
+                            <div class="col-12 col-md-6">
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr class="border-bottom">
+                                            <th style="width: 10%">@lang('SL No')</th>
+                                            <th style="width: 70%">@lang('Product')</th>
+                                            <th>@lang('Quantity')</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($chunk as $key => $product)
                                         <tr  style="border-bottom: 2px solid #21b2c1;">
                                             <input type="hidden" name="product_id[]" value="{{ $product->id }}">
-                                            <td>{{ en2bn($i++) }} - </td>
+                                            <td>{{ en2bn($i++) }} </td>
                                             <td style="text-align: left">
                                                 {{ $product->name }}
                                             </td>
@@ -57,11 +60,12 @@
                                                     class="border form-control qty"></td>
 
                                         </tr>
-                                    @endforeach
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endforeach
+                    @endforeach
                 </div>
 
                 <div class="row">
