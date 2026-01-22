@@ -571,48 +571,48 @@ class ReportController extends Controller
             return \Carbon\Carbon::parse($date)->format('Y-m-d');
         });
  
-        $orders                 = $this->getOrders($start_date, $end_date);
-        $quotations             = $this->getQuotations($start_date, $end_date);
-        $orderReturns           = $this->getOrderReturns($start_date, $end_date);
-        $orderPayments          = $this->getOrderPayments($start_date, $end_date);
+        $orders                 = $this->getOrders($start_date, $end_date)->keyBy('date');
+        $quotations             = $this->getQuotations($start_date, $end_date)->keyBy('date');
+        $orderReturns           = $this->getOrderReturns($start_date, $end_date)->keyBy('date');
+        $orderPayments          = $this->getOrderPayments($start_date, $end_date)->keyBy('date');
         $customerOpeningDue     = $this->getCustomerOpeningDue($start_date, $end_date);
-        $customerDuePayments    = $this->getCustomerDuePayments($start_date, $end_date);
-        $productDamages         = $this->getProductDamage($start_date, $end_date);
-        $customerProductDamages = $this->getCustomerProductDamage($start_date, $end_date);
-        $getSupplierOpeningDue  = $this->getSupplierOpeningDue();
-        $getItemOrders          = $this->getItemOrders($start_date, $end_date);
-        $getItemOrderPayments   = $this->getItemOrderPayments($start_date, $end_date);
-        $getItemOrderReturnsPayments= $this->getItemOrderReturnsPayments($start_date, $end_date);
-        $unpaidCommissions      = $this->unpaidCommissions($start_date, $end_date);
-        $supplierDuePayments    = $this->getSupplierDuePayments($start_date, $end_date);
-        $expenses               = $this->getExpenses($start_date, $end_date);
-        $expensePayments        = $this->getExpensePayments($start_date, $end_date);
-        $monthlyExpensePayments = $this->getMonthlyExpensePayments($start_date, $end_date);
-        $assetExpensePayments   = $this->getAssetExpensePayments($start_date, $end_date);
-        $transportExpensePayments= $this->getTransportExpensePayments($start_date, $end_date);
-        $getSalaryAdvances      = $this->getSalaryAdvances($start_date, $end_date);
-        $getSalaries            = $this->getSalaries($start_date, $end_date);
-        $getEmployeeLoans       = $this->getEmployeeLoans($start_date, $end_date);
-        $getSalaryPayments      = $this->getSalaryPayments($start_date, $end_date);
-        $getOverTimeAllowances  = $this->getOverTimeAllowances($start_date, $end_date);
+        $customerDuePayments    = $this->getCustomerDuePayments($start_date, $end_date)->keyBy('date');
+        $productDamages         = $this->getProductDamage($start_date, $end_date)->keyBy('date');
+        $customerProductDamages = $this->getCustomerProductDamage($start_date, $end_date)->keyBy('date');
+        $getSupplierOpeningDue  = $this->getSupplierOpeningDue($start_date, $end_date);
+        $getItemOrders          = $this->getItemOrders($start_date, $end_date)->keyBy('date');
+        $getItemOrderPayments   = $this->getItemOrderPayments($start_date, $end_date)->keyBy('date');
+        $getItemOrderReturnsPayments= $this->getItemOrderReturnsPayments($start_date, $end_date)->keyBy('date');
+        $unpaidCommissions      = $this->unpaidCommissions($start_date, $end_date)->keyBy('date');
+        $supplierDuePayments    = $this->getSupplierDuePayments($start_date, $end_date)->keyBy('date');
+        $expenses               = $this->getExpenses($start_date, $end_date)->keyBy('date');
+        $expensePayments        = $this->getExpensePayments($start_date, $end_date)->keyBy('date');
+        $monthlyExpensePayments = $this->getMonthlyExpensePayments($start_date, $end_date)->keyBy('date');
+        $assetExpensePayments   = $this->getAssetExpensePayments($start_date, $end_date)->keyBy('date');
+        $transportExpensePayments= $this->getTransportExpensePayments($start_date, $end_date)->keyBy('date');
+        $getSalaryAdvances      = $this->getSalaryAdvances($start_date, $end_date)->keyBy('date');
+        $getSalaries            = $this->getSalaries($start_date, $end_date)->keyBy('date');
+        $getEmployeeLoans       = $this->getEmployeeLoans($start_date, $end_date)->keyBy('date');
+        $getSalaryPayments      = $this->getSalaryPayments($start_date, $end_date)->keyBy('date');
+        $getOverTimeAllowances  = $this->getOverTimeAllowances($start_date, $end_date)->keyBy('date');
 
-        $getBonas               = $this->getBonas($start_date, $end_date);
+        $getBonas               = $this->getBonas($start_date, $end_date)->keyBy('date');
 
-        $getOfficeLoans         = $this->getOfficeLoans($start_date, $end_date);
-        $getOfficeLoanPayments  = $this->getOfficeLoanPayments($start_date, $end_date);
+        $getOfficeLoans         = $this->getOfficeLoans($start_date, $end_date)->keyBy('date');
+        $getOfficeLoanPayments  = $this->getOfficeLoanPayments($start_date, $end_date)->keyBy('date');
 
-        $getCustomerLoans       = $this->getCustomerLoans($start_date, $end_date);
-        $getCustomerLoanPayments= $this->getCustomerLoanPayments($start_date, $end_date);
+        $getCustomerLoans       = $this->getCustomerLoans($start_date, $end_date)->keyBy('date');
+        $getCustomerLoanPayments= $this->getCustomerLoanPayments($start_date, $end_date)->keyBy('date');
 
-        $getDeposits            = $this->getDeposits($start_date, $end_date);
-        $getWithdrawals         = $this->getWithdrawals($start_date, $end_date);
-        $getMarkerterCommssionPayments = $this->getMarkerterCommssionPayments($start_date, $end_date);
+        $getDeposits            = $this->getDeposits($start_date, $end_date)->keyBy('date');
+        $getWithdrawals         = $this->getWithdrawals($start_date, $end_date)->keyBy('date');
+        $getMarkerterCommssionPayments = $this->getMarkerterCommssionPayments($start_date, $end_date)->keyBy('date');
 
-        $getMakeProductions = $this->getMakeProductions($start_date, $end_date);
-        $getProductions = $this->getProductions($start_date, $end_date);
+        $getMakeProductions = $this->getMakeProductions($start_date, $end_date)->keyBy('date');
+        $getProductions = $this->getProductions($start_date, $end_date)->keyBy('date');
 
-        $costs      = $this->getDailySalesOrderProductPrice($start_date, $end_date);
-        $pbscosts   = $this->getDailySalesOrderPBSCost($start_date, $end_date);
+        $costs      = $this->getDailySalesOrderProductPrice($start_date, $end_date)->keyBy('date');
+        $pbscosts   = $this->getDailySalesOrderPBSCost($start_date, $end_date)->keyBy('date');
         // return $getSalaries;
 
        
@@ -654,42 +654,42 @@ class ReportController extends Controller
             $pbscosts
         ) {
 
-            $quotation = $quotations->firstWhere('date', $date);           
-            $order = $orders->firstWhere('date', $date);
-            $orderReturn = $orderReturns->firstWhere('date', $date);
-            $orderPayment = $orderPayments->firstWhere('date', $date);
-            $customerDuePayment = $customerDuePayments->firstWhere('date', $date);
-            $productDamage = $productDamages->firstWhere('date', $date);
-            $customerProductDamage = $customerProductDamages->firstWhere('date', $date);
-            $customerProductDamage = $customerProductDamages->firstWhere('date', $date);
-            $getItemOrder = $getItemOrders->firstWhere('date', $date);
-            $getItemOrderPayment = $getItemOrderPayments->firstWhere('date', $date);
-            $getItemOrderReturnsPayment = $getItemOrderReturnsPayments->firstWhere('date', $date);
-            $supplierDuePayment = $supplierDuePayments->firstWhere('date', $date);
-            $unpaidCommission = $unpaidCommissions->firstWhere('date', $date);
-            $expense = $expenses->firstWhere('date', $date);
-            $expensePayment = $expensePayments->firstWhere('date', $date);
-            $monthlyExpensePayment = $monthlyExpensePayments->firstWhere('date', $date);
-            $assetExpensePayment = $assetExpensePayments->firstWhere('date', $date);
-            $transportExpensePayment = $transportExpensePayments->firstWhere('date', $date);
-            $getSalaryAdvance = $getSalaryAdvances->firstWhere('date', $date);
-            $getSalary                      = $getSalaries->firstWhere('date', $date);
-            $getEmployeeLoan                = $getEmployeeLoans->firstWhere('date', $date);
-            $getSalaryPayment               = $getSalaryPayments->firstWhere('date', $date);
-            $getOverTimeAllowance           = $getOverTimeAllowances->firstWhere('date', $date);
-            $getBonas                       = $getBonas->firstWhere('date', $date);
-            $getOfficeLoan                  = $getOfficeLoans->firstWhere('date', $date);
-            $getOfficeLoanPayment           = $getOfficeLoanPayments->firstWhere('date', $date);
-            $getCustomerLoan                = $getCustomerLoans->firstWhere('date', $date);
-            $getCustomerLoanPayment         = $getCustomerLoanPayments->firstWhere('date', $date);
-            $getDeposit                     = $getDeposits->firstWhere('date', $date);
-            $getWithdrawal                  = $getWithdrawals->firstWhere('date', $date);
-            $getMarkerterCommssionPayment   = $getMarkerterCommssionPayments->firstWhere('date', $date);
+            $quotation = $quotations[$date] ?? null;           
+            $order = $orders[$date] ?? null;
+            $orderReturn = $orderReturns[$date] ?? null;
+            $orderPayment = $orderPayments[$date] ?? null;
+            $customerDuePayment = $customerDuePayments[$date] ?? null;
+            $productDamage = $productDamages[$date] ?? null;
+            $customerProductDamage = $customerProductDamages[$date] ?? null;
+            $customerProductDamage = $customerProductDamages[$date] ?? null;
+            $getItemOrder = $getItemOrders[$date] ?? null;
+            $getItemOrderPayment = $getItemOrderPayments[$date] ?? null;
+            $getItemOrderReturnsPayment = $getItemOrderReturnsPayments[$date] ?? null;
+            $supplierDuePayment = $supplierDuePayments[$date] ?? null;
+            $unpaidCommission = $unpaidCommissions[$date] ?? null;
+            $expense = $expenses[$date] ?? null;
+            $expensePayment = $expensePayments[$date] ?? null;
+            $monthlyExpensePayment = $monthlyExpensePayments[$date] ?? null;
+            $assetExpensePayment = $assetExpensePayments[$date] ?? null;
+            $transportExpensePayment = $transportExpensePayments[$date] ?? null;
+            $getSalaryAdvance = $getSalaryAdvances[$date] ?? null;
+            $getSalary                      = $getSalaries[$date] ?? null;
+            $getEmployeeLoan                = $getEmployeeLoans[$date] ?? null;;
+            $getSalaryPayment               = $getSalaryPayments[$date] ?? null;
+            $getOverTimeAllowance           = $getOverTimeAllowances[$date] ?? null;
+            $getBonas                       = $getBonas[$date] ?? null;
+            $getOfficeLoan                  = $getOfficeLoans[$date] ?? null;
+            $getOfficeLoanPayment           = $getOfficeLoanPayments[$date] ?? null;
+            $getCustomerLoan                = $getCustomerLoans[$date] ?? null;
+            $getCustomerLoanPayment         = $getCustomerLoanPayments[$date] ?? null;
+            $getDeposit                     = $getDeposits[$date] ?? null;
+            $getWithdrawal                  = $getWithdrawals[$date] ?? null;
+            $getMarkerterCommssionPayment   = $getMarkerterCommssionPayments[$date] ?? null;
 
-            $getMakeProduction              = $getMakeProductions->firstWhere('date', $date);
-            $getProduction                  = $getProductions->firstWhere('date', $date);
-            $cost                           = $costs->firstWhere('date', $date);
-            $pbscost                        = $pbscosts->firstWhere('date', $date);
+            $getMakeProduction              = $getMakeProductions[$date] ?? null;
+            $getProduction                  = $getProductions[$date] ?? null;
+            $cost                           = $costs[$date] ?? null;
+            $pbscost                        = $pbscosts[$date] ?? null;
 
 
             return [
