@@ -79,6 +79,7 @@
                             <th>@lang('Amount')</th>
                             <th>@lang('Note')</th>
                             <th>@lang('Status')</th>
+                            <th>@lang('Entry By')</th>
                             <th>@lang('Action')</th>
                         </tr>
                     </thead>
@@ -93,6 +94,9 @@
                                 <td> {{ $item->reason }}</td>
                                 <td> <span
                                         class="btn btn-{{ statusButton($item->status) }} btn-sm">{{ $item->status }}</span>
+                                </td>
+                                <td>
+                                    {!! entry_info($item) !!}
                                 </td>
                                 <td>
                                     <a href="{{ route('admin.salarybonussetup.edit', $item->id) }}"

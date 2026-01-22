@@ -146,6 +146,7 @@ class MarketerCommissionController extends Controller
             $invoice->save();
 
             $invoice->invoice_no            = "MC00" . $invoice->id;
+            $invoice->entry_id = auth('admin')->user()->id;
             $invoice->save();
 
 

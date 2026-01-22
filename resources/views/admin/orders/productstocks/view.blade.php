@@ -119,7 +119,9 @@
                                     {{ en2bn(number_format($item->qty, 2, '.', ',')) }}</td>
                                 <td style="text-align: right;padding-right:10px">
                                     {{ en2bn(number_format($item->total_value, 2, '.', ',')) }}</td>
-                                <td> {{ optional($item->entryuser)->name }}</td>
+                                <td>
+                                    {!! entry_info($item) !!}
+                                </td>
                                 <td>
                                     <div class="btn-group">
                                         <button data-bs-toggle="dropdown">

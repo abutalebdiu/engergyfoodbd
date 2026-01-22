@@ -74,6 +74,7 @@
                             <th>@lang('Amount')</th>
                             <th>@lang('Note')</th>
                             <th>@lang('Status')</th>
+                            <th>@lang('Entry By')</th>
                             <th>@lang('Action')</th>
                         </tr>
                     </thead>
@@ -81,7 +82,7 @@
                         @forelse($salaryadvances as $monthYear => $departments)
                             <!-- Row for Month-Year -->
                             <tr>
-                                <td colspan="10" class="text-start font-weight-bold">
+                                <td colspan="11" class="text-start font-weight-bold">
                                     {{ $monthYear }}
                                 </td>
                             </tr>
@@ -89,7 +90,7 @@
                             @foreach ($departments as $departmentName => $advances)
                                 <!-- Row for Department -->
                                 <tr>
-                                    <td colspan="10" class="font-weight-bold text-start">
+                                    <td colspan="11" class="font-weight-bold text-start">
                                         @lang('Department'): {{ $departmentName ?? 'N/A' }}
                                     </td>
                                 </tr>
@@ -113,6 +114,7 @@
                                                 {{ $item->status }}
                                             </span>
                                         </td>
+                                        <td>{!! entry_info($item) !!}</td>
                                         <td>
                                             <a href="{{ route('admin.salaryadvance.edit', $item->id) }}"
                                                 class="btn btn-primary btn-sm">

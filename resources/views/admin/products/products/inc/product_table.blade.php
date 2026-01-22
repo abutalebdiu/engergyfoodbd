@@ -107,9 +107,7 @@
                     </td>
 
                     <td> 
-                        {{ optional($item->entryuser)->name }}
-                        </br>
-                        {{ optional($item->entryuser)->updated_at?->format('d-m-Y h:i A') }} 
+                        {!! entry_info($item) !!}
                     </td>
                 </tr>
             @empty

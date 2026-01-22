@@ -34,7 +34,9 @@
                                 <td> {{ number_format($item->amount) }}</td>
                                 <td> {{ $item->date }}</td>
                                 <td> {{ $item->note }}</td>
-                                <td> {{ optional($item->entryuser)->name }}</td>
+                                <td> 
+                                    {!! entry_info($item) !!}
+                                </td>
                                 <td>
                                     <div class="btn-group">
                                         <button data-bs-toggle="dropdown">

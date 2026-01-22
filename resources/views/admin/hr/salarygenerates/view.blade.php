@@ -22,6 +22,7 @@
                             <th>@lang('Month')</th>
                             <th>@lang('Year')</th>
                             <th>@lang('Payable Salary')</th>
+                            <th>@lang('Entry By')</th>
                             <th>@lang('Action')</th>
                         </tr>
                     </thead>
@@ -32,6 +33,7 @@
                                 <td>{{ $salarygenerate->month->name }}</td>
                                 <td>{{ $salarygenerate->year->name }}</td>
                                 <td>{{ en2bn(number_format($salarygenerate->total_amount,2,'.',',')) }}</td>
+                                <td>{!! entry_info($salarygenerate) !!}</td>
                                 <td>
                                     <a href="{{ route('admin.salarygenerate.show.detail') }}?month_id={{ $salarygenerate->month_id }}&year_id={{ $salarygenerate->year_id }}"
                                         class="btn btn-primary btn-sm"><i class="fa fa-eye"></i> Show</a>

@@ -17,6 +17,7 @@
                         <tr>
                             <th>#</th>
                             <th>Name</th>
+                            <th>Entry by</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -25,6 +26,7 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $item->name }}</td>
+                                <td>{!! entry_info($item) !!}</td>
                                 <td>
                                     <div class="table-actions d-flex align-items-center gap-3 fs-6">
                                         <a href="{{ route('admin.salarytype.edit', $item->id) }}" class="text-warning"

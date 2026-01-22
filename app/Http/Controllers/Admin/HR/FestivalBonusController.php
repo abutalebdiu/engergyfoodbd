@@ -15,7 +15,8 @@ class FestivalBonusController extends Controller
 
     public function index()
     {
-        $data['festivalbonuses'] = FestivalBonus::latest()->get();
+        $data['festivalbonuses'] = FestivalBonus::latest()->paginate(10)->withQueryString();
+
         return view('admin.hr.festivalbonuses.index', $data);
     }
 

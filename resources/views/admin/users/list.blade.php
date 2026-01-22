@@ -38,6 +38,7 @@
                             <th>@lang('Address')</th>
                             <th>@lang('Opending Payable')</th>
                             <th>@lang('Total Payable')</th>
+                            <th>@lang('Entry By')</th>
 
                         </tr>
                     </thead>
@@ -81,6 +82,9 @@
                                 <td style="text-align: left">{{ $user->address }}</td>
                                 <td>{{ en2bn(number_format($user->opening_due, 2, '.', ',')) }}</td>
                                 <td>{{ en2bn(number_format($user->payable($user->id), 2, '.', ',')) }}</td>
+                                <td>
+                                    {!! entry_info($user) !!}
+                                </td>
 
                             </tr>
                         @empty

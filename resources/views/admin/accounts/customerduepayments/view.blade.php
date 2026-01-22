@@ -86,7 +86,7 @@
                                 <td> {{ en2bn(number_format($item->amount, 2, '.', ',')) }}</td>
 
                                 <td> {{ $item->note }}</td>
-                                <td> {{ optional($item->entryuser)->name }}</td>
+                                <td> {!! entry_info($item) !!}</td>
 
                             </tr>
                         @empty

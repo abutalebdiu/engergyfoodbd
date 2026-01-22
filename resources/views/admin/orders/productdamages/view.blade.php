@@ -70,9 +70,7 @@
                                 <td>{{ en2bn(number_format($item->qty * $item->product->sale_price), 2) }}</td>
                                 <td>{{ $item->reason }}</td>
                                 <td> 
-                                    {{ optional($item->entryuser)->name }} 
-                                    </br>
-                                    {{ optional($item->entryuser)->updated_at->format('d-m-Y h:i A') }}
+                                    {!! entry_info($item) !!}
                                 </td>
                                 <td>
                                     <div class="btn-group">

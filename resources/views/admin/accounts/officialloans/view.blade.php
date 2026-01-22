@@ -51,6 +51,7 @@
                             <th>@lang('Due')</th>
                             <th>@lang('Note')</th>
                             <th>@lang('Status')</th>
+                            <th>@lang('Entry by')</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -97,6 +98,9 @@
                                 <td> {{ $item->note }}</td>
                                 <td> <span
                                         class="btn btn-{{ statusButton($item->status) }} btn-sm">{{ $item->status }}</span>
+                                </td>
+                                <td>
+                                    {!! entry_info($item) !!}
                                 </td>
                             </tr>
                         @empty

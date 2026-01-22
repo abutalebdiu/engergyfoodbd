@@ -20,6 +20,7 @@
                             <th>@lang('SL')</th>
                             <th>@lang('Name')</th>
                             <th>@lang('Status')</th>
+                            <th>@lang('Entry by')</th>
                             <th>@lang('Action')</th>
                         </tr>
                     </thead>
@@ -35,6 +36,10 @@
                                     <span class="btn btn-{{ statusButton($item->status) }} btn-sm">
                                         {{ $item->status }}
                                     </span>
+                                </td>
+
+                                <td>
+                                    {!! entry_info($item) !!}
                                 </td>
 
                                 <td>

@@ -55,7 +55,9 @@
                                 <td> {{ optional($item->orderreturndetail)->sum('qty') }}</td>
                                 <td> {{ number_format($item->totalamount) }}</td>
                                 <td> {{ $item->created_at->format('d-m-Y') }} </td>
-                                <td> {{ optional($item->entryuser)->name }}</td>
+                                <td> 
+                                    {!! entry_info($item) !!}
+                                </td>
                                 <td><span
                                         class="btn btn-{{ statusButton($item->payment_status) }} btn-sm">{{ $item->payment_status }}</span>
                                 </td>

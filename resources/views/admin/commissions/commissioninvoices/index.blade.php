@@ -82,6 +82,7 @@
                             <th>@lang('Payable Commission')</th>
                             <th>@lang('Receivable Amount')</th>
                             <th>@lang('Status')</th>
+                            <th>@lang('Entry by')</th>
 
                         </tr>
                     </thead>
@@ -166,6 +167,10 @@
                                 </td>
                                 <td>
                                     {{ $invoice->payment_status }}
+                                </td>
+
+                                <td>
+                                    {!! entry_info($invoice) !!}
                                 </td>
 
                             </tr>

@@ -14,7 +14,7 @@ class FestivalBonusPaymentController extends Controller
 
     public function index()
     {
-        $data['festivalbonuspayments']  = FestivalBonusPayment::get();
+        $data['festivalbonuspayments']  = FestivalBonusPayment::paginate(30)->withQueryString();
         $data['employees']              = Employee::get();
         return view('admin.hr.festivalbonuspayments.view',$data);
     }

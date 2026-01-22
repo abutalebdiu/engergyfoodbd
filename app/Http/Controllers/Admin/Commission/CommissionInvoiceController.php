@@ -114,6 +114,7 @@ class CommissionInvoiceController extends Controller
             return $pdf->stream('commissioninvoice.pdf');
         } else {
             return view('admin.commissions.commissioninvoices.index', $data);
+
         }
     }
 
@@ -440,6 +441,7 @@ class CommissionInvoiceController extends Controller
             $invoice->commission           = $orders->sum('commission');
             $invoice->customer_due_payment = $duepayment;
             $invoice->last_month_due       = $last_month_due;
+            $invoice->entry_id = auth()->guard('admin')->user()->id;
 
             if ($customer->commission_type === "Monthly") {
 

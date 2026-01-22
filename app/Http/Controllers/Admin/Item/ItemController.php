@@ -139,6 +139,7 @@ class ItemController extends Controller
         $item->item_category_id = $request->item_category_id;
         $item->price            = bn2en($request->price);
         $item->description      = $request->description;
+        $item->entry_id         = auth('admin')->user()->id;
         $item->save();
 
 
