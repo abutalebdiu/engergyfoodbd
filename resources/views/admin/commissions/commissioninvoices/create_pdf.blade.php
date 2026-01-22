@@ -54,7 +54,7 @@
         @if ($searching == 'Yes')
             <div class="row">
                 <div class="pb-3 col-12 col-md-12">
-                    <h5 style="margin:0;padding:0">Customer Info</h5>
+                    <h5 style="margin:0;padding:0">@lang('Customer Info')</h5>
 
                     <table style="width:50%">
                         <tr>
@@ -101,127 +101,119 @@
                                         <th>@lang('Total Due Amount')</th>
                                     </tr>
                                 </thead>
-                                <tbody>
 
+                                <tbody>
+                                    <tr>
+                                        <th colspan="13" style="text-align:left">@lang('Last Month Due')</th>
+                                        <td style="color: red">{{ en2bn(number_format($lastmonthdueamount, 2)) }}</td>
+                                    </tr>
                                     @php
-                                        $totalnetchallanamount = 0;
-                                        $totaldueamount = 0;
+                                        // Start from LAST MONTH DUE / OPENING DUE
+                                        $continueDue = $lastmonthdueamount;
                                         $returncommissiontotal = 0;
-                                        $continueDue = 0;
-                                        $isFirstOrder = true;
                                     @endphp
 
-                                    @foreach ($mergedData as $key => $item)
+                                    @foreach ($mergedData as $item)
+                                        {{-- ================= ORDER ROW ================= --}}
                                         @if ($item['type'] == 'order')
                                             @php
                                                 $order = $item['data'];
 
-                                                // প্রথম order থেকে previous_due দিয়ে শুরু
-                                                if ($isFirstOrder) {
-                                                    $continueDue = $order->previous_due;
-                                                    $isFirstOrder = false;
-                                                }
-
-                                                // order related totals
-                                                $totalnetchallanamount += $order->sub_total - $order->return_amount;
-                                                $totaldueamount +=
-                                                    $order->sub_total -
-                                                    $order->return_amount -
-                                                    $order->paid_amount -
-                                                    $order->commission;
-                                                $returncommissiontotal += $order->orderreturn->sum('commission');
-
-                                                // current order due = grand total - paid_amount
                                                 $currentOrderDue = $order->grand_total - $order->paid_amount;
-
-                                                // running continue due
                                                 $continueDue += $currentOrderDue;
+
+                                                $returncommissiontotal += $order->orderreturn->sum('commission');
                                             @endphp
 
                                             <tr>
-                                                <td>{{ en2bn(Date('d-m-Y', strtotime($order->date))) }}</td>
+                                                <td>{{ en2bn(date('d-m-Y', strtotime($order->date))) }}</td>
+
                                                 <td>
                                                     #{{ $order->oid }}
                                                     <input type="hidden" name="order_id[]"
                                                         value="{{ $order->id }}">
                                                 </td>
-                                                <td>{{ en2bn(number_format($order->previous_due, 2, '.', ',')) }}
-                                                </td>
-                                                <td>{{ en2bn(number_format($order->sub_total, 2, '.', ',')) }}</td>
-                                                <td>{{ en2bn(number_format($order->return_amount, 2, '.', ',')) }}
-                                                </td>
-                                                <td>{{ en2bn(number_format($order->net_amount, 2, '.', ',')) }}
-                                                </td>
-                                                <td>{{ en2bn(number_format($order->commission ?? 0, 2, '.', ',')) }}
-                                                </td>
-                                                <td>{{ en2bn(number_format($order->orderreturn->sum('commission'), 2, '.', ',')) }}
-                                                </td>
-                                                <td>{{ en2bn(number_format($order->grand_total, 2, '.', ',')) }}
-                                                </td>
-                                                <td>{{ en2bn(number_format($order->paid_amount, 2, '.', ',')) }}</td>
-                                                <td>{{ en2bn(number_format($order->grand_total - $order->paid_amount, 2, '.', ',')) }}
+
+                                                <td>{{ en2bn(number_format($order->previous_due, 2)) }}</td>
+
+                                                <td>{{ en2bn(number_format($order->sub_total, 2)) }}</td>
+
+                                                <td>{{ en2bn(number_format($order->return_amount, 2)) }}</td>
+
+                                                <td>{{ en2bn(number_format($order->net_amount, 2)) }}</td>
+
+                                                <td>{{ en2bn(number_format($order->commission ?? 0, 2)) }}</td>
+
+                                                <td>{{ en2bn(number_format($order->orderreturn->sum('commission'), 2)) }}
                                                 </td>
 
+                                                <td>{{ en2bn(number_format($order->grand_total, 2)) }}</td>
+
+                                                <td>{{ en2bn(number_format($order->paid_amount, 2)) }}</td>
+
+                                                <td>{{ en2bn(number_format($currentOrderDue, 2)) }}</td>
+
                                                 <td>{{ $order->commission_status }}</td>
+
                                                 <td></td>
 
                                                 <td class="fw-bold text-danger">
-                                                    {{ en2bn(number_format($continueDue, 2, '.', ',')) }}</td>
+                                                    {{ en2bn(number_format($continueDue, 2)) }}
+                                                </td>
                                             </tr>
+
+                                            {{-- ================= PAYMENT ROW ================= --}}
                                         @else
                                             @php
                                                 $payment = $item['data'];
-
-                                                // payment দিলে continue due থেকে minus
+                                                $previousDue = $continueDue;
                                                 $continueDue -= $payment->amount;
                                             @endphp
 
                                             <tr class="table-info">
-                                                <td>{{ en2bn(Date('d-m-Y', strtotime($payment->date))) }}</td>
+                                                <td>{{ en2bn(date('d-m-Y', strtotime($payment->date))) }}</td>
+
+                                                <td></td>
+
+                                                {{-- Previous Due --}}
+                                                <td class="fw-bold">
+                                                    {{ en2bn(number_format($previousDue, 2)) }}
+                                                </td>
+
                                                 <td colspan="4">
                                                     <span class="badge bg-success">@lang('Due Payment')</span>
                                                 </td>
+
                                                 <td colspan="5">@lang('Customer Due Payment')</td>
-                                                <td colspan="2"> {{ $payment->created_at }} </td>
-                                                <td><strong>{{ en2bn(number_format($payment->amount, 2, '.', ',')) }}</strong>
+
+                                                <td>
+                                                    <strong>{{ en2bn(number_format($payment->amount, 2)) }}</strong>
                                                 </td>
 
                                                 <td class="fw-bold text-danger">
-                                                    {{ en2bn(number_format($continueDue, 2, '.', ',')) }}</td>
+                                                    {{ en2bn(number_format($continueDue, 2)) }}
+                                                </td>
                                             </tr>
                                         @endif
                                     @endforeach
-
                                 </tbody>
                                 <tfoot>
                                     <tr class="bg-secondary text-white">
                                         <td>@lang('Total')</td>
                                         <td></td>
                                         <td></td>
-                                        <td>{{ en2bn(number_format($orders->sum('sub_total'), 2, '.', ',')) }}</td>
-                                        <td>{{ en2bn(number_format($orders->sum('return_amount'), 2, '.', ',')) }}
-                                        </td>
-                                        <input type="hidden" name="return_amount"
-                                            value="{{ $orders->sum('return_amount') }}">
-                                        <input type="hidden" name="net_amount"
-                                            value="{{ $orders->sum('net_amount') }}">
-                                        <input type="hidden" name="paid_amount"
-                                            value="{{ $orders->sum('paid_amount') }}">
-                                        <td>{{ en2bn(number_format($orders->sum('net_amount'), 2, '.', ',')) }}
-                                        </td>
-                                        <td>{{ en2bn(number_format($orders->sum('commission'), 2, '.', ',')) }}
-                                        </td>
-                                        <td>{{ en2bn(number_format($returncommissiontotal, 2, '.', ',')) }}</td>
-                                        <td>{{ en2bn(number_format($orders->sum('grand_total'), 2, '.', ',')) }}
-                                        </td>
-                                        <td>{{ en2bn(number_format($orders->sum('paid_amount'), 2, '.', ',')) }}
-                                        </td>
-                                        <td>{{ en2bn(number_format($orders->sum('order_due'), 2, '.', ',')) }}</td>
-                                        <td></td>
-                                        <td>{{ en2bn(number_format($customerduepayments->sum('amount'), 2, '.', ',')) }}
-                                        </td>
-                                        <td></td>
 
+                                        <td>{{ en2bn(number_format($orders->sum('sub_total'), 2)) }}</td>
+                                        <td>{{ en2bn(number_format($orders->sum('return_amount'), 2)) }}</td>
+                                        <td>{{ en2bn(number_format($orders->sum('net_amount'), 2)) }}</td>
+                                        <td>{{ en2bn(number_format($orders->sum('commission'), 2)) }}</td>
+                                        <td>{{ en2bn(number_format($returncommissiontotal, 2)) }}</td>
+                                        <td>{{ en2bn(number_format($orders->sum('grand_total'), 2)) }}</td>
+                                        <td>{{ en2bn(number_format($orders->sum('paid_amount'), 2)) }}</td>
+                                        <td>{{ en2bn(number_format($orders->sum('order_due'), 2)) }}</td>
+                                        <td></td>
+                                        <td>{{ en2bn(number_format($customerduepayments->sum('amount'), 2)) }}</td>
+                                        <td></td>
                                     </tr>
                                 </tfoot>
                             </table>

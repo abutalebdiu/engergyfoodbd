@@ -13,7 +13,7 @@
                 <div class="form form-inline my-3">
                     <div class="row">
                         <div class="col-12 col-md-3">
-                            <select name="customer_id" id="customer_id" class="form-select select2">
+                            <select name="customer_id" id="customer_id" class="form-select customer_id  select2">
                                 <option value="">@lang('Search Customer')</option>
                                 @foreach ($customers as $customer)
                                     <option {{ request()->customer_id == $customer->id ? 'selected' : '' }}
@@ -22,9 +22,9 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-12 col-md-3">
+                        <div class="col-12 col-md-2">
                             <div class="form-group">
-                                <select name="month_id" id="month_id" class="form-select">
+                                <select name="month_id" id="month_id" class="form-select month_id">
                                     <option value=""> -- Select -- </option>
                                     @foreach ($months as $item)
                                         <option {{ request()->month_id == $item->id ? 'selected' : '' }}
@@ -33,8 +33,18 @@
                                 </select>
                             </div>
                         </div>
-
-                        <div class="col-12 col-md-3">
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <select name="year" id="year" class="form-select year">
+                                    <option value=""> -- Select -- </option>
+                                    @foreach ($years as $item)
+                                        <option {{ request()->year == $item->name ? 'selected' : '' }}
+                                            value="{{ $item->name }}">{{ $item->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
                             <div class="form-group">
                                 <select name="marketer_id" id="marketer_id" class="form-select select2 marketer_id">
                                     <option value="">@lang('Select Marketer')</option>
@@ -45,7 +55,6 @@
                                 </select>
                             </div>
                         </div>
-
                         <div class="col-12 col-md-3">
                             <button type="submit" name="search" class="btn btn-primary btn-sm"><i
                                     class="bi bi-search"></i>
@@ -122,7 +131,7 @@
                                 <td>
                                     {{ optional($invoice->month)->name }} - {{ $invoice->year }}
                                 </td>
-                                <td style="text-align:left">
+                                <td style="text-align:left" class="text-wrap">
                                     {{ en2bn($invoice->customer?->uid) }} - {{ $invoice->customer?->name }}
                                 </td>
                                 <td>
