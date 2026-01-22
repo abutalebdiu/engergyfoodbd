@@ -182,7 +182,8 @@
                                 class="bi bi-circle"></i>@lang('Date Wise Customer Order')</a>
                     </li>
                     <li class="{{ menuActive('admin.orderdetail.index') }}">
-                        <a href="{{ route('admin.orderdetail.index') }}"><i class="bi bi-circle"></i>@lang('Order Detail')</a>
+                        <a href="{{ route('admin.orderdetail.index') }}"><i
+                                class="bi bi-circle"></i>@lang('Order Detail')</a>
                     </li>
                 </ul>
             </li>
@@ -256,7 +257,8 @@
                     @endif
                     @if (Auth::guard('admin')->user()->hasPermission('admin.item.list'))
                         <li class="{{ menuActive('admin.items.item.index') }}">
-                            <a class="" href="{{ route('admin.items.item.index') }}"><i class="bi bi-circle"></i>
+                            <a class="" href="{{ route('admin.items.item.index') }}"><i
+                                    class="bi bi-circle"></i>
                                 @lang('Item List')
                             </a>
                         </li>
@@ -483,7 +485,23 @@
                         </li>
                     @endif
 
+                    @if (Auth::guard('admin')->user())
+                        <li class="{{ menuActive('admin.customerloan*') }}">
+                            <a href="{{ route('admin.customerloan.index') }}">
+                                <i class="bi bi-circle"></i>
+                                @lang('Customer Loan')
+                            </a>
+                        </li>
+                    @endif
 
+                    @if (Auth::guard('admin')->user())
+                        <li class="{{ menuActive('admin.customerloanpayment*') }}">
+                            <a href="{{ route('admin.customerloanpayment.index') }}">
+                                <i class="bi bi-circle"></i>
+                                @lang('Customer Loan Payment')
+                            </a>
+                        </li>
+                    @endif
 
                     @if (Auth::guard('admin')->user()->hasPermission('admin.moduletype.list'))
                         <li class="{{ menuActive('admin.moduletype*') }}">
@@ -573,7 +591,7 @@
                                 @lang('Marketers')</a>
                         </li>
                     @endif
-                
+
 
 
 
@@ -638,7 +656,7 @@
                             <a href="{{ route('admin.salarypaymenthistory.index') }}">
                                 <i class="bi bi-circle"></i> Salary Payment</a>
                         </li>
-                        
+
                         <li>
                             <a href="{{ route('admin.festivalbonus.index') }}">
                                 <i class="bi bi-circle"></i> Festival Bonus</a>
@@ -653,7 +671,7 @@
                         </li>
                     @endif
 
-                        
+
                 </ul>
             </li>
         @endif

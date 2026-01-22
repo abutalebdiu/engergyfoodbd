@@ -1,4 +1,4 @@
-@extends('admin.layouts.app', ['title' => __('Summery')])
+@extends('admin.layouts.app', ['title' => __('Summery Report')])
 @section('panel')
     <div class="card">
         <div class="card-header d-flex justify-content-between">
@@ -9,18 +9,15 @@
         <div class="card-body">
             <form action="" method="get">
                 <div class="row">
-
                     <div class="col-12 col-md-3">
                         <input type="date" name="start_date"
                             @if (isset($datas['start_date'])) value="{{ $datas['start_date'] }}" @endif
                             class="form-control">
                     </div>
-
                     <div class="col-12 col-md-3">
                         <input type="date" name="end_date"
                             @if (isset($datas['end_date'])) value="{{ $datas['end_date'] }}" @endif class="form-control">
                     </div>
-
                     <div class="col-12 col-md-4">
                         <button type="submit" name="search" class="btn btn-primary "><i class="bi bi-search"></i>
                             @lang('Search')</button>
@@ -28,11 +25,8 @@
                             @lang('PDF')</button>
 
                     </div>
-
                 </div>
             </form>
-
-
             <div class="row mt-4">
                 <div class="col-12">
                     <p class=" mt-5">@lang('Date'): @if (isset($datas['start_date']))
@@ -40,19 +34,14 @@
                             {{ en2bn(Date('d-m-Y', strtotime($datas['end_date']))) }}
                         @endif
                     </p>
-
                 </div>
             </div>
-
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
                     @include('admin.reports.includes.summery_report_table')
                 </table>
             </div>
-
             <div class="row mt-4">
-
-
                 <div class="col-12 col-md-3">
                     <div class="card card mb-3 shadow">
                         <div class="card-body">
@@ -396,6 +385,43 @@
                             </h6>
                             <h6 class="mb-0 text-capitalize mt-2 text-success">
                                 {{ en2bn(isset($datas['office_loan']) ? number_format($datas['office_loan'], 2) : 0) }}
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card card mb-3 shadow">
+                        <div class="card-body">
+                            <h6 class="mb-0 text-capitalize">
+                                @lang('Office Loan Payment')
+                            </h6>
+                            <h6 class="mb-0 text-capitalize mt-2 text-success">
+                                {{ en2bn(isset($datas['office_loan_payment']) ? number_format($datas['office_loan_payment'], 2) : 0) }}
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+                {{-- // customer loan --}}
+                <div class="col-12 col-md-3">
+                    <div class="card card mb-3 shadow">
+                        <div class="card-body">
+                            <h6 class="mb-0 text-capitalize">
+                                @lang('Customer Loan')
+                            </h6>
+                            <h6 class="mb-0 text-capitalize mt-2 text-success">
+                                {{ en2bn(isset($datas['customer_loan']) ? number_format($datas['customer_loan'], 2) : 0) }}
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card card mb-3 shadow">
+                        <div class="card-body">
+                            <h6 class="mb-0 text-capitalize">
+                                @lang('Customer Loan Payment')
+                            </h6>
+                            <h6 class="mb-0 text-capitalize mt-2 text-success">
+                                {{ en2bn(isset($datas['customer_loan_payment']) ? number_format($datas['customer_loan_payment'], 2) : 0) }}
                             </h6>
                         </div>
                     </div>

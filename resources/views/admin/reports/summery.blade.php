@@ -3,7 +3,7 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <h6 class="mb-0 text-capitalize">
-                @lang('Summery Report')
+                @lang('Summery')
             </h6>
         </div>
         <div class="card-body">

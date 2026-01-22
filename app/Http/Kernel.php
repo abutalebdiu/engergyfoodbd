@@ -22,6 +22,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\LanguageMiddleware::class,
+        \App\Http\Middleware\UpdateLastActivity::class,
     ];
 
     /**
@@ -39,6 +40,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\LanguageMiddleware::class,
             \App\Http\Middleware\AuthGates::class,
+            \App\Http\Middleware\UpdateLastActivity::class,
         ],
 
         'api' => [

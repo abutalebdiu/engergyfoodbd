@@ -39,6 +39,7 @@ use App\Http\Controllers\Admin\Account\SettlementController;
 use App\Http\Controllers\Admin\Account\WithdrawalController;
 
 use App\Http\Controllers\Admin\Warehouse\WarehouseController;
+use App\Http\Controllers\Admin\Account\CustomerLoanController;
 use App\Http\Controllers\Admin\Account\OfficialLoanController;
 use App\Http\Controllers\Admin\Account\OrderPaymentController;
 use App\Http\Controllers\Admin\Expense\AssetExpenseController;
@@ -70,6 +71,7 @@ use App\Http\Controllers\Admin\Account\SupplierDuePaymentController;
 use App\Http\Controllers\Admin\Account\TransactionHistoryController;
 use App\Http\Controllers\Admin\Order\PurchaseReturnDetailController;
 use App\Http\Controllers\Admin\Production\DailyProductionController;
+use App\Http\Controllers\Admin\Account\CustomerLoanPaymentController;
 use App\Http\Controllers\Admin\Account\OfficialLoanPaymentController;
 use App\Http\Controllers\Admin\Expense\AssetExpensePaymentController;
 use App\Http\Controllers\Admin\Account\OrderSupplierPaymentController;
@@ -228,6 +230,8 @@ Route::group(['middleware' => ['auth:web,admin']], function () {
     Route::resource('officialloanpayment', OfficialLoanPaymentController::class);
     Route::resource('overtimeallowance', OverTimeAllowanceController::class);
     Route::resource('customersettlement', CustomerSettlementController::class);
+    Route::resource('customerloan', CustomerLoanController::class);
+    Route::resource('customerloanpayment', CustomerLoanPaymentController::class);
 
 
 

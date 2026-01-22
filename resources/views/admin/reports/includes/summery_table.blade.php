@@ -13,6 +13,8 @@
         <th>@lang('Supplier Due')</th>
         <th>@lang('Total Due')</th>
         <th>@lang('Office Loan')</th>
+        <th>@lang('Customer Loan')</th>
+        <th>@lang('Customer Loan Payment')</th>
         <th>@lang('Employee Advance')</th>
         <th>@lang('Office Expense')</th>
         <th>@lang('Office Expense Payment')</th>
@@ -34,6 +36,8 @@
             <td>{{ en2bn(number_format($data['supplier_due'], 2)) }}</td>
             <td>{{ en2bn(number_format($data['total_due'], 2)) }}</td>
             <td>{{ en2bn(number_format($data['office_loan'], 2)) }}</td>
+            <td>{{ en2bn(number_format($data['customer_loan'], 2)) }}</td>
+            <td>{{ en2bn(number_format($data['customer_loan_payment'], 2)) }}</td>
             <td>{{ en2bn(number_format($data['employee_advance'], 2)) }}</td>
             <td>{{ en2bn(number_format($data['office_expense'], 2)) }}</td>
             <td>{{ en2bn(number_format($data['office_expense_payment'], 2)) }}</td>
@@ -54,7 +58,9 @@
         <th>{{ en2bn(number_format($datas['total_supplier_due_payment'], 2)) }}</th>
         <th>{{ en2bn(number_format($datas['total_supplier_due'], 2)) }}</th>
         <th>{{ en2bn(number_format($datas['total_due_amount'], 2)) }}</th>
-        <th>{{ en2bn(number_format($datas['total_office_loan'], 2)) }}</th>
+        <th>{{ en2bn(number_format($datas['total_office_loan'], 2)) }}</th>        
+        <th>{{ en2bn(number_format($datas['total_customer_loan'], 2)) }}</th>
+        <th>{{ en2bn(number_format($datas['total_customer_loan_payment'], 2)) }}</th>
         <th>{{ en2bn(number_format($datas['total_employee_advance'], 2)) }}</th>
         <th>{{ en2bn(number_format($datas['total_office_expense'], 2)) }}</th>
         <th>{{ en2bn(number_format($datas['total_office_expense_payment'], 2)) }}</th>

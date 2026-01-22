@@ -26,8 +26,13 @@
                     <tbody>
                         @forelse($allStaff as $staff)
                             <tr>
-                                <td>{{ $staff->username }}</td>
-                                <td>{{ $staff->name }}</td>
+                                <td>{{ $staff->username }} </td>
+                                <td>
+                                    <div style="position: relative;display:flex">
+                                        <span>{{ $staff->name }}</span>
+                                        <span class="{{ $staff->finduseronline($staff->id) }}"></span>
+                                    </div>
+                                </td>
                                 <td>{{ $staff->email }}</td>
                                 <td>{{ $staff->mobile }}</td>
                                 <td>

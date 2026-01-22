@@ -27,4 +27,17 @@ class Admin extends Authenticatable
     {
         return $this->role->permission()->where('code', $permissionCode)->exists();
     }
+
+    public function finduseronline($user_id)
+    {
+      $finduserdata =  Admin::where('last_seen_at', '>=', now()->subMinutes(10))->where('id',$user_id)->get();
+
+      if($finduserdata->count()>0)
+      {
+        return 'green__notify';
+      }
+      else{
+        return '';
+      }
+    }
 }

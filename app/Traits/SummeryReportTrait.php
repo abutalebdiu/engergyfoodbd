@@ -2,40 +2,43 @@
 
 namespace App\Traits;
 
+use App\Models\User;
 use App\Models\HR\Loan;
 use App\Models\ItemOrder;
 use App\Models\Order\Order;
+use App\Models\MakeProduction;
+use App\Models\Account\Deposit;
+use App\Models\DailyProduction;
 use App\Models\Expense\Expense;
 use App\Models\Order\Quotation;
+use App\Models\Product\Product;
 use App\Models\HR\SalaryAdvance;
 use App\Models\ItemOrderPayment;
 use App\Models\HR\SalaryGenerate;
 use App\Models\ItemReturnPayment;
 use App\Models\Order\OrderReturn;
+use App\Models\Account\Withdrawal;
 use Illuminate\Support\Facades\DB;
 use App\Models\HR\SalaryBonusSetup;
+use App\Models\Account\CustomerLoan;
 use App\Models\Account\OfficialLoan;
 use App\Models\Account\OrderPayment;
 use App\Models\HR\OverTimeAllowance;
+use App\Models\Product\ProductStock;
 use App\Models\Product\ProductDamage;
 use App\Models\HR\SalaryPaymentHistory;
 use App\Models\Account\CustomerDuePayment;
-use App\Models\Account\Deposit;
 use App\Models\Account\SupplierDuePayment;
-use App\Models\Account\Withdrawal;
-use App\Models\Commission\CommissionInvoice;
-use App\Models\Commission\CommissionInvoicePayment;
-use App\Models\Commission\MarketerCommissionPayment;
-use App\Models\DailyProduction;
+use App\Models\Account\CustomerLoanPayment;
+use App\Models\Account\OfficialLoanPayment;
 use App\Models\Expense\AssetExpensePayment;
+use App\Models\Commission\CommissionInvoice;
 use App\Models\Expense\ExpensePaymentHistory;
-use App\Models\MakeProduction;
 use App\Models\Expense\MonthlyExpensePayment;
 use App\Models\Product\CustomerProductDamage;
 use App\Models\Expense\TransportExpensePayment;
-use App\Models\Product\Product;
-use App\Models\Product\ProductStock;
-use App\Models\User;
+use App\Models\Commission\CommissionInvoicePayment;
+use App\Models\Commission\MarketerCommissionPayment;
 
 
 trait SummeryReportTrait
@@ -123,9 +126,7 @@ trait SummeryReportTrait
             ->get();
 
         return $orderPayments;
-    }
-
-
+    } 
 
     protected function getCustomerDuePayments($start_date, $end_date)
     {
@@ -393,6 +394,43 @@ trait SummeryReportTrait
 
         return $officeLoans;
     }
+
+    protected function getOfficeLoanPayments($start_date, $end_date)
+    {
+        $officeLoanpayments = OfficialLoanPayment::select(
+            DB::raw('DATE(date) as date'),
+            DB::raw('SUM(amount) as office_loan_payment')
+        )->whereBetween('date', [$start_date, $end_date])
+            ->groupBy('date')
+            ->get();
+
+        return $officeLoanpayments;
+    }
+
+    protected function getCustomerLoans($start_date, $end_date)
+    {
+        $customerLoans = CustomerLoan::select(
+            DB::raw('DATE(date) as date'),
+            DB::raw('SUM(total_amount) as customer_loan')
+        )->whereBetween('date', [$start_date, $end_date])
+            ->groupBy('date')
+            ->get();
+
+        return $customerLoans;
+    }
+
+    protected function getCustomerLoanPayments($start_date, $end_date)
+    {
+        $customerLoanPayments = CustomerLoanPayment::select(
+            DB::raw('DATE(date) as date'),
+            DB::raw('SUM(amount) as customer_loan_payment')
+        )->whereBetween('date', [$start_date, $end_date])
+            ->groupBy('date')
+            ->get();
+
+        return $customerLoanPayments;
+    }
+
 
     protected function getDeposits($start_date, $end_date)
     {

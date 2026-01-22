@@ -7,6 +7,7 @@ use App\Models\Item;
 use App\Models\User;
 use App\Models\HR\Loan;
 use App\Models\ItemOrder;
+use App\Models\ItemStock;
 use App\Traits\PrintTrait;
 use App\Models\HR\Employee;
 use App\Models\Order\Order;
@@ -14,7 +15,6 @@ use App\Models\Report\Asset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Models\Account\Account;
-use App\Models\Account\AccountCloseStatement;
 use App\Models\Account\Deposit;
 use App\Models\Expense\Expense;
 use App\Models\Order\Quotation;
@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\DB;
 use App\Exports\DailyArchiveExport;
 use App\Models\Warehouse\Transport;
 use App\Http\Controllers\Controller;
+use App\Models\Account\CustomerLoan;
 use App\Models\Account\OfficialLoan;
 use App\Models\Account\OrderPayment;
 use App\Models\HR\OverTimeAllowance;
@@ -41,20 +42,21 @@ use App\Models\Product\ProductStock;
 use Illuminate\Support\Facades\Gate;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Product\ProductDamage;
+use App\Models\HR\FestivalBonusPayment;
 use App\Models\HR\SalaryPaymentHistory;
 use App\Models\Account\CustomerDuePayment;
 use App\Models\Account\SupplierDuePayment;
 use App\Models\Account\TransactionHistory;
+use App\Models\Account\CustomerLoanPayment;
 use App\Models\Account\OfficialLoanPayment;
 use App\Models\Expense\AssetExpensePayment;
+use App\Models\Account\AccountCloseStatement;
 use App\Models\Expense\ExpensePaymentHistory;
 use App\Models\Expense\MonthlyExpensePayment;
 use App\Models\Product\CustomerProductDamage;
 use App\Models\Expense\TransportExpensePayment;
 use App\Models\Commission\CommissionInvoicePayment;
 use App\Models\Commission\MarketerCommissionPayment;
-use App\Models\ItemStock;
-use App\Models\HR\FestivalBonusPayment;
 
 class ReportController extends Controller
 {
@@ -363,6 +365,24 @@ class ReportController extends Controller
             ->groupBy('date')
             ->get();
 
+
+
+        $customerLoans = CustomerLoan::select(
+            DB::raw('DATE(date) as date'),
+            DB::raw('SUM(total_amount) as customer_loan')
+        )->whereBetween('date', [$start_date, $end_date])
+            ->groupBy('date')
+            ->get();    
+
+
+        $customerLoansPayment = CustomerLoanPayment::select(
+            DB::raw('DATE(date) as date'),
+            DB::raw('SUM(amount) as customer_loan_payment')
+        )->whereBetween('date', [$start_date, $end_date])
+            ->groupBy('date')
+            ->get();    
+
+
         $employeeAdvances = SalaryAdvance::select(
             DB::raw('DATE(date) as date'),
             DB::raw('SUM(amount) as salary_advance_amount')
@@ -384,10 +404,9 @@ class ReportController extends Controller
             ->groupBy('date')
             ->get();
 
+ 
 
-
-
-        $archives = $formattedDates->map(function ($date) use ($orders, $orderReturns, $orderPayments, $customerDuePayments, $productDamages, $purchaseProducts, $supplierPayments, $commissionPayments, $officeLoans, $employeeAdvances, $expenses, $expensesPayments, $customerProductDamages, $supplierDuePayments) {
+        $archives = $formattedDates->map(function ($date) use ($orders, $orderReturns, $orderPayments, $customerDuePayments, $productDamages, $purchaseProducts, $supplierPayments, $commissionPayments, $officeLoans, $customerLoans, $customerLoansPayment, $employeeAdvances, $expenses, $expensesPayments, $customerProductDamages, $supplierDuePayments) {
 
 
             $order = $orders->firstWhere('date', $date);
@@ -399,6 +418,8 @@ class ReportController extends Controller
             $supplierPayment = $supplierPayments->firstWhere('date', $date);
             $commissionPayment = $commissionPayments->firstWhere('date', $date);
             $officeLoan = $officeLoans->firstWhere('date', $date);
+            $customerloan = $customerLoans->firstWhere('date', $date);
+            $customerloanpay = $customerLoansPayment->firstWhere('date', $date);
             $employeeAdvance = $employeeAdvances->firstWhere('date', $date);
             $expense = $expenses->firstWhere('date', $date);
             $expensesPayment = $expensesPayments->firstWhere('date', $date);
@@ -419,6 +440,8 @@ class ReportController extends Controller
                 'supplier_due' => (($purchaseProduct->purchase_product ?? 0) - ($supplierPayment->supp_payment ?? 0)),
                 'total_due' => ($order->sales ?? 0) - (($orderPayment->paid_amount ?? 0) + ($customerDuePayment->customer_due_payment ?? 0)),
                 'office_loan' => $officeLoan->office_loan ?? 0,
+                'customer_loan' => $customerloan->customer_loan ?? 0,
+                'customer_loan_payment' => $customerloanpay->customer_loan_payment ?? 0,
                 'employee_advance' => $employeeAdvance->salary_advance_amount ?? 0,
                 'office_expense' => $expense->expense_amount ?? 0,
                 'office_expense_payment' => $expensesPayment->expense_payment_amount ?? 0,
@@ -442,6 +465,8 @@ class ReportController extends Controller
             'total_supplier_due' => $archives->sum('supplier_due'),
             'total_due_amount' => $archives->sum('total_due'),
             'total_office_loan' => $archives->sum('office_loan'),
+            'total_customer_loan' => $archives->sum('customer_loan'),
+            'total_customer_loan_payment' => $archives->sum('customer_loan_payment'),
             'total_employee_advance' => $archives->sum('employee_advance'),
             'total_office_expense' => $archives->sum('office_expense'),
             'total_office_expense_payment' => $archives->sum('office_expense_payment'),
@@ -546,35 +571,41 @@ class ReportController extends Controller
             return \Carbon\Carbon::parse($date)->format('Y-m-d');
         });
  
-        $orders = $this->getOrders($start_date, $end_date);
-        $quotations = $this->getQuotations($start_date, $end_date);
-        $orderReturns = $this->getOrderReturns($start_date, $end_date);
-        $orderPayments = $this->getOrderPayments($start_date, $end_date);
-        $customerOpeningDue = $this->getCustomerOpeningDue($start_date, $end_date);
-        $customerDuePayments = $this->getCustomerDuePayments($start_date, $end_date);
-        $productDamages = $this->getProductDamage($start_date, $end_date);
+        $orders                 = $this->getOrders($start_date, $end_date);
+        $quotations             = $this->getQuotations($start_date, $end_date);
+        $orderReturns           = $this->getOrderReturns($start_date, $end_date);
+        $orderPayments          = $this->getOrderPayments($start_date, $end_date);
+        $customerOpeningDue     = $this->getCustomerOpeningDue($start_date, $end_date);
+        $customerDuePayments    = $this->getCustomerDuePayments($start_date, $end_date);
+        $productDamages         = $this->getProductDamage($start_date, $end_date);
         $customerProductDamages = $this->getCustomerProductDamage($start_date, $end_date);
-        $getSupplierOpeningDue = $this->getSupplierOpeningDue();
-        $getItemOrders = $this->getItemOrders($start_date, $end_date);
-        $getItemOrderPayments = $this->getItemOrderPayments($start_date, $end_date);
-        $getItemOrderReturnsPayments = $this->getItemOrderReturnsPayments($start_date, $end_date);
-        $unpaidCommissions = $this->unpaidCommissions($start_date, $end_date);
-        $supplierDuePayments = $this->getSupplierDuePayments($start_date, $end_date);
-        $expenses = $this->getExpenses($start_date, $end_date);
-        $expensePayments = $this->getExpensePayments($start_date, $end_date);
+        $getSupplierOpeningDue  = $this->getSupplierOpeningDue();
+        $getItemOrders          = $this->getItemOrders($start_date, $end_date);
+        $getItemOrderPayments   = $this->getItemOrderPayments($start_date, $end_date);
+        $getItemOrderReturnsPayments= $this->getItemOrderReturnsPayments($start_date, $end_date);
+        $unpaidCommissions      = $this->unpaidCommissions($start_date, $end_date);
+        $supplierDuePayments    = $this->getSupplierDuePayments($start_date, $end_date);
+        $expenses               = $this->getExpenses($start_date, $end_date);
+        $expensePayments        = $this->getExpensePayments($start_date, $end_date);
         $monthlyExpensePayments = $this->getMonthlyExpensePayments($start_date, $end_date);
-        $assetExpensePayments = $this->getAssetExpensePayments($start_date, $end_date);
-        $transportExpensePayments = $this->getTransportExpensePayments($start_date, $end_date);
-        $getSalaryAdvances = $this->getSalaryAdvances($start_date, $end_date);
-        $getSalaries = $this->getSalaries($start_date, $end_date);
-        $getEmployeeLoans = $this->getEmployeeLoans($start_date, $end_date);
-        $getSalaryPayments = $this->getSalaryPayments($start_date, $end_date);
-        $getOverTimeAllowances = $this->getOverTimeAllowances($start_date, $end_date);
+        $assetExpensePayments   = $this->getAssetExpensePayments($start_date, $end_date);
+        $transportExpensePayments= $this->getTransportExpensePayments($start_date, $end_date);
+        $getSalaryAdvances      = $this->getSalaryAdvances($start_date, $end_date);
+        $getSalaries            = $this->getSalaries($start_date, $end_date);
+        $getEmployeeLoans       = $this->getEmployeeLoans($start_date, $end_date);
+        $getSalaryPayments      = $this->getSalaryPayments($start_date, $end_date);
+        $getOverTimeAllowances  = $this->getOverTimeAllowances($start_date, $end_date);
 
-        $getBonas = $this->getBonas($start_date, $end_date);
-        $getOfficeLoans = $this->getOfficeLoans($start_date, $end_date);
-        $getDeposits = $this->getDeposits($start_date, $end_date);
-        $getWithdrawals = $this->getWithdrawals($start_date, $end_date);
+        $getBonas               = $this->getBonas($start_date, $end_date);
+
+        $getOfficeLoans         = $this->getOfficeLoans($start_date, $end_date);
+        $getOfficeLoanPayments  = $this->getOfficeLoanPayments($start_date, $end_date);
+
+        $getCustomerLoans       = $this->getCustomerLoans($start_date, $end_date);
+        $getCustomerLoanPayments= $this->getCustomerLoanPayments($start_date, $end_date);
+
+        $getDeposits            = $this->getDeposits($start_date, $end_date);
+        $getWithdrawals         = $this->getWithdrawals($start_date, $end_date);
         $getMarkerterCommssionPayments = $this->getMarkerterCommssionPayments($start_date, $end_date);
 
         $getMakeProductions = $this->getMakeProductions($start_date, $end_date);
@@ -611,6 +642,9 @@ class ReportController extends Controller
             $getOverTimeAllowances,
             $getBonas,
             $getOfficeLoans,
+            $getOfficeLoanPayments,
+            $getCustomerLoans,
+            $getCustomerLoanPayments,
             $getDeposits,
             $getWithdrawals,
             $getMarkerterCommssionPayments,
@@ -645,6 +679,9 @@ class ReportController extends Controller
             $getOverTimeAllowance           = $getOverTimeAllowances->firstWhere('date', $date);
             $getBonas                       = $getBonas->firstWhere('date', $date);
             $getOfficeLoan                  = $getOfficeLoans->firstWhere('date', $date);
+            $getOfficeLoanPayment           = $getOfficeLoanPayments->firstWhere('date', $date);
+            $getCustomerLoan                = $getCustomerLoans->firstWhere('date', $date);
+            $getCustomerLoanPayment         = $getCustomerLoanPayments->firstWhere('date', $date);
             $getDeposit                     = $getDeposits->firstWhere('date', $date);
             $getWithdrawal                  = $getWithdrawals->firstWhere('date', $date);
             $getMarkerterCommssionPayment   = $getMarkerterCommssionPayments->firstWhere('date', $date);
@@ -674,18 +711,22 @@ class ReportController extends Controller
                 'item_order_return_payment' => $getItemOrderReturnsPayment->item_return_payment ?? 0,
                 'supplier_due_payment'      => $supplierDuePayment->supplier_due_payment ?? 0,
                 'unpaid_commission'         => $unpaidCommission->unpaid_commission ?? 0,
-                'expense' => $expense->expense_amount ?? 0,
-                'expense_payment' => $expensePayment->expense_payment_amount ?? 0,
-                'monthly_expense_payment' => $monthlyExpensePayment->monthly_expense_payment_amount ?? 0,
-                'asset_expense_payment' => $assetExpensePayment->asset_expense_payment_amount ?? 0,
+                'expense'                   => $expense->expense_amount ?? 0,
+                'expense_payment'           => $expensePayment->expense_payment_amount ?? 0,
+                'monthly_expense_payment'   => $monthlyExpensePayment->monthly_expense_payment_amount ?? 0,
+                'asset_expense_payment'     => $assetExpensePayment->asset_expense_payment_amount ?? 0,
                 'transport_expense_payment' => $transportExpensePayment->transport_expense_payment_amount ?? 0,
-                'salary_advance_amount' => $getSalaryAdvance->salary_advance_amount ?? 0,
+                'salary_advance_amount'     => $getSalaryAdvance->salary_advance_amount ?? 0,
                 'employee_amount' => $getEmployeeLoan->employee_loan_amount ?? 0,
                 'salary' => $getSalary->amount ?? 0,
                 'salary_payment_amount' => $getSalaryPayment->salary_payment_amount ?? 0,
                 'over_time_allowance_amount' => $getOverTimeAllowance->allowance_amount ?? 0,
                 'bonus' => $getBonas->salary_bonas ?? 0,
                 'office_loan' => $getOfficeLoan->office_loan ?? 0,
+
+                'customer_loan' => $getCustomerLoan->customer_loan ?? 0,
+                'customer_loan_payment' => $getCustomerLoanPayment->customer_loan_payment ?? 0,
+
                 'deposit' => $getDeposit->deposit_amount ?? 0,
                 'withdrawal' => $getWithdrawal->withdrawl_amount ?? 0,
                 'marketer_commission_payment' => $getMarkerterCommssionPayment->marketer_amount ?? 0,
@@ -765,11 +806,14 @@ class ReportController extends Controller
 
             'salary_payment' => $archives->sum('salary_payment_amount'),
 
-            'over_time_allowance' => $archives->sum('over_time_allowance_amount'),
-            'bonus' => $archives->sum('bonus'),
-            'office_loan' => $archives->sum('office_loan'),
-            'deposit' => $archives->sum('deposit'),
-            'withdrawal' => $archives->sum('withdrawal'),
+            'over_time_allowance'   => $archives->sum('over_time_allowance_amount'),
+            'bonus'                 => $archives->sum('bonus'),
+            'office_loan'           => $archives->sum('office_loan'),
+            'office_loan_payment'   => $archives->sum('office_loan_payment'),
+            'customer_loan'         => $archives->sum('customer_loan'),
+            'customer_loan_payment' => $archives->sum('customer_loan_payment'),
+            'deposit'               => $archives->sum('deposit'),
+            'withdrawal'            => $archives->sum('withdrawal'),
             'marketer_commission_payment' => $archives->sum('marketer_commission_payment'),
 
 

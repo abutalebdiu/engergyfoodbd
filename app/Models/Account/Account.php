@@ -248,6 +248,7 @@ class Account extends Model
         return $query->where('type','Regular')->sum('amount');
     }
 
+
     public function officialloan($id,$start_date=null,$end_date=null)
     {
 
@@ -274,6 +275,28 @@ class Account extends Model
 
         return $query->sum('amount');
 
+    }
+
+    public function customerloan($id,$start_date=null,$end_date=null)
+    {
+        $query = CustomerLoan::where('account_id', $id);
+        if ($start_date && $end_date) {
+            $query->whereBetween('date', [$start_date, $end_date]);
+        } elseif ($start_date) {
+            $query->where('date', $start_date);
+        }
+        return $query->sum('amount');
+    }
+
+    public function customerloanpayment($id,$start_date=null,$end_date=null)
+    {
+        $query = CustomerLoanPayment::where('account_id', $id);
+        if ($start_date && $end_date) {
+            $query->whereBetween('date', [$start_date, $end_date]);
+        } elseif ($start_date) {
+            $query->where('date', $start_date);
+        }
+        return $query->sum('amount');
     }
 
     public function supplieradvance($id,$start_date=null,$end_date=null)
@@ -318,6 +341,8 @@ class Account extends Model
 
         return $query->sum('amount');
     }
+
+
 
 
     public function servicepayment($id)
@@ -489,6 +514,7 @@ class Account extends Model
                   + self::orderpayment($id,$start_date,$end_date)
                   + self::deposit($id,$start_date,$end_date)
                   + self::officialloan($id,$start_date,$end_date)
+                  + self::customerloan($id,$start_date,$end_date)
                   + self::customerduepayment($id,$start_date,$end_date)
                   + self::accountsettlementplus($id,$start_date,$end_date))
                 - (
@@ -501,6 +527,7 @@ class Account extends Model
                 + self::widthdrawal($id,$start_date,$end_date)
                 + self::expense($id,$start_date,$end_date)
                 + self::officialloanpayment($id,$start_date,$end_date)
+                + self::customerloanpayment($id,$start_date,$end_date)
                 + self::assetexpensepayment($id,$start_date,$end_date)
                 + self::monthlyexpensepayment($id,$start_date,$end_date)
                 + self::transportexpensepayment($id,$start_date,$end_date)

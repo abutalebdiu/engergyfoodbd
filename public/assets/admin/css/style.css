@@ -2593,6 +2593,19 @@ img {
 	animation: notifyAnimation 0.8s ease-in-out infinite;
 }
 
+.green__notify {
+	content: '';
+	position: absolute;
+	right: 30px;
+	top: 50%;
+	transform: translateY(-50%);
+	height: 8px;
+	width: 8px;
+	background: #147500;
+	border-radius: 50%;
+	animation: notifyAnimation 0.8s ease-in-out infinite;
+}
+
 @keyframes notifyAnimation {
 	0% {
 		width: 5px;
