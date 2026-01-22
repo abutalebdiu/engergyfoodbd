@@ -55,6 +55,7 @@ class ItemCategoryController extends Controller
 
         $category->name = $request->name;
         $category->status = $request->status;
+        $category->entry_id = auth('admin')->user()->id;
         $category->save();
 
         $notify[] = $message;

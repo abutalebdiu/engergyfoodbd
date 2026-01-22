@@ -19,6 +19,7 @@
                             <th>@lang('Amount')</th>
                             <th>@lang('Note')</th>
                             <th>@lang('Status')</th>
+                            <th>@lang('Entry by')</th>
                             <th>@lang('Action')</th>
                         </tr>
                     </thead>
@@ -32,6 +33,8 @@
                                 <td> {{ number_format($item->amount) }}</td>
                                 <td> {{ $item->note }}</td>
                                 <td> {{ $item->status }} </td>
+                                <td> {!! entry_info($item) !!} </td>
+
                                 <td>
                                     <div class="btn-group">
                                         <button data-bs-toggle="dropdown">

@@ -120,7 +120,9 @@
                                     <td>{{ number_format($item->physical_stock * $item->item->price, 2) }}</td>
                                     <td>{{ number_format($item->qty, 2) }}</td>
                                     <td>{{ number_format($item->total_value, 2) }}</td>
-                                    <td>{{ optional($item->entryuser)->name }}</td>
+                                    <td>
+                                        {!! entry_info($item) !!}
+                                    </td>
                                     <td>
                                         <div class="btn-group">
                                             <button data-bs-toggle="dropdown">
@@ -175,6 +177,9 @@
                         </tfoot> 
                 </table>
             </div>
+
+
+            {{ $itemstocks->links() }}
 
         </div>
     </div>

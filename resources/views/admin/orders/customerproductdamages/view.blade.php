@@ -89,7 +89,9 @@
                                 <td class="text-start"> {{ optional($item->customer)->name }}</td>
                                 <td> {{ en2bn($item->qty) }}</td>
                                 <td> {{ en2bn(number_format($item->total_amount, 2, '.', ',')) }}</td>
-                                <td> {{ optional($item->entryuser)->name }}</td>
+                                <td> 
+                                     {!! entry_info($item) !!}
+                                </td>
 
                             </tr>
                         @empty

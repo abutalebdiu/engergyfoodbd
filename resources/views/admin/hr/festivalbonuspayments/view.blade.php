@@ -46,6 +46,7 @@
                             <th>@lang('Account')</th>
                             <th>@lang('Amount')</th>
                             <th>@lang('Status')</th>
+                            <th>@lang('Entry By')</th>
 
                         </tr>
                     </thead>
@@ -80,6 +81,8 @@
                                         class="btn btn-{{ statusButton($item->status) }} btn-sm">{{ $item->status }}</span>
                                 </td>
 
+                                <td> {!! entry_info($item) !!} </td>
+
                             </tr>
                         @empty
                             <tr>
@@ -97,6 +100,8 @@
                     </tfoot>
                 </table><!-- table end -->
             </div>
+
+            {{ $festivalbonuspayments->links() }}
         </div>
     </div>
 

@@ -9,42 +9,57 @@ use Illuminate\Http\Request;
 use App\Models\Setting\Month;
 use App\Models\Setting\Year;
 use App\Http\Controllers\Controller;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ItemStockController extends Controller
 {
-
     public function index(Request $request)
     {
-        $data['months'] = Month::get();
-        $data['years']  = Year::get();
-        
-        $query = ItemStock::query()->with(['item', 'month']);
-    
-        if ($request->month_id) {
-            $query->where('month_id', $request->month_id);
-        } else {
-            $query->where('month_id', 14);
-        }
-        
-        if ($request->year) {
-            $query->where('year', $request->year);
-        }
-        else{
-             $query->where('year', Date('Y'));
-        }
-    
-        $itemstocks = $query->get()->groupBy('item.item_category_id'); // Grouping by category ID
-    
+        // Dropdown data
+        $data['months'] = Month::all();
+        $data['years']  = Year::all();
+
+        // Base query
+        $query = ItemStock::with(['item', 'month']);
+
+        // Month filter (default: 14)
+        $query->where('month_id', $request->month_id ?? 14);
+
+        // Year filter (default: current year)
+        $query->where('year', $request->year ?? date('Y'));
+
+        // Group by item category (collection level)
+        $collection = $query->get()->groupBy('item.item_category_id');
+
+        // Manual pagination for grouped data
+        $page    = $request->get('page', 1);
+        $perPage = 10;
+
+        $itemstocks = new LengthAwarePaginator(
+            $collection
+                ->slice(($page - 1) * $perPage, $perPage)
+                ->values(), // reset keys
+            $collection->count(),
+            $perPage,
+            $page,
+            [
+                'path'  => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
+
         $data['itemstocks'] = $itemstocks;
-    
-        if ($request->has('search')) {
-            return view('admin.items.itemstocks.view', $data);
-        } elseif ($request->has('pdf')) {
-            $pdf = PDF::loadView('admin.items.itemstocks.item_stock_export', $data);
-            return $pdf->stream('item_stock_list.pdf');
-        } else {
-            return view('admin.items.itemstocks.view', $data);
+
+        // PDF export
+        if ($request->has('pdf')) {
+            return PDF::loadView(
+                'admin.items.itemstocks.item_stock_export',
+                $data
+            )->stream('item_stock_list.pdf');
         }
+
+        // Default view (search & normal request)
+        return view('admin.items.itemstocks.view', $data);
     }
 
 

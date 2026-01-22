@@ -49,6 +49,7 @@
                             <th>@lang('Note')</th>
                             <th>@lang('Client/Party')</th>
                             <th>@lang('Created At')</th>
+                            <th>@lang('Entry By')</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -91,6 +92,9 @@
                                     @endif
                                 </td>
                                 <td>{{ $item->created_at }}</td>
+                                <td>
+                                    {!! entry_info($item) !!}
+                                </td>
                             </tr>
                         @empty
                             <tr>

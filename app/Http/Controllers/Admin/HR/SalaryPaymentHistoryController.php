@@ -40,7 +40,7 @@ class SalaryPaymentHistoryController extends Controller
             $query->where('created_at', '>=', Carbon::now()->subHours(40));
         }
 
-        $data['histories'] = $query->get();
+        $data['histories'] = $query->paginate(50)->withQueryString();
 
         if ($request->has('search')) {
             return view('admin.hr.salarypayments.view', $data);

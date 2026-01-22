@@ -48,6 +48,7 @@
                             <th>@lang('Monthly Installment')</th>
                             <th>@lang('Note')</th>
                             <th>@lang('Status')</th>
+                            <th>@lang('Entry By')</th>
                             <th>@lang('Action')</th>
                         </tr>
                     </thead>
@@ -69,6 +70,9 @@
                                 <td> {{ $item->note }}</td>
                                 <td> <span
                                         class="btn btn-{{ statusButton($item->status) }} btn-sm">{{ $item->status }}</span>
+                                </td>
+                                <td>
+                                    {!! entry_info($item) !!}
                                 </td>
                                 <td>
                                     <a href="{{ route('admin.loan.edit', $item->id) }}" class="btn btn-primary btn-sm">

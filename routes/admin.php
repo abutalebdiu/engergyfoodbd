@@ -229,8 +229,6 @@ Route::group(['middleware' => ['auth:web,admin']], function () {
     Route::resource('overtimeallowance', OverTimeAllowanceController::class);
     Route::resource('customersettlement', CustomerSettlementController::class);
 
-
-
     // Service Charge
     Route::resource('serviceinvoice', App\Http\Controllers\Admin\Service\ServiceInvoiceController::class);
     Route::resource('serviceinvoicepayment', App\Http\Controllers\Admin\Service\ServiceInvoicePaymentController::class);

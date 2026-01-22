@@ -17,6 +17,7 @@
             <th>@lang('Previous Due')</th>
             <th>@lang('Total Due Amount')</th>
             <th>@lang('Print Count')</th>
+            <th>@lang('Entry By')</th>
 
         </tr>
     </thead>
@@ -92,6 +93,7 @@
                 <td> {{ en2bn(number_format($item->previous_due, 2, '.', ',')) }}</td>
                 <td> {{ en2bn(number_format($item->customer_due, 2, '.', ',')) }}</td>
                 <td> {{ en2bn($item->print) }}</td>
+                <td> {!! entry_info($item) !!}  </td>
             </tr>
         @empty
             <tr>

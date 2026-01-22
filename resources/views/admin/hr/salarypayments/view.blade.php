@@ -54,6 +54,7 @@
                             <th>@lang('Payment Method')</th>
                             <th>@lang('Account')</th>
                             <th>@lang('Amount')</th>
+                            <th>@lang('Entry By')</th>
                             <th>@lang('Status')</th>
 
                         </tr>
@@ -98,6 +99,10 @@
                                 <td> {{ optional($item->account)->title }} </td>
                                 <td> {{ en2bn(number_format($item->amount, 2, '.', ',')) }}</td>
 
+                                <td>
+                                    {!! entry_info($item) !!}
+                                </td>
+
                                 <td> <span
                                         class="btn btn-{{ statusButton($item->status) }} btn-sm">{{ $item->status }}</span>
                                 </td>
@@ -119,6 +124,8 @@
                     </tfoot>
                 </table><!-- table end -->
             </div>
+
+            {{ $histories->links() }}
         </div>
     </div>
 

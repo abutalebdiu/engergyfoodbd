@@ -10,6 +10,7 @@
             <th>@lang('Price')</th>
             <th>@lang('Stock')</th>
             <th>@lang('Value')</th>
+            <th>@lang('Entry by')</th>
         </tr>
     </thead>
     <tbody id="ItemTable">
@@ -70,8 +71,8 @@
                     <td> {{ en2bn($item->weight_gram) }}</td>
                     <td> {{ en2bn($item->price ?? '0.00') }}</td>
                     <td> {{ en2bn(number_format($item->stock($item->id) ?? '0.00'),2,'.',',') }}</td>
-                    <td> {{ en2bn(number_format($item->stock($item->id) ?? '0.00' * $item->price, 2, '.', ',')) }}
-                    </td>
+                    <td> {{ en2bn(number_format($item->stock($item->id) ?? '0.00' * $item->price, 2, '.', ',')) }}</td>
+                    <td> {!! entry_info($item) !!} </td>
                 </tr>
             @empty
                 <tr>

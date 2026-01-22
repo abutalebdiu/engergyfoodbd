@@ -63,6 +63,7 @@
                             <th>@lang('Marketer Commssion Unpaid')</th>
                             <th>@lang('Overall Due')</th>
                             <th>@lang('Status')</th>
+                            <th>@lang('Entry By')</th>
 
                         </tr>
                     </thead>
@@ -135,7 +136,9 @@
                                 <td>
                                     {{ $invoice->payment_status }}
                                 </td>
-
+                                <td>
+                                    {!! entry_info($invoice) !!}
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

@@ -64,7 +64,9 @@
                                 <td> {{ optional($item->paymentmethod)->name }}</td>
                                 <td> {{ optional($item->account)->title }}</td>
                                 <td> {{ $item->date }}</td>
-                                <td>{{ optional($item->entryuser)->name }}</td>
+                                <td>
+                                    {!! entry_info($item) !!}
+                                </td>
                                 <td>
                                     <span
                                         class="btn btn-{{ statusButton($item->status) }} btn-sm">{{ $item->status }}</span>

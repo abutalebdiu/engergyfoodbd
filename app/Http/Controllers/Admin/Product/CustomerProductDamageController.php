@@ -39,7 +39,10 @@ class CustomerProductDamageController extends Controller
             $data['end_date'] = $request->end_date;
             $query->whereBetween('date', [$request->start_date, $request->end_date]);
         } else {
-            $query->where('created_at', '>=', Carbon::now()->isCurrentMonth());
+            $query->whereBetween('created_at', [
+                Carbon::now()->startOfMonth(),
+                Carbon::now()->endOfMonth(),
+            ]);
         }
 
         $data['damages'] = $query->latest()->paginate(100);

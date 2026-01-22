@@ -54,7 +54,7 @@ class Account extends Model
 
     public function entryuser()
     {
-        return $this->belongsTo(Admin::class, 'entry_id');
+        return $this->belongsTo(Admin::class, 'entry_id', 'id');
     }
 
     public function edituser()

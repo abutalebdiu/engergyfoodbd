@@ -68,7 +68,9 @@
                                 <td> {{ optional($item->account)->title }}</td>
                                 <td> {{ $item->note }}</td>
                                 <td> {{ en2bn(Date('d-m-Y', strtotime($item->date))) }}</td>
-                                <td>{{ optional($item->entryuser)->name }}</td>
+                                <td>
+                                    {!! entry_info($item) !!}
+                                </td>
                                 <td>
                                     <span
                                         class="btn btn-{{ statusButton($item->status) }} btn-sm">{{ $item->status }}</span>

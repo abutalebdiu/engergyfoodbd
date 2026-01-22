@@ -20,6 +20,7 @@
                             <th>Bonus Eligible Date</th>
                             <th>Year</th>
                             <th>Note</th>
+                            <th>@lang('Entry By')</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -31,6 +32,7 @@
                                 <td>{{ $item->date }}</td>
                                 <td>{{ $item->year }}</td>
                                 <td>{{ $item->note }}</td>
+                                <td>{!! entry_info($item) !!} </td>
                                 <td>
                                     <div class="table-actions d-flex align-items-center gap-3 fs-6">
                                         <a href="{{ route('admin.festivalbonus.edit', $item->id) }}" class="btn btn-primary btn-sm"><i
@@ -46,6 +48,9 @@
                     </tbody>
                 </table>
             </div>
+
+
+            {{ $festivalbonuses->links() }}
         </div>
     </div>
 @endsection

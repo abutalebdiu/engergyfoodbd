@@ -56,7 +56,7 @@
                                 <tbody>
                                     
                                     @foreach ($chunk as $key => $product)
-                                        <tr>
+                                        <tr  style="border-bottom: 2px solid #21b2c1;">
                                             <input type="hidden" name="product_id[]" value="{{ $product->id }}">
 
                                             <td class="text-start">
@@ -105,6 +105,18 @@
     </div>
 </form>
 @endsection
+
+@push('style')
+    <style>
+         
+        .form-control:focus {
+            border:3px solid  red !important;
+        }
+        .form-control{
+            border-color:#000 !important;
+        }
+    </style>
+@endpush
 
 
 @push('script')

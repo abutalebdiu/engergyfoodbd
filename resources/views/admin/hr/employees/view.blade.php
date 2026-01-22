@@ -68,6 +68,7 @@
                             <th>@lang('Loan Due')</th>
                             <th>@lang('Month Installment')</th>
                             <th>@lang('Bonus Eligibility')</th>
+                            <th>@lang('Entry By')</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -87,7 +88,7 @@
                                 $totalsalary  += $totalSalary;
                             @endphp
                             <tr>
-                                <td colspan="16" class="font-weight-bold text-primary text-start">
+                                <td colspan="17" class="font-weight-bold text-primary text-start">
                                     {{ $departmentName ?: 'No Department' }}
                                 </td>
                             </tr>
@@ -159,6 +160,7 @@
                                     <td> {{ en2bn(number_format($item->receiableloan($item->id), 0, '.', ',')) }}</td>
                                     <td> {{ en2bn(number_format($item->loan_installment, 0, '.', ',')) }}</td>
                                     <td> {{ $item->bonus_eligibility }}</td>
+                                    <td> {!! entry_info($item) !!}</td>
                                 </tr>
                             @endforeach
                             <tr>

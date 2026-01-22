@@ -778,3 +778,30 @@ if (!function_exists('convertUnitQty')) {
         return $qty * $unit->value;
     }
 }
+
+
+
+if (!function_exists('entry_info')) {
+    function entry_info($item, $dateFormat = 'd-m-Y h:i A')
+    {
+        $lang = app()->getLocale();
+
+        $name = data_get($item, 'entryuser.name', '');
+
+        $date = data_get($item, 'updated_at');
+
+        $formattedDate = $date
+            ? ($lang == 'bn'
+                ? en2bn(\Carbon\Carbon::parse($date)->format($dateFormat))
+                : \Carbon\Carbon::parse($date)->format($dateFormat))
+            : '';
+
+        $output = trim($name);
+
+        if ($formattedDate) {
+            $output .= '<br>' . $formattedDate;
+        }
+
+        return $output;
+    }
+}

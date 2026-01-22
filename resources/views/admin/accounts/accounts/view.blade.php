@@ -22,6 +22,7 @@
                             <th>@lang('Opening Balance')</th>
                             <th>@lang('Main Balance')</th>
                             <th>@lang('Status')</th>
+                            <th>@lang('Entry by')</th>
                             <th>@lang('Action')</th>
                         </tr>
                     </thead>
@@ -39,6 +40,10 @@
                                 <td> {{ number_format($item->balance($item->id),2) }}</td>
                                 <td> <span
                                         class="btn btn-{{ statusButton($item->status) }} btn-sm">{{ $item->status }}</span>
+                                </td>
+
+                                <td>
+                                    {!! entry_info($item) !!}
                                 </td>
                                 <td>
                                     <div class="btn-group">

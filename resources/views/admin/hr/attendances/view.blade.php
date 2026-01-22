@@ -104,7 +104,9 @@
                                         <td>
                                             <span class="btn btn-primary btn-sm">{{ $attendance->status }}</span>
                                         </td>
-                                        <td>{{ optional($attendance->entryuser)->name }}</td>
+                                        <td>
+                                            {!! entry_info($attendance) !!}
+                                        </td>
                                         <td>
                                             <div class="btn-group">
                                                 <button data-bs-toggle="dropdown">

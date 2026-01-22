@@ -52,6 +52,7 @@
                             <th>@lang('Payment Method')</th>
                             <th>@lang('Account')</th>
                             <th>@lang('Amount')</th>
+                            <th>@lang('Entry By')</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -85,6 +86,7 @@
                                 <td> {{ optional($item->paymentmethod)->name }} </td>
                                 <td> {{ optional($item->account)->title }} </td>
                                 <td> {{ number_format($item->amount, 2) }}</td>
+                                <td> {!! entry_info($item) !!} </td>
                             </tr>
                         @empty
                             <tr>

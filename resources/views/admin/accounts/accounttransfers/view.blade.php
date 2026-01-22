@@ -34,7 +34,9 @@
                                 <td> {{ number_format($item->amount,2) }}</td>                               
                                 <td> {{ optional($item->fromaccount)->title }}</td>
                                 <td> {{ $item->created_at }}</td>
-                                <td> {{ optional($item->entryuser)->name }}</td>
+                                <td> 
+                                    {!! entry_info($item) !!}
+                                </td>
                                 <td> <span
                                         class="btn btn-{{ statusButton($item->status) }} btn-sm">{{ $item->status }}</span>
                                 </td>

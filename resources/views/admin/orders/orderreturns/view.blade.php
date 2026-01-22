@@ -69,7 +69,7 @@
                                 <td> {{ en2bn(number_format($item->commission, 2, '.', ',')) }}</td>
                                 <td> {{ en2bn(number_format($item->net_amount, 2, '.', ',')) }}</td>
                                 <td> {{ en2bn(Date('d-m-Y',strtotime($item->date))) }} </td>
-                                <td> {{ optional($item->entryuser)->name }}</td>
+                                <td>{!! entry_info($item) !!}</td>
                                 <td><span
                                         class="btn btn-{{ statusButton($item->payment_status) }} btn-sm">{{ $item->payment_status }}</span>
                                 </td>
