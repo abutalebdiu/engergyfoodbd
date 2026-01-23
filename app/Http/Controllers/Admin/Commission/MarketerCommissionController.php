@@ -32,12 +32,11 @@ class MarketerCommissionController extends Controller
 
             $query->whereBetween('date', [$start_date, $end_date]);
         }
-
+        
         if ($request->has('marketer_id')) {
             $data['marketer_id'] = $request->marketer_id;
             $query->where('marketer_id', $request->marketer_id);
         }
-
 
         $data['invoices'] = $query->get();
 
