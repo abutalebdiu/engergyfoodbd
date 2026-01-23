@@ -17,13 +17,14 @@
 
     <div class="card-body">
 
+        {{-- Supplier --}}
         <div class="row border-bottom mb-4">
             <div class="col-md-4 pb-3">
                 <label>Supplier</label>
                 <select name="supplier_id" class="form-select select2">
-
                     @foreach ($suppliers as $supplier)
-                        <option value="{{ $supplier->id }}" {{ $supplier->id == $itemorder->supplier_id ? 'selected' : '' }}>
+                        <option value="{{ $supplier->id }}"
+                            {{ $supplier->id == $itemorder->supplier_id ? 'selected' : '' }}>
                             {{ $supplier->name }}
                         </option>
                     @endforeach
@@ -45,14 +46,14 @@
             </div>
         </div>
 
+        {{-- Item Select --}}
         <div class="row mb-3">
             <div class="col-md-8">
                 <select id="itemSelect" class="form-select select2">
                     <option value="">-- Select Item --</option>
                     @foreach($items as $item)
                         <option value="{{ $item->id }}"
-                                data-name="{{ $item->name }}"
-                                data-price="{{ $item->price }}">
+                                data-name="{{ $item->name }}">
                             {{ $item->name }}
                         </option>
                     @endforeach
@@ -65,31 +66,31 @@
             </div>
         </div>
 
+        {{-- Table --}}
         <div class="row">
             <div class="col-md-8">
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th width="20">#</th>
-                            <th width="300">Item</th>
-                            <th width="120">Unit</th>
-                            <th width="120">Qty</th>
-                            <th width="120">Price</th>
-                            <th width="120">Total</th>
-                            <th width="30">Action</th>
+                            <th>#</th>
+                            <th>Item</th>
+                            <th>Unit</th>
+                            <th>Qty</th>
+                            <th>Total</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody class="tbodyappend"></tbody>
                 </table>
             </div>
 
+            {{-- Summary --}}
             <div class="col-md-4">
                 <table class="table table-bordered">
                     <tr>
                         <th>Sub Total</th>
                         <td>
-                            <input type="text" readonly
-                                   name="sub_total"
+                            <input readonly name="sub_total"
                                    class="form-control sub-total"
                                    value="{{ $itemorder->subtotal }}">
                         </td>
@@ -97,8 +98,7 @@
                     <tr>
                         <th>Discount</th>
                         <td>
-                            <input type="text"
-                                   name="discount"
+                            <input name="discount"
                                    class="form-control discount"
                                    value="{{ $itemorder->discount }}">
                         </td>
@@ -106,8 +106,7 @@
                     <tr>
                         <th>Transport Cost</th>
                         <td>
-                            <input type="text"
-                                   name="transport_cost"
+                            <input name="transport_cost"
                                    class="form-control transport_cost"
                                    value="{{ $itemorder->transport_cost }}">
                         </td>
@@ -115,8 +114,7 @@
                     <tr>
                         <th>Labour Cost</th>
                         <td>
-                            <input type="text"
-                                   name="labour_cost"
+                            <input name="labour_cost"
                                    class="form-control labour_cost"
                                    value="{{ $itemorder->labour_cost }}">
                         </td>
@@ -124,8 +122,7 @@
                     <tr>
                         <th>Grand Total</th>
                         <td>
-                            <input type="text" readonly
-                                   name="grand_total"
+                            <input readonly name="grand_total"
                                    class="form-control grand-total"
                                    value="{{ $itemorder->totalamount }}">
                         </td>
@@ -154,129 +151,123 @@
 
 @push('script')
 <script>
-    let cart = {};
+let cart = {};
+let units = {!! json_encode($units) !!};
 
-    function n(v){
-        v = parseFloat(v);
-        return isNaN(v) ? 0 : v;
-    }
+function n(v){
+    v = parseFloat(v);
+    return isNaN(v) ? 0 : v;
+}
 
-    @foreach($itemorder->itemOrderDetail as $d)
-    cart[{{ $d->item_id }}] = {
-        name  : "{{ $d->product->name }}",
-        qty   : {{ $d->purchase_qty }},
-        price : {{ $d->price }},
-        unit  : {{ $d->purchase_unit_id }}
-    };
-    @endforeach
+@foreach($itemorder->itemOrderDetail as $d)
+cart[{{ $d->item_id }}] = {
+    name  : "{{ $d->product->name }}",
+    qty   : {{ $d->purchase_qty }},
+    unit  : {{ $d->purchase_unit_id }},
+    total : {{ $d->total }},
+};
+@endforeach
 
-    function recalculateAll(){
-        let sub = 0;
+function recalculateAll(){
+    let sub = 0;
 
-        $('.tbodyappend tr').each(function(){
-            let qty   = n($(this).find('.qty').val());
-            let price = n($(this).find('.price').val());
-            let unit  = $(this).find('.unit').val();
-            let total = qty * price;
-
-            $(this).find('.amount').val(total.toFixed(2));
-            sub += total;
-        });
-
-        $('.sub-total').val(sub.toFixed(2));
-
-        let discount  = n($('.discount').val());
-        let transport = n($('.transport_cost').val());
-        let labour    = n($('.labour_cost').val());
-
-        $('.grand-total').val((sub - discount + transport + labour).toFixed(2));
-    }
-
-    let units = {!! json_encode($units) !!};
-
-    function renderTable(){
-        let html = '';
-        let i = 1;
-
-        $.each(cart, function(id, item){
-            html += `
-            <tr data-id="${id}">
-                <td>${i++}</td>
-                <td>
-                    ${item.name}
-                    <input type="hidden" name="items[${id}][id]" value="${id}">
-                </td>
-
-                <td>
-                    <select name="items[${id}][unit]" class="form-select unit">
-                        <option value="">Select Unit</option>
-                        ${units.map(unit => `<option value="${unit.id}"  ${unit.id == item.unit ? 'selected' : ''}>${unit.name}</option>`).join('')}
-                    </select>
-                </td>
-
-                <td>
-                    <input type="number" min="1"
-                        class="form-control qty"
-                        name="items[${id}][qty]"
-                        value="${item.qty}">
-                </td>
-                <td>
-                    <input type="number" step="0.01"
-                        class="form-control price"
-                        name="items[${id}][price]"
-                        value="${item.price}">
-                </td>
-                <td>
-                    <input type="text" readonly
-                        class="form-control amount"
-                        name="items[${id}][total]"
-                        value="0.00">
-                </td>
-                <td>
-                    <button type="button"
-                            class="btn btn-danger btn-sm remove">✕</button>
-                </td>
-            </tr>`;
-        });
-
-        $('.tbodyappend').html(html);
-        recalculateAll();
-    }
-
-    $('#addItem').on('click', function(){
-        let opt = $('#itemSelect option:selected');
-        let id  = opt.val();
-
-        if(!id){
-            alert('Select item first');
-            return;
-        }
-
-        if(cart[id]){
-            cart[id].qty += 1;
-        }else{
-            cart[id] = {
-                name  : opt.data('name'),
-                qty   : 1,
-                price : n(opt.data('price'))
-            };
-        }
-
-        $('#itemSelect').val('').trigger('change');
-        renderTable();
+    $('.tbodyappend tr').each(function(){
+        sub += n($(this).find('.total').val());
     });
 
-    $(document).on('keyup change','.qty,.price',recalculateAll);
-    $(document).on('keyup change','.discount,.transport_cost,.labour_cost',recalculateAll);
+    $('.sub-total').val(sub.toFixed(2));
 
-    $(document).on('click','.remove',function(){
-        let id = $(this).closest('tr').data('id');
-        delete cart[id];
-        renderTable();
+    let grand = sub
+        - n($('.discount').val())
+        + n($('.transport_cost').val())
+        + n($('.labour_cost').val());
+
+    $('.grand-total').val(grand.toFixed(2));
+}
+
+function renderTable(){
+    let html = '';
+    let i = 1;
+
+    $.each(cart, function(id, item){
+        html += `
+        <tr data-id="${id}">
+            <td>${i++}</td>
+            <td>
+                ${item.name}
+                <input type="hidden" name="items[${id}][id]" value="${id}">
+            </td>
+
+            <td>
+                <select name="items[${id}][unit]" class="form-select">
+                    <option value="">Select Unit</option>
+                    ${units.map(u =>
+                        `<option value="${u.id}" ${u.id==item.unit?'selected':''}>${u.name}</option>`
+                    ).join('')}
+                </select>
+            </td>
+
+            <td>
+                <input type="number" min="1"
+                       class="form-control qty"
+                       name="items[${id}][qty]"
+                       value="${item.qty}">
+            </td>
+
+            <td>
+                <input type="number" step="any"
+                       class="form-control total"
+                       name="items[${id}][total]"
+                       value="${item.total}">
+            </td>
+
+            <td>
+                <button type="button"
+                        class="btn btn-danger btn-sm remove">✕</button>
+            </td>
+        </tr>`;
     });
 
-    $(document).ready(function(){
-        renderTable();
-    });
+    $('.tbodyappend').html(html);
+    recalculateAll();
+}
+
+$('#addItem').on('click', function(){
+    let opt = $('#itemSelect option:selected');
+    let id  = opt.val();
+
+    if(!id){
+        alert('Select item first');
+        return;
+    }
+
+    if(cart[id]){
+        cart[id].qty++;
+    }else{
+        cart[id] = {
+            name  : opt.data('name'),
+            qty   : 1,
+            unit  : '',
+            total : 0
+        };
+    }
+
+    $('#itemSelect').val('').trigger('change');
+    renderTable();
+});
+
+$(document).on('keyup change',
+    '.total, .discount, .transport_cost, .labour_cost',
+    recalculateAll
+);
+
+$(document).on('click','.remove',function(){
+    delete cart[$(this).closest('tr').data('id')];
+    renderTable();
+});
+
+$(document).ready(function(){
+    renderTable();
+});
 </script>
 @endpush

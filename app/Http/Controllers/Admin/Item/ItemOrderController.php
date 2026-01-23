@@ -97,7 +97,6 @@ class ItemOrderController extends Controller
 
             'items.*.id'         => 'required|exists:items,id',
             'items.*.qty'        => 'required|numeric|min:1',
-            'items.*.price'      => 'required|numeric|min:0',
             'items.*.total'      => 'required|numeric|min:0',
             'items.*.unit'      => 'required|exists:units,id',
 
@@ -138,21 +137,20 @@ class ItemOrderController extends Controller
 
             $qty = convertUnitQty($item['unit'], $item['qty']);
 
-            
-            ItemOrderDetail::create([
+            $detail = ItemOrderDetail::create([
                 'item_order_id' => $order->id,
                 'item_id'       => $item['id'],
-                'price'         => $item['price'],
+                "price"         => round($item['total'] / $qty, 2),
                 'purchase_unit_id'          => $item['unit'],
                 'purchase_qty'              => $item['qty'],
-                'qty'           => $qty,
+                'qty'           => round($qty, 2),
                 'total'         => $item['total'],
                 'stock'         => $item['qty'],
                 'status'        => 'Active',
             ]);
 
             $product = Item::findOrFail($item['id']);
-            $product->price = $item['price'];
+            $product->price = $detail->price;
             $product->qty   = $product->stock($product->id);
             $product->save();
         }
@@ -237,23 +235,25 @@ class ItemOrderController extends Controller
 
                 $productId = $item['id'] ?? null;
                 $qty       = (float) ($item['qty'] ?? 0);
-                $price     = (float) ($item['price'] ?? 0);
+                $total     = (float) ($item['total'] ?? 0);
 
-                if (!$productId || $qty <= 0 || $price <= 0) {
+                if (!$productId || $qty <= 0 || $total <= 0) {
                     continue;
                 }
 
                 $baseUnit = convertUnitQty($item['unit'], $qty);
 
-                $total = round($qty * $price, 2);
+                if ($baseUnit <= 0) {
+                    continue;
+                }
 
                 ItemOrderDetail::create([
                     'item_order_id' => $order->id,
                     'item_id'       => $productId,
-                    'price'         => $price,
+                    'price'         => round($total / $baseUnit, 2),
                     'purchase_unit_id'          => $item['unit'],
-                    'purchase_qty'              => $qty,
-                    'qty'           => $baseUnit,
+                    'purchase_qty'              => round($qty, 2),
+                    'qty'           => round($baseUnit, 2),
                     'total'         => $total,
                     'stock'         => $qty,
                     'status'        => 'Active',
