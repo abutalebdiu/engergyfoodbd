@@ -191,6 +191,7 @@ class SalaryGenerateController extends Controller
       $data['months']  = Month::get();
       $data['years']  = Year::latest()->get();
       $data['departments'] = Department::get();
+      
       $query = SalaryGenerate::with(['employee.department', 'entryuser', 'month', 'year'])
                     ->join('employees', 'employees.id', '=', 'salary_generates.employee_id')
                     ->select('salary_generates.*', 'employees.id as employee_id');
@@ -224,8 +225,15 @@ class SalaryGenerateController extends Controller
 
             $data['salarygeneratesByDepartment'] = $salarygenerates;
 
-       if ($request->has('search')) {
-        return view('admin.hr.salarygenerates.show', compact('salarygenerate'),$data);
+
+
+        if ($request->ajax()) {
+            return view('admin.hr.salarygenerates.salary_generate_table', $data)->render();
+        }
+    
+
+        if ($request->has('search')) {
+            return view('admin.hr.salarygenerates.show', compact('salarygenerate'),$data);
         } elseif ($request->has('pdf')) {
             $pdf = PDF::loadView('admin.hr.salarygenerates.salary_generate_pdf', $data, [], [
                 'format' => 'a4',

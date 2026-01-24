@@ -1,68 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('admin.layouts.app', ['title' => __('Summery Report')])
+@section('panel')
+    <div class="card">
+        <div class="card-header d-flex justify-content-between">
+            <h6 class="mb-0 text-capitalize">
+                @lang('Summery Report')
+            </h6>
+        </div>
+        <div class="card-body">
+            <form action="" method="get">
+                <div class="row">
+                    <div class="col-12 col-md-3">
+                        <input type="date" name="start_date"
+                            @if (isset($datas['start_date'])) value="{{ $datas['start_date'] }}" @endif
+                            class="form-control">
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <input type="date" name="end_date"
+                            @if (isset($datas['end_date'])) value="{{ $datas['end_date'] }}" @endif class="form-control">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <button type="submit" name="search" class="btn btn-primary "><i class="bi bi-search"></i>
+                            @lang('Search')</button>
+                        <button type="submit" name="pdf" class="btn btn-primary "><i class="bi bi-download"></i>
+                            @lang('PDF')</button>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>@lang('Summery Report')</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            text-align: center;
-        }
-
-        table th {
-            font-size: 16px;
-        }
-
-        table td {
-            font-size: 15px;
-        }
-
-        .col-md-3 {
-            width: 20%;
-            float: left;
-        }
-
-        h6 {
-            padding: 0;
-            margin: 0;
-        }
-
-        .card {
-            padding: 5px;
-            text-align: left;
-
-        }
-
-        .card-body {
-            padding: 5px;
-            box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
-        }
-
-        .text-success {
-            color: green;
-        }
-    </style>
-</head>
-
-<body>
-    <div>
-        <div class="wrapper">
-            <div class="print-header" style="text-align: center;margin-bottom:15px">
-                <h4 style="margin: 0;padding:0;font-size:18pt">{{ $general->site_name }}</h4>
-                <p style="margin: 0;padding:0">{{ $general->address }}</p>
-                <p style="margin: 0;padding:0">অফিস: {{ $general->phone }}, হেল্প লাইন:{{ $general->mobile }}</p>
+                    </div>
+                </div>
+            </form>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <p class=" mt-5">@lang('Date'): @if (isset($datas['start_date']))
+                            {{ en2bn(Date('d-m-Y', strtotime($datas['start_date']))) }} -
+                            {{ en2bn(Date('d-m-Y', strtotime($datas['end_date']))) }}
+                        @endif
+                    </p>
+                </div>
             </div>
-            <h5 style="text-align: center;margin: 0;padding:0">@lang('Day Wise Summery / Summery Report')</h5>
-            <p style="margin: 0;padding:0;text-align:right">@lang('Date') : {{ en2bn(Date('d-m-Y')) }}</p>
-            <div class="product-detail">
-                <table border="1">
+            
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
                     @include('admin.reports.includes.summery_report_table')
                 </table>
-                <br>
             </div>
             <div class="row mt-4">
                 <div class="col-12 col-md-3">
@@ -77,7 +55,7 @@
                         </div>
                     </div>
                 </div>
-
+ 
 
                 <div class="col-12 col-md-3">
                     <div class="card card mb-3 shadow">
@@ -87,6 +65,18 @@
                             </h6>
                             <h6 class="mb-0 text-capitalize mt-2 text-success">
                                 {{ en2bn(isset($datas['total_customer_commission']) ? number_format($datas['total_customer_commission'], 2) : 0) }}
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card card mb-3 shadow">
+                        <div class="card-body">
+                            <h6 class="mb-0 text-capitalize">
+                                @lang('Grand Total')
+                            </h6>
+                            <h6 class="mb-0 text-capitalize mt-2 text-success">
+                                {{ en2bn(isset($datas['total_grand_total']) ? number_format($datas['total_grand_total'], 2) : 0) }}
                             </h6>
                         </div>
                     </div>
@@ -400,6 +390,43 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-12 col-md-3">
+                    <div class="card card mb-3 shadow">
+                        <div class="card-body">
+                            <h6 class="mb-0 text-capitalize">
+                                @lang('Office Loan Payment')
+                            </h6>
+                            <h6 class="mb-0 text-capitalize mt-2 text-success">
+                                {{ en2bn(isset($datas['office_loan_payment']) ? number_format($datas['office_loan_payment'], 2) : 0) }}
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+                {{-- // customer loan --}}
+                <div class="col-12 col-md-3">
+                    <div class="card card mb-3 shadow">
+                        <div class="card-body">
+                            <h6 class="mb-0 text-capitalize">
+                                @lang('Customer Loan')
+                            </h6>
+                            <h6 class="mb-0 text-capitalize mt-2 text-success">
+                                {{ en2bn(isset($datas['customer_loan']) ? number_format($datas['customer_loan'], 2) : 0) }}
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card card mb-3 shadow">
+                        <div class="card-body">
+                            <h6 class="mb-0 text-capitalize">
+                                @lang('Customer Loan Payment')
+                            </h6>
+                            <h6 class="mb-0 text-capitalize mt-2 text-success">
+                                {{ en2bn(isset($datas['customer_loan_payment']) ? number_format($datas['customer_loan_payment'], 2) : 0) }}
+                            </h6>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="col-12 col-md-3">
                     <div class="card card mb-3 shadow">
@@ -450,70 +477,54 @@
                         </div>
                     </div>
                 </div>
+
+
             </div>
 
             <div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="mb-0 text-capitalize">
+                                @lang('Net Profit')
 
-                <h6 class="mb-1 text-capitalize">
-                    @lang('Net Profit')
-                </h6>
+                            </h6>
+                            <p>((@lang('Total Net Amount') - (@lang('Customer Commission') + @lang('Marketer Commission') + @lang('Product Damage')
+                                + @lang('Customer Product Damage') + @lang('Total Expense') +
+                                @lang('Salary Generate Amount') + @lang('Sales Cost')) </p>
 
-                <p class="text-muted mb-2">
-                    ( @lang('Total Net Amount')
-                    − (
-                        @lang('Customer Commission')
-                        + @lang('Marketer Commission')
-                        + @lang('Product Damage')
-                        + @lang('Customer Product Damage')
-                        + @lang('Total Expense')
-                        + @lang('Salary')
-                        + @lang('Production Cost')
-                    ) )
-                </p>
+                            {{ $datas['total_net_amount'] }},
+                            {{ $datas['total_customer_commission'] }},
+                            {{ $datas['total_marketer_commission'] }},
+                            {{ $datas['total_product_damage'] }},
+                            {{ $datas['total_customer_product_damage'] }},
+                            {{ $datas['total_expense_amount'] }},
+                            {{ $datas['salary_amount'] }},
+                            {{ $datas['total_datewish_total_sales_cost'] }}
 
-                {{-- Values Preview --}}
-                <p class="mb-2">
-                    {{ number_format($datas['total_net_amount'] ?? 0, 2) }},
-                    (
-                    {{ number_format($datas['total_customer_commission'] ?? 0, 2) }},
-                    {{ number_format($datas['total_marketer_commission'] ?? 0, 2) }},
-                    {{ number_format($datas['total_product_damage'] ?? 0, 2) }},
-                    {{ number_format($datas['total_customer_product_damage'] ?? 0, 2) }},
-                    {{ number_format($datas['total_expense_amount'] ?? 0, 2) }},
-                    {{ number_format($datas['salary_amount'] ?? 0, 2) }},
-                    {{ number_format($datas['total_datewish_total_sales_cost'] ?? 0, 2) }}
-                    )
-                </p>
+                            <h6 class="mb-0 text-capitalize mt-2 text-success">
+                                @php
+                                    $total_profit =
+                                        $datas['total_net_amount'] -
+                                        ($datas['total_customer_commission'] +
+                                            $datas['total_marketer_commission'] +
+                                            $datas['total_product_damage'] +
+                                            $datas['total_customer_product_damage'] +
+                                            $datas['total_expense_amount'] +
+                                            $datas['salary_amount'] +
+                                            $datas['total_datewish_total_sales_cost']);
+                                @endphp
 
-                {{-- Net Profit Calculation --}}
-                @php
-                    $total_profit =
-                        ($datas['total_net_amount'] ?? 0)
-                        - (
-                            ($datas['total_customer_commission'] ?? 0)
-                            + ($datas['total_marketer_commission'] ?? 0)
-                            + ($datas['total_product_damage'] ?? 0)
-                            + ($datas['total_customer_product_damage'] ?? 0)
-                            + ($datas['total_expense_amount'] ?? 0)
-                            + ($datas['salary_amount'] ?? 0)
-                            + ($datas['total_datewish_total_sales_cost'] ?? 0)
-                        );
-                @endphp
-
-                <h5 class="mt-2 {{ $total_profit >= 0 ? 'text-success' : 'text-danger' }}">
-                    {{ $total_profit >= 0 ? '+' : '-' }}
-                    {{ en2bn(number_format(abs($total_profit), 2)) }}
-                </h5>
-
+                                @if ($total_profit > 0)
+                                    + {{ en2bn(number_format($total_profit, 2)) }}
+                                @else
+                                    - {{ en2bn(number_format(abs($total_profit), 2)) }}
+                                @endif
+                            </h6>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-        </div>
-</body>
-
-</html>
+@endsection

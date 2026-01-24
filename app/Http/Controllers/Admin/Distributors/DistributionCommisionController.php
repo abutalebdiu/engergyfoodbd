@@ -1,57 +1,31 @@
 <?php
 
-namespace App\Http\Controllers\Admin\Commission;
+namespace App\Http\Controllers\Admin\Distributors;
 
-use App\Http\Controllers\Controller;
-use App\Models\Product\Product;
 use Illuminate\Http\Request;
-use App\Models\User;
+use App\Models\Product\Product;
+use App\Http\Controllers\Controller;
+use App\Models\Distribution\Distribution;
 use Illuminate\Support\Facades\Validator;
 use PDF;
 
-class ReferenceCommisionController extends Controller
+class DistributionCommisionController extends Controller
 {
-    public function referenceCommision($id)
+    public function index(Request $request, $id)
     {
-        $data['user'] = User::findOrFail($id);
-    
-        // Load all products with department relation and commission
+        $data['distributor'] = Distribution::where('status', 1)->where('id', $id)->first();
 
         $data['products'] = Product::active()
             ->with([
                 'department',
-                'productCommission' => function ($query) use ($id) {
-                    $query->where('user_id', $id);
+                'distributorCommission' => function ($query) use ($id) {
+                    $query->where('distribution_id', $id);
                 }
             ])
             ->orderBy('department_id')
             ->get();
-    
-        return view('admin.commissions.referencecommissions.index', $data);
-    }
-    
-    
-    
-    public function referenceCommisionpdf($id)
-    {
-        $data['customer'] = User::findOrFail($id);
-    
-        // Load all products with department relation and commission
-        $data['products'] = Product::active()
-            ->with([
-                'department',
-                'productCommission' => function ($query) use ($id) {
-                    $query->where('user_id', $id);
-                }
-            ])
-            ->orderBy('department_id')
-            ->get();
-            
-        
-            // return view('admin.commissions.referencecommissions.customer_commission_pdf', $data);
-    
-         $pdf = PDF::loadView('admin.commissions.referencecommissions.customer_commission_pdf',$data);
-         return $pdf->stream('customer_product_commission.pdf');
+
+        return view('admin.distributors.distributioncommision.index', $data);
     }
 
     public function referenceCommisionUpdate(Request $request, $id)
@@ -61,7 +35,6 @@ class ReferenceCommisionController extends Controller
             $notify['warning'] = 'Something went wrong';
             return redirect()->back()->withNotify($notify);
         }
-
 
         $validator = Validator::make($request->all(), [
             'product_id' => 'required|array',
@@ -74,23 +47,27 @@ class ReferenceCommisionController extends Controller
             'type.*' => 'required|in:Percentage,Flat',
         ]);
 
-
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-        $user = User::find($id);
 
-        if (!$user) {
+        $distributor = Distribution::find($id);
+
+        if (!$distributor) {
+
             $notify['warning'] = 'Something went wrong';
             return redirect()->back()->withNotify($notify);
+
         }
 
         foreach ($request->product_id as $key => $item) {
+
             $product = Product::find($item);
+
             if ($product) {
-                $product->productCommission()->updateOrCreate(
+                $product->distributorCommission()->updateOrCreate(
                     [
-                        'user_id' => $user->id,
+                        'distribution_id' => $distributor->id,
                         'product_id' => $item,
                     ],
                     [
@@ -107,4 +84,26 @@ class ReferenceCommisionController extends Controller
         return redirect()->back()->withNotify($notify);
     }
 
+    public function referenceCommisionpdf($id)
+    {
+        $data['distributor'] = Distribution::findOrFail($id);
+
+        $data['products'] = Product::active()
+            ->with([
+                'department',
+                'distributorCommission' => function ($query) use ($id) {
+                    $query->where('distribution_id', $id);
+                }
+            ])
+            ->orderBy('department_id')
+            ->get();
+
+
+        $pdf = PDF::loadView('admin.distributors.distributioncommision.distributor_product_commission_pdf', $data);
+        return $pdf->stream('distributor_product_commission.pdf');
+    }
 }
+
+
+
+   

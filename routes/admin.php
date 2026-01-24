@@ -4,40 +4,51 @@ use Illuminate\Support\Facades\Route;
 
 
 use App\Models\Expense\MonthlyExpense;
+use App\Http\Controllers\Admin\HR\LoanController;
+
 use App\Http\Controllers\Admin\Item\ItemController;
 
 use App\Http\Controllers\Admin\Item\UnitController;
 
+use App\Http\Controllers\Admin\HR\EmployeeController;
+use App\Http\Controllers\Admin\HR\MarketerController;
 use App\Http\Controllers\Admin\Order\OrderController;
-
 use App\Http\Controllers\Admin\Report\AssetController;
 use App\Http\Controllers\Admin\HR\AttendanceController;
+use App\Http\Controllers\Admin\HR\DepartmentController;
+
+use App\Http\Controllers\Admin\HR\SalaryTypeController;
 use App\Http\Controllers\Admin\Product\StockController;
+
+use App\Http\Controllers\Admin\HR\SalarySetupController;
+
 use App\Http\Controllers\Admin\Item\ItemBrandController;
 use App\Http\Controllers\Admin\Item\ItemOrderController;
+
 use App\Http\Controllers\Admin\Item\ItemStockController;
-
 use App\Http\Controllers\Admin\Order\PerchaseController;
+
 use App\Http\Controllers\Admin\Account\AccountController;
-
 use App\Http\Controllers\Admin\Account\DepositController;
-
 use App\Http\Controllers\Admin\Expense\ExpenseController;
-use App\Http\Controllers\Admin\HR\DistributionController;
 
+use App\Http\Controllers\Admin\HR\DistributionController;
 use App\Http\Controllers\Admin\Item\ItemReturnController;
 use App\Http\Controllers\Admin\Product\ProductController;
+use App\Http\Controllers\Admin\HR\FestivalBonusController;
+use App\Http\Controllers\Admin\HR\SalaryAdvanceController;
 
+use App\Http\Controllers\Admin\HR\SalaryGenerateController;
 use App\Http\Controllers\Admin\Item\ItemCategoryController;
 use App\Http\Controllers\Admin\Order\OrderDetailController;
 use App\Http\Controllers\Admin\Order\OrderReturnController;
-
 use App\Http\Controllers\Admin\Order\PointOfSaleController;
 use App\Http\Controllers\Admin\Report\LiabilitieController;
 use App\Http\Controllers\Admin\Account\ModuleTypeController;
 use App\Http\Controllers\Admin\Account\SettlementController;
 use App\Http\Controllers\Admin\Account\WithdrawalController;
-
+use App\Http\Controllers\Admin\HR\SalaryDeductionController;
+use App\Http\Controllers\Admin\HR\SalaryBonusSetupController;
 use App\Http\Controllers\Admin\Warehouse\WarehouseController;
 use App\Http\Controllers\Admin\Account\CustomerLoanController;
 use App\Http\Controllers\Admin\Account\OfficialLoanController;
@@ -53,11 +64,15 @@ use App\Http\Controllers\Admin\Item\ItemOrderPaymentController;
 use App\Http\Controllers\Admin\Product\ProductDamageController;
 use App\Http\Controllers\Admin\Product\ProductRecipeController;
 use App\Http\Controllers\Admin\Expense\MonthlyExpenseController;
+use App\Http\Controllers\Admin\HR\FestivalBonusDetailController;
 use App\Http\Controllers\Admin\Item\ItemReturnPaymentController;
+use App\Http\Controllers\Admin\Service\ServiceInvoiceController;
 use App\Http\Controllers\Admin\Account\AccountTransferController;
 use App\Http\Controllers\Admin\Account\CustomerAdvanceController;
 use App\Http\Controllers\Admin\Account\SupplierAdvanceController;
 use App\Http\Controllers\Admin\Expense\ExpenseCategoryController;
+use App\Http\Controllers\Admin\HR\FestivalBonusPaymentController;
+use App\Http\Controllers\Admin\HR\SalaryPaymentHistoryController;
 use App\Http\Controllers\Admin\Product\ProductCategoryController;
 use App\Http\Controllers\Admin\Expense\TransportExpenseController;
 use App\Http\Controllers\Admin\Warehouse\WarehouseOrderController;
@@ -81,11 +96,13 @@ use App\Http\Controllers\Admin\Commission\MarketerCommissionController;
 use App\Http\Controllers\Admin\Expense\ExpensePaymentHistoryController;
 use App\Http\Controllers\Admin\Expense\MonthlyExpensePaymentController;
 use App\Http\Controllers\Admin\Product\CustomerProductDamageController;
+use App\Http\Controllers\Admin\Service\ServiceInvoicePaymentController;
 use App\Http\Controllers\Admin\Account\SupplierPayablePaymentController;
 use App\Http\Controllers\Admin\Distributors\DistributorPaymentController;
 use App\Http\Controllers\Admin\Expense\TransportExpensePaymentController;
 use App\Http\Controllers\Admin\Order\Quotation\QuotationDetailController;
 use App\Http\Controllers\Admin\Account\MarketerCommissionPaymentController;
+use App\Http\Controllers\Admin\Distributors\DistributionCommisionController;
 use App\Http\Controllers\Admin\Distributors\DistributorOrderReportController;
 use App\Http\Controllers\Admin\Distributors\DistributorQuotationReportController;
 
@@ -343,6 +360,12 @@ Route::group(['middleware' => ['auth:web,admin']], function () {
     Route::resource('distribution', DistributionController::class);
     Route::get('distribution/status/change/{id}', [DistributionController::class, 'status'])->name('distribution.status.change');
     Route::get('distribution/{distribution}/statement', [DistributionController::class, 'statement'])->name('distribution.statement');
+
+    Route::group(['prefix' => 'distributioncommission', 'as' => 'distributioncommission.'], function () {
+        Route::get('index/{id}', [DistributionCommisionController::class, 'index'])->name('index');
+        Route::post('update/{id}', [DistributionCommisionController::class, 'referenceCommisionUpdate'])->name('update');
+        Route::get('pdf/{id}', [DistributionCommisionController::class, 'referenceCommisionpdf'])->name('pdf');
+    });
 
 
     Route::group(['prefix' => 'distributor-quotations', 'as' => 'distributor-quotations.'], function () {

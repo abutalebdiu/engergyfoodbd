@@ -61,6 +61,16 @@
                                             data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                         <ul class="dropdown-menu">
                                             <li>
+                                                <a href="{{ route('admin.distributioncommission.index', $item->id) }}" class="dropdown-item">
+                                                    <i class="bi bi-card-list"></i> Commission Setup
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{ route('admin.distributioncommission.pdf', $item->id) }}" class="dropdown-item">
+                                                    <i class="bi bi-download"></i> Commission PDF
+                                                </a>
+                                            </li>
+                                            <li>
                                                 <a href="{{ route('admin.distribution.statement', $item->id) }}" class="dropdown-item">
                                                     <i class="bi bi-card-list"></i> Statement
                                                 </a>

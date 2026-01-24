@@ -52,12 +52,12 @@
             </td>
             <td>{{ en2bn(number_format(isset($data['net_amount']) ? $data['net_amount'] : 0, 2)) }}</td>
             
-            <td>{{ en2bn(number_format($data['sales_cost'], 2)) }}</td>
-            <td>{{ en2bn(number_format($data['pp_cost'], 2)) }}</td>
-            <td>{{ en2bn(number_format($data['box_cost'], 2)) }}</td>
-            <td>{{ en2bn(number_format($data['striker_cost'], 2)) }}</td>
-            <td>{{ en2bn(number_format($data['datewish_total_sales_cost'], 2)) }}</td>
-            <td>{{ en2bn(number_format($data['sales_profit'], 2)) }}</td>
+            <td>{{ en2bn(number_format(isset($data['sales_cost']) ? $data['sales_cost'] : 0, 2)) }}</td>
+            <td>{{ en2bn(number_format(isset($data['pp_cost']) ? $data['pp_cost'] : 0, 2)) }}</td>
+            <td>{{ en2bn(number_format(isset($data['box_cost']) ? $data['box_cost'] : 0, 2)) }}</td>
+            <td>{{ en2bn(number_format(isset($data['striker_cost']) ? $data['striker_cost'] : 0, 2)) }}</td>
+            <td>{{ en2bn(number_format(isset($data['datewish_total_sales_cost']) ? $data['datewish_total_sales_cost'] : 0, 2)) }}</td>
+            <td>{{ en2bn(number_format(isset($data['sales_profit']) ? $data['sales_profit'] : 0, 2)) }}</td>
             
             <td>{{ en2bn(number_format(isset($data['customer_commission']) ? $data['customer_commission'] : 0, 2)) }}
             </td>
@@ -100,12 +100,12 @@
         <th>{{ en2bn(number_format(isset($datas['total_order_return_amount']) ? $datas['total_order_return_amount'] : 0, 2)) }}
         </th>
         <th>{{ en2bn(number_format(isset($datas['total_net_amount']) ? $datas['total_net_amount'] : 0, 2)) }}</th>
-        <th>{{ en2bn(number_format($datas['total_sales_cost'], 2)) }}</th>
-        <th>{{ en2bn(number_format($datas['total_pp_cost'], 2)) }}</th>
-        <th>{{ en2bn(number_format($datas['total_box_cost'], 2)) }}</th>
-        <th>{{ en2bn(number_format($datas['total_striker_cost'], 2)) }}</th>
-        <th>{{ en2bn(number_format($datas['total_datewish_total_sales_cost'], 2)) }}</th>
-        <th>{{ en2bn(number_format($datas['total_sales_profit'], 2)) }}</th>
+        <th>{{ en2bn(number_format(isset($datas['total_sales_cost']) ? $datas['total_sales_cost'] : 0, 2)) }}</th>
+        <th>{{ en2bn(number_format(isset($datas['total_pp_cost']) ? $datas['total_pp_cost'] : 0, 2)) }}</th>
+        <th>{{ en2bn(number_format(isset($datas['total_box_cost']) ? $datas['total_box_cost'] : 0, 2)) }}</th>
+        <th>{{ en2bn(number_format(isset($datas['total_striker_cost']) ? $datas['total_striker_cost'] : 0, 2)) }}</th>
+        <th>{{ en2bn(number_format(isset($datas['total_datewish_total_sales_cost']) ? $datas['total_datewish_total_sales_cost'] : 0, 2)) }}</th>
+        <th>{{ en2bn(number_format(isset($datas['total_sales_profit']) ? $datas['total_sales_profit'] : 0, 2)) }}</th>
         <th>{{ en2bn(number_format(isset($datas['total_customer_commission']) ? $datas['total_customer_commission'] : 0, 2)) }}
         </th>
         <th>{{ en2bn(number_format(isset($datas['total_paid_amount']) ? $datas['total_paid_amount'] : 0, 2)) }}</th>

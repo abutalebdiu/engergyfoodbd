@@ -42,6 +42,14 @@ class SalaryPaymentHistoryController extends Controller
 
         $data['histories'] = $query->paginate(50)->withQueryString();
 
+
+        if($request->ajax()){
+            return response()->json([
+                'status' => true,
+                'html' => view('admin.hr.salarypayments.salary_payment_history_table', $data)->render()
+            ]);
+        }
+
         if ($request->has('search')) {
             return view('admin.hr.salarypayments.view', $data);
         } elseif ($request->has('pdf')) {

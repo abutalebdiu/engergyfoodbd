@@ -65,7 +65,6 @@ class ReportController extends Controller
     public function dailyreports(Request $request)
     {
 
-
         // Check if date is provided
         if ($request->date) {
             $data['date'] = $request->date;
@@ -479,11 +478,6 @@ class ReportController extends Controller
             return $pdf->stream('summery_exports.pdf');
         }
 
-        // if ($request->has('excel')) {
-        //     return Excel::download(new DailyArchiveExport($data), 'daily_reports.xlsx');
-        // }
-
-
         return view('admin.reports.summery', ['datas' => $data]);
     }
 
@@ -560,6 +554,14 @@ class ReportController extends Controller
             : Carbon::parse(date('Y-m-t'));
 
         $dates = [];
+
+
+        if(!$request->ajax()) {
+            $data['start_date'] = $start_date->format('Y-m-d');
+            $data['end_date'] = $end_date->format('Y-m-d');
+            return view('admin.reports.summery_report', $data);
+        }
+
 
         for ($i = $start_date->copy(); $i <= $end_date; $i->addDay()) {
             $dates[] = $i->toDateString();
@@ -851,12 +853,14 @@ class ReportController extends Controller
             return $pdf->stream('summery_exports.pdf');
         }
 
-        // if ($request->has('excel')) {
-        //     return Excel::download(new DailyArchiveExport($data), 'daily_reports.xlsx');
-        // }
 
+        if ($request->ajax()) {
+            return view('admin.reports.summery_report_data', [
+                'datas' => $data
+            ])->render();
+        }
 
-        return view('admin.reports.summery_report', ['datas' => $data]);
+        return view('admin.reports.summery_report');
     }
 
     // trail Balance

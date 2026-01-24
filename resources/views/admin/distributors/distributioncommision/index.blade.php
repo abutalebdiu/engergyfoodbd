@@ -1,11 +1,11 @@
 @extends('admin.layouts.app', ['title' => 'Commission Setup'])
 @section('panel')
-    <form action="{{ route('admin.referenceCommision.update', ['id' => $user->id]) }}" method="POST"
+    <form action="{{ route('admin.distributioncommission.update', ['id' => $distributor->id]) }}" method="POST"
         enctype="multipart/form-data">
         @csrf
         <div class="card">
             <div class="card-header">
-                <h6 class="mb-0 text-capitalize">Commission Setup for <a href="#">{{ $user->name }}</a></h6>
+                <h6 class="mb-0 text-capitalize">Commission Setup for <a href="#">{{ $distributor->name }}</a></h6>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -57,16 +57,16 @@
                                         </td>
                                         <td>
                                             <input class="form-control" type="text" name="price[]"
-                                                   value="{{ en2bn($product->productCommission?->price ?? $product->sale_price) }}" required>
+                                                   value="{{ en2bn($product->distributorCommission?->price ?? $product->sale_price) }}" required>
                                         </td>
                                         <td>
                                             <input class="form-control commission-input" type="text" name="amount[]"
-                                                   value="{{ en2bn($product->productCommission?->amount ?? 0) }}" required>
+                                                   value="{{ en2bn($product->distributorCommission?->amount ?? 0) }}" required>
                                         </td>
                                         <td>
                                             <select class="form-select type-select" name="type[]" required>
-                                                <option {{ $product->productCommission?->type == 'Percentage' ? 'selected' : '' }} value="Percentage">@lang('Percentage')</option>
-                                                <option {{ $product->productCommission?->type == 'Flat' ? 'selected' : '' }} value="Flat">@lang('Flat')</option>
+                                                <option {{ $product->distributorCommission?->type == 'Percentage' ? 'selected' : '' }} value="Percentage">@lang('Percentage')</option>
+                                                <option {{ $product->distributorCommission?->type == 'Flat' ? 'selected' : '' }} value="Flat">@lang('Flat')</option>
                                             </select>
                                         </td>
                                     </tr>
@@ -83,8 +83,7 @@
                 <div class="row">
                     <div class="col-12">
                         <a href="#" class="btn btn-outline-info float-start">Back</a>
-                        <button type="submit" class="btn btn-primary float-end">@lang('Submit')
-                        </button>
+                        <button type="submit" class="btn btn-primary float-end">@lang('Submit')</button>
                     </div>
                 </div>
             </div>

@@ -14,6 +14,7 @@ use App\Models\Order\OrderReturnDetail;
 use App\Models\Order\PurchaseDetail;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Commission\ReferenceCommision;
+use App\Models\DistributionCommission;
 
 class Product extends Model
 {
@@ -29,26 +30,8 @@ class Product extends Model
     {
         return $this->hasMany(OrderDetail::Class,'product_id');
     }
-        
-    
-    // end testnig
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+    // end testing
 
     public function scopeActive($query)
     {
@@ -160,6 +143,12 @@ class Product extends Model
     {
         return $this->hasOne(ReferenceCommision::class, 'product_id');
     }
+
+    public function distributorCommission()
+    {
+        return $this->hasOne(DistributionCommission::class, 'product_id', 'id');
+    }
+
 
     public function dailyproduction($date, $product_id)
     {
