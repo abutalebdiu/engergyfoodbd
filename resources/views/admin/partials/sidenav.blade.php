@@ -270,6 +270,12 @@
                                 @lang('Item Category')
                             </a>
                         </li>
+                        <li class="{{ menuActive('admin.items.unit.index') }}">
+                            <a class="" href="{{ route('admin.items.unit.index') }}"><i
+                                    class="bi bi-circle"></i>
+                                @lang('Item Unit')
+                            </a>
+                        </li>
                     @endif
                     <li class="{{ menuActive('admin.itemtstock.index') }}">
                         <a class="" href="{{ route('admin.itemtstock.index') }}"><i class="bi bi-circle"></i>

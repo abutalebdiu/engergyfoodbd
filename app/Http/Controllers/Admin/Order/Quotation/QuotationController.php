@@ -25,8 +25,8 @@ class QuotationController extends Controller
     {
         Gate::authorize('admin.quotation.list');
 
-        $data['customers'] = User::where('type', 'customer')->orderBy('uid', 'ASC')->get(['id', 'name', 'uid']);
-
+        $data['customers']      = User::where('type', 'customer')->orderBy('uid', 'ASC')->get(['id', 'name', 'uid']);
+        $data['distributors']   = Distribution::get();
         $query = Quotation::query()->where('status','Active');
 
         if ($request->customer_id) {

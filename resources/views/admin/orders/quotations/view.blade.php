@@ -26,6 +26,16 @@
 
                         </select>
                     </div>
+                    <div class="col-12 col-md-3">
+                        <select name="distribution_id" id="distribution_id" class="form-select distribution_id select2">
+                            <option value="">@lang('Search distributor')</option>
+                            @foreach ($distributors as $distributor)
+                                <option
+                                 {{ request()->distribution_id == $distributor->id ? 'selected' : '' }}  
+                                    value="{{ $customer->id }}">  {{ $distributor->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
                     <div class="col-12 col-md-2">
                         <input type="date" name="start_date"
