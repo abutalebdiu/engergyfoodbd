@@ -19,18 +19,24 @@ class DistributorQuotationReportController extends Controller
         $data['end_date']   = $request->end_date ?? date('Y-m-d');
 
         $query = Quotation::join('quotation_details', 'quotation_details.quotation_id', '=', 'quotations.id')
-            ->selectRaw('quotations.date, quotations.distribution_id, 
-                SUM(quotation_details.qty) as total_qty,
-                SUM(quotation_details.amount) as total_amount')
+            ->selectRaw("
+                quotations.date,
+                quotations.distribution_id,
+                SUM(quotation_details.qty) AS total_qty,
+                SUM(quotation_details.amount) AS total_amount,
+                SUM(quotation_details.dc_amount) AS dc_amount,
+                SUM(quotation_details.dc_product_commission) AS dc_product_commission,
+                SUM(quotation_details.product_commission) AS product_commission
+            ")
             ->with('distribution')
             ->whereDate('quotations.date', '>=', $data['start_date'])
             ->whereDate('quotations.date', '<=', $data['end_date'])
-            ->groupBy('date', 'distribution_id')
-            ->orderBy('date', 'DESC')
-            ->whereNotNull('distribution_id');
+            ->whereNotNull('quotations.distribution_id')
+            ->groupBy('quotations.date', 'quotations.distribution_id')
+            ->orderByDesc('quotations.date');
 
-        if ($request->distribution_id) {
-            $query->where('distribution_id', $request->distribution_id);
+        if (!empty($request->distribution_id)) {
+            $query->where('quotations.distribution_id', $request->distribution_id);
         }
 
     
@@ -69,10 +75,15 @@ class DistributorQuotationReportController extends Controller
         $details = Quotation::join('quotation_details', 'quotation_details.quotation_id', '=', 'quotations.id')
             ->join('products', 'products.id', '=', 'quotation_details.product_id')
             ->select(
-            'quotation_details.product_id',
+                'quotation_details.product_id',
                 'products.name as product_name',
                 DB::raw('SUM(quotation_details.qty) as total_qty'),
-                DB::raw('SUM(quotation_details.amount) as total_amount')
+                DB::raw('SUM(quotation_details.amount) as total_amount'),
+                DB::raw('SUM(quotation_details.product_commission) as product_commission'),
+                DB::raw('SUM(quotation_details.dc_price) as dc_price'),
+                DB::raw('SUM(quotation_details.dc_amount) as dc_amount'),
+                DB::raw('SUM(quotation_details.dc_product_commission) as dc_product_commission'),
+                DB::raw('SUM(quotation_details.price) as price')
             )
             ->whereDate('quotations.date', $date)
             ->where('quotations.distribution_id', $distributionId)
@@ -83,7 +94,15 @@ class DistributorQuotationReportController extends Controller
         $grandTotal = Quotation::join('quotation_details', 'quotation_details.quotation_id', '=', 'quotations.id')
             ->whereDate('quotations.date', $date)
             ->where('quotations.distribution_id', $distributionId)
-            ->sum('quotation_details.amount');
+            ->selectRaw("
+                SUM(quotation_details.amount) as total_amount,
+                SUM(quotation_details.product_commission) as product_commission,
+                SUM(quotation_details.dc_price) as dc_price,
+                SUM(quotation_details.dc_amount) as dc_amount,
+                SUM(quotation_details.dc_product_commission) as dc_product_commission,
+                SUM(quotation_details.price) as price
+            ")
+            ->first();
 
 
         if ($request->type == 'pdf') {
@@ -100,7 +119,6 @@ class DistributorQuotationReportController extends Controller
             compact('details', 'date', 'distributionId', 'grandTotal')
         );
     }
-
 
 
     public function downloadShowPdf($request, $data)

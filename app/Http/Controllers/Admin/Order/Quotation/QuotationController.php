@@ -17,6 +17,7 @@ use Rakibhstu\Banglanumber\NumberToBangla;
 use App\Exports\QuotationDemandReport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Distribution\Distribution;
+use Illuminate\Support\Facades\Log;
 
 class QuotationController extends Controller
 {
@@ -215,49 +216,64 @@ class QuotationController extends Controller
             $totalCommission = 0;
 
             // distributor
-            $d_subTotal      = 0;
-            $d_totalCommission = 0;
+            $dc_subTotal      = 0;
+            $dc_totalCommission = 0;
 
             foreach ($products as $item) {
 
                 $product = Product::findOrFail($item['product_id']);
 
-                $price = calculateProductPrice($product->id, $customer->id);
-
-                // commission per product * qty
-                $commissionPerUnit = calculateCommission($product->id, $customer->id);
-                $productCommission = $commissionPerUnit * $item['qty'];
-
-                $amount = floor($price * $item['qty']);
-
-                $detail = $order->quotationdetail()->create([
-                    'product_id'         => $product->id,
-                    'qty'                => $item['qty'],
-                    'price'              => $price,
-                    'amount'             => $amount,
-                    'product_commission' => $productCommission,
-                    'entry_id'           => auth('admin')->id(),
-                ]);
-
-                // totals
-                $subTotal        += $amount;
-                $totalCommission += $productCommission;
-
-
                 if (!empty($distribution)) {
-                    $d_price = distributorCalculateProductPrice($product->id, $distribution->id);
-                    $d_commission_per_unit = distributorCalculateCommission($product->id, $distribution->id);
-                    $d_product_commission = $d_commission_per_unit * $item['qty'];
-                    $d_amount = floor($d_price * $item['qty']);
+                    $customer_price = calculateProductPrice($product->id, $customer->id);
 
-                    $detail->update([
-                        'd_price'              => $d_price,
-                        'd_amount'             => $d_amount,
-                        'd_product_commission' => $d_product_commission,
+                    $distributor_customer_commissionPerUnit = calculateCommission($product->id, $customer->id);
+                    $distributor_customer_productCommission = $distributor_customer_commissionPerUnit * $item['qty'];
+
+                    $amount = floor($customer_price * $item['qty']);
+
+                    $distributor_price = distributorCalculateProductPrice($product->id, $distribution->id);
+                    $distributor_commission_per_unit = distributorCalculateCommission($product->id, $distribution->id);
+                    $distributor_product_commission = $distributor_commission_per_unit * $item['qty'];
+                    $distributor_amount  = floor($distributor_price * $item['qty']);
+
+                    $order->quotationdetail()->create([
+                        'product_id'            => $product->id,
+                        'qty'                   => $item['qty'],
+                        'price'                 => $customer_price,
+                        'amount'                => $amount,
+                        'product_commission'    => $distributor_product_commission,
+                        'dc_price'              => $distributor_price, 
+                        'dc_amount'             => $distributor_amount, 
+                        'dc_product_commission' => $distributor_customer_productCommission,
+                        'entry_id'              => auth('admin')->id(),
                     ]);
 
-                    $d_subTotal += $d_amount;
-                    $d_totalCommission += $d_product_commission;
+
+                    $subTotal        += $amount;
+                    $totalCommission += $distributor_product_commission;
+
+                    $dc_subTotal += $distributor_amount;
+                    $dc_totalCommission += $distributor_customer_productCommission;
+
+                } else {
+                    $price = calculateProductPrice($product->id, $customer->id);
+
+                    $commissionPerUnit = calculateCommission($product->id, $customer->id);
+                    $productCommission = $commissionPerUnit * $item['qty'];
+
+                    $amount = floor($price * $item['qty']);
+
+                    $order->quotationdetail()->create([
+                        'product_id'         => $product->id,
+                        'qty'                => $item['qty'],
+                        'price'              => $price,
+                        'amount'             => $amount,
+                        'product_commission' => $productCommission,
+                        'entry_id'           => auth('admin')->id(),
+                    ]);
+
+                    $subTotal        += $amount;
+                    $totalCommission += $productCommission;
                 }
             }
 
@@ -267,7 +283,7 @@ class QuotationController extends Controller
                 $orderDue   = $subTotal;
 
                 // when distributor
-                $dGrandTotal = $d_subTotal;
+                $dGrandTotal = $dc_subTotal;
                 $dOrderDue   = $dGrandTotal;
 
             } else {
@@ -279,7 +295,7 @@ class QuotationController extends Controller
                 $grandTotal = $subTotal - $totalCommission;
                 $orderDue   = $grandTotal;
 
-                $dGrandTotal = $d_subTotal - $d_totalCommission;
+                $dGrandTotal = $dc_subTotal - $dc_totalCommission;
                 $dOrderDue   = $dGrandTotal;
             }
 
@@ -292,13 +308,13 @@ class QuotationController extends Controller
                 'order_due'     => $orderDue,
                 'customer_due'  => $previousDue + $orderDue,
                 'distribution_id' => $distribution?->id,
-                'd_sub_total'     => $distribution ? $d_subTotal : 0,
-                'd_net_amount'    => $distribution ? $d_subTotal : 0,
-                'd_commission'    => $distribution ? $d_totalCommission : 0,
-                'd_grand_total'   => $dGrandTotal,
-                'd_previous_due'  => $dPreviousDue,
-                'd_order_due'     => $dOrderDue,
-                'd_customer_due'  => $dPreviousDue + $dOrderDue,
+                'dc_sub_total'     => $distribution ? $dc_subTotal : 0,
+                'dc_net_amount'    => $distribution ? $dc_subTotal : 0,
+                'dc_commission'    => $distribution ? $dc_totalCommission : 0,
+                'dc_grand_total'   => $dGrandTotal,
+                'dc_previous_due'  => $dPreviousDue,
+                'dc_order_due'     => $dOrderDue,
+                'dc_customer_due'  => $dPreviousDue + $dOrderDue,
             ]);
 
 
@@ -317,6 +333,9 @@ class QuotationController extends Controller
 
             DB::rollBack();
 
+            Log::info($e->getMessage());
+
+
             return $request->ajax()
                 ? response()->json([
                     "status" => false,
@@ -332,7 +351,7 @@ class QuotationController extends Controller
       //  Gate::authorize('admin.quotation.show');
         $numto = new NumberToBangla();
         $data['banglanumber'] = $numto->bnWord($quotation->customer_due);
-        $data['d_banglanumber'] = $numto->bnWord($quotation->d_customer_due);
+        $data['dc_banglanumber'] = $numto->bnWord($quotation->dc_customer_due);
         return view('admin.orders.quotations.show', compact('quotation'), $data);
     }
 
@@ -390,48 +409,65 @@ class QuotationController extends Controller
             $totalCommission = 0;
 
             // distributor
-            $d_subTotal      = 0;
-            $d_totalCommission = 0;
+            $dc_subTotal      = 0;
+            $dc_totalCommission = 0;
 
             foreach ($products as $item) {
 
                 $product = Product::findOrFail($item['product_id']);
 
-                $price = calculateProductPrice($product->id, $customer->id);
-
-                // commission per unit * qty
-                $commissionPerUnit = calculateCommission($product->id, $customer->id);
-                $productCommission = $commissionPerUnit * $item['qty'];
-
-                $amount = floor($price * $item['qty']);
-
-                $detail = $quotation->quotationdetail()->create([
-                    'product_id'         => $product->id,
-                    'qty'                => $item['qty'],
-                    'price'              => $price,
-                    'amount'             => $amount,
-                    'product_commission' => $productCommission,
-                    'entry_id'           => auth('admin')->id(),
-                ]);
-
-                $subTotal        += $amount;
-                $totalCommission += $productCommission;
-
-
                 if (!empty($distribution)) {
-                    $d_price = distributorCalculateProductPrice($product->id, $distribution->id);
-                    $d_commission_per_unit = distributorCalculateCommission($product->id, $distribution->id);
-                    $d_product_commission = $d_commission_per_unit * $item['qty'];
-                    $d_amount = floor($d_price * $item['qty']);
+                    $customer_price = calculateProductPrice($product->id, $customer->id);
 
-                    $detail->update([
-                        'd_price'              => $d_price,
-                        'd_amount'             => $d_amount,
-                        'd_product_commission' => $d_product_commission,
+                    $distributor_customer_commissionPerUnit = calculateCommission($product->id, $customer->id);
+                    $distributor_customer_productCommission = $distributor_customer_commissionPerUnit * $item['qty'];
+
+                    $amount = floor($customer_price * $item['qty']);
+
+                    $distributor_price = distributorCalculateProductPrice($product->id, $distribution->id);
+                    $distributor_commission_per_unit = distributorCalculateCommission($product->id, $distribution->id);
+                    $distributor_product_commission = $distributor_commission_per_unit * $item['qty'];
+                    $distributor_amount  = floor($distributor_price * $item['qty']);
+
+                    $quotation->quotationdetail()->create([
+                        'product_id'            => $product->id,
+                        'qty'                   => $item['qty'],
+                        'price'                 => $customer_price,
+                        'amount'                => $amount,
+                        'product_commission'    => $distributor_product_commission,
+                        'dc_price'              => $distributor_price,
+                        'dc_amount'             => $distributor_amount,
+                        'dc_product_commission' => $distributor_customer_productCommission,
+                        'entry_id'              => auth('admin')->id(),
                     ]);
 
-                    $d_subTotal += $d_amount;
-                    $d_totalCommission += $d_product_commission;
+
+                    $subTotal        += $amount;
+                    $totalCommission += $distributor_product_commission;
+
+                    $dc_subTotal += $distributor_amount;
+                    $dc_totalCommission += $distributor_customer_productCommission;
+
+                } else {
+
+                    $price = calculateProductPrice($product->id, $customer->id);
+
+                    $commissionPerUnit = calculateCommission($product->id, $customer->id);
+                    $productCommission = $commissionPerUnit * $item['qty'];
+
+                    $amount = floor($price * $item['qty']);
+
+                    $quotation->quotationdetail()->create([
+                        'product_id'         => $product->id,
+                        'qty'                => $item['qty'],
+                        'price'              => $price,
+                        'amount'             => $amount,
+                        'product_commission' => $productCommission,
+                        'entry_id'           => auth('admin')->id(),
+                    ]);
+
+                    $subTotal        += $amount;
+                    $totalCommission += $productCommission;
                 }
             }
 
@@ -439,30 +475,24 @@ class QuotationController extends Controller
             if ($customer->commission_type === "Monthly") {
                 $grandTotal = $subTotal;
                 $orderDue   = $subTotal;
-            
 
                 // when distributor
-                $dGrandTotal = $d_subTotal;
+                $dGrandTotal = $dc_subTotal;
                 $dOrderDue   = $dGrandTotal;
-
-                $quotation->update([
-                    'commission_status' => "Unpaid",
-                ]);
-
             } else {
-                $grandTotal = $subTotal - $totalCommission;
-                $orderDue   = $grandTotal;
-
-                $dGrandTotal = $d_subTotal - $d_totalCommission;
-                $dOrderDue   = $dGrandTotal;
 
                 $quotation->update([
                     'commission_status' => "Paid",
                 ]);
+
+                $grandTotal = $subTotal - $totalCommission;
+                $orderDue   = $grandTotal;
+
+                $dGrandTotal = $dc_subTotal - $dc_totalCommission;
+                $dOrderDue   = $dGrandTotal;
             }
 
             $quotation->update([
-                'customer_id'   => $customer->id,
                 'sub_total'     => $subTotal,
                 'net_amount'    => $subTotal,
                 'commission'    => $totalCommission,
@@ -471,13 +501,13 @@ class QuotationController extends Controller
                 'order_due'     => $orderDue,
                 'customer_due'  => $previousDue + $orderDue,
                 'distribution_id' => $distribution?->id,
-                'd_sub_total'     => $distribution ? $d_subTotal : 0,
-                'd_net_amount'    => $distribution ? $d_subTotal : 0,
-                'd_commission'    => $distribution ? $d_totalCommission : 0,
-                'd_grand_total'   => $dGrandTotal,
-                'd_previous_due'  => $dPreviousDue,
-                'd_order_due'     => $dOrderDue,
-                'd_customer_due'  => $dPreviousDue + $dOrderDue,
+                'dc_sub_total'     => $distribution ? $dc_subTotal : 0,
+                'dc_net_amount'    => $distribution ? $dc_subTotal : 0,
+                'dc_commission'    => $distribution ? $dc_totalCommission : 0,
+                'dc_grand_total'   => $dGrandTotal,
+                'dc_previous_due'  => $dPreviousDue,
+                'dc_order_due'     => $dOrderDue,
+                'dc_customer_due'  => $dPreviousDue + $dOrderDue,
             ]);
 
             DB::commit();

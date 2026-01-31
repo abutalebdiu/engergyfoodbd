@@ -14,6 +14,9 @@ Distributor Order Report
             <th>Distributor</th>
             <th class="text-end">Qty</th>
             <th class="text-end">Amount</th>
+            <th class="text-end">DC Amount</th>
+             <th class="text-end">Product Commission</th>
+            <th class="text-end">DC Product Commission</th>
         </tr>
     </thead>
 
@@ -34,6 +37,16 @@ Distributor Order Report
                 <td>{{ $row->distribution->name ?? '-' }}</td>
                 <td class="text-end">{{ number_format($row->total_qty) }}</td>
                 <td class="text-end">{{ number_format($row->total_amount, 2) }}</td>
+                <td class="text-end">
+                    {{ number_format($row->dc_amount ?? 0, 2) }}
+                </td>
+
+                <td class="text-end">
+                    {{ number_format($row->product_commission ?? 0, 2) }}
+                </td>
+                <td class="text-end">
+                    {{ number_format($row->dc_product_commission ?? 0, 2) }}
+                </td>
             </tr>
         @empty
             <tr>
@@ -46,6 +59,9 @@ Distributor Order Report
                 <td colspan="3" class="text-end fw-bold">Grand Total</td>
                 <td class="text-end fw-bold">{{ number_format($totalQty) }}</td>
                 <td class="text-end fw-bold">{{ number_format($totalAmount, 2) }}</td>
+                <td class="text-end fw-bold">{{ number_format($distributor_quotations->sum('dc_amount'), 2) }}</td>
+                <td class="text-end fw-bold">{{ number_format($distributor_quotations->sum('product_commission'), 2) }}</td>
+                <td class="text-end fw-bold">{{ number_format($distributor_quotations->sum('dc_product_commission'), 2) }}</td>
             </tr>
         @endif
     </tbody>

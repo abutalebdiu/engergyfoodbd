@@ -108,9 +108,6 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        //Gate::authorize('admin.order.store');
-
-        // return $request->all();
         $request->validate([
             'product_id' => 'required|array',
             'product_id.*' => 'required|exists:products,id',
@@ -122,13 +119,6 @@ class OrderController extends Controller
             'grand_total' => 'required|numeric|min:0',
         ]);
 
-        // foreach ($request->product_id as $key => $value) {
-        //     $product = Product::find($value);
-        //     if ($request->qty[$key] > $product->qty) {
-        //         $notify[] = ['error', "Quantity is not available"];
-        //         return back()->withNotify($notify);
-        //     }
-        // }
 
         DB::beginTransaction();
         try {
@@ -164,17 +154,14 @@ class OrderController extends Controller
                 $quotation->save();
             }
         
-            
-
+    
             $ref_commission = 0;
 
             foreach ($request->product_id as $key => $value) {
 
-                // $product = Product::find($value);
-                // $product->qty = $product->qty - $request->qty[$key];
-                // $product->save();
-
+    
                 $product_commission = 0;
+
                 for ($i = 0; $i < $request->qty[$key]; $i++) {
                     if ($request->reference_id) {
                         $product_commission += calculateCommission($request->product_id[$key], $request->customer_id, $request->price[$key]);

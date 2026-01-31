@@ -96,7 +96,7 @@
                 <tbody>
 
                     @php
-                        $p = !empty($quotation->distribution) ? 'd_' : '';
+                        $p = '';
                     @endphp
 
                    @foreach ($quotation->quotationdetail as $odetail)
@@ -196,7 +196,7 @@
                     <tr>
                        <td colspan="8">
                             @lang('IN WORD') :
-                            {{ !empty($quotation->distribution) ? $d_banglanumber : $banglanumber }}
+                            {{ !empty($quotation->distribution) ? $dc_banglanumber : $banglanumber }}
                             @lang('Taka Only')
                         </td>
                     </tr>
