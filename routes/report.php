@@ -39,4 +39,5 @@ Route::prefix('reports')->name('reports.')->group(function () {
     Route::get('customers/daily/sales/reports', [ReportController::class, 'customerdailyreports'])->name('customerdailyreports');
     Route::get('daily-reports', [DailyReportController::class, 'dailyReport'])->name('daily-reports');
     Route::get('daily-item-reports', [DailyItemReportController::class, 'dailyItemReport'])->name('daily-item-reports');
+    Route::get('monthly-customer-summary', [ReportController::class, 'monthlycustomersummary'])->name('monthlycustomersummary');
 });

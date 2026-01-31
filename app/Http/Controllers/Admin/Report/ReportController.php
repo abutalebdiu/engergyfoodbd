@@ -12,7 +12,9 @@ use App\Traits\PrintTrait;
 use App\Models\HR\Employee;
 use App\Models\Order\Order;
 use App\Models\Report\Asset;
+use App\Models\Setting\Year;
 use Illuminate\Http\Request;
+use App\Models\Setting\Month;
 use Illuminate\Support\Carbon;
 use App\Models\Account\Account;
 use App\Models\Account\Deposit;
@@ -50,6 +52,7 @@ use App\Models\Account\TransactionHistory;
 use App\Models\Account\CustomerLoanPayment;
 use App\Models\Account\OfficialLoanPayment;
 use App\Models\Expense\AssetExpensePayment;
+use App\Models\Commission\CommissionInvoice;
 use App\Models\Account\AccountCloseStatement;
 use App\Models\Expense\ExpensePaymentHistory;
 use App\Models\Expense\MonthlyExpensePayment;
@@ -371,7 +374,7 @@ class ReportController extends Controller
             DB::raw('SUM(total_amount) as customer_loan')
         )->whereBetween('date', [$start_date, $end_date])
             ->groupBy('date')
-            ->get();    
+            ->get();
 
 
         $customerLoansPayment = CustomerLoanPayment::select(
@@ -379,7 +382,7 @@ class ReportController extends Controller
             DB::raw('SUM(amount) as customer_loan_payment')
         )->whereBetween('date', [$start_date, $end_date])
             ->groupBy('date')
-            ->get();    
+            ->get();
 
 
         $employeeAdvances = SalaryAdvance::select(
@@ -403,7 +406,7 @@ class ReportController extends Controller
             ->groupBy('date')
             ->get();
 
- 
+
 
         $archives = $formattedDates->map(function ($date) use ($orders, $orderReturns, $orderPayments, $customerDuePayments, $productDamages, $purchaseProducts, $supplierPayments, $commissionPayments, $officeLoans, $customerLoans, $customerLoansPayment, $employeeAdvances, $expenses, $expensesPayments, $customerProductDamages, $supplierDuePayments) {
 
@@ -556,7 +559,7 @@ class ReportController extends Controller
         $dates = [];
 
 
-        if(!$request->ajax()) {
+        if (!$request->ajax()) {
             $data['start_date'] = $start_date->format('Y-m-d');
             $data['end_date'] = $end_date->format('Y-m-d');
             return view('admin.reports.summery_report', $data);
@@ -572,7 +575,7 @@ class ReportController extends Controller
         $formattedDates = $datesCollection->map(function ($date) {
             return \Carbon\Carbon::parse($date)->format('Y-m-d');
         });
- 
+
         $orders                 = $this->getOrders($start_date, $end_date)->keyBy('date');
         $quotations             = $this->getQuotations($start_date, $end_date)->keyBy('date');
         $orderReturns           = $this->getOrderReturns($start_date, $end_date)->keyBy('date');
@@ -584,14 +587,14 @@ class ReportController extends Controller
         $getSupplierOpeningDue  = $this->getSupplierOpeningDue($start_date, $end_date);
         $getItemOrders          = $this->getItemOrders($start_date, $end_date)->keyBy('date');
         $getItemOrderPayments   = $this->getItemOrderPayments($start_date, $end_date)->keyBy('date');
-        $getItemOrderReturnsPayments= $this->getItemOrderReturnsPayments($start_date, $end_date)->keyBy('date');
+        $getItemOrderReturnsPayments = $this->getItemOrderReturnsPayments($start_date, $end_date)->keyBy('date');
         $unpaidCommissions      = $this->unpaidCommissions($start_date, $end_date)->keyBy('date');
         $supplierDuePayments    = $this->getSupplierDuePayments($start_date, $end_date)->keyBy('date');
         $expenses               = $this->getExpenses($start_date, $end_date)->keyBy('date');
         $expensePayments        = $this->getExpensePayments($start_date, $end_date)->keyBy('date');
         $monthlyExpensePayments = $this->getMonthlyExpensePayments($start_date, $end_date)->keyBy('date');
         $assetExpensePayments   = $this->getAssetExpensePayments($start_date, $end_date)->keyBy('date');
-        $transportExpensePayments= $this->getTransportExpensePayments($start_date, $end_date)->keyBy('date');
+        $transportExpensePayments = $this->getTransportExpensePayments($start_date, $end_date)->keyBy('date');
         $getSalaryAdvances      = $this->getSalaryAdvances($start_date, $end_date)->keyBy('date');
         $getSalaries            = $this->getSalaries($start_date, $end_date)->keyBy('date');
         $getEmployeeLoans       = $this->getEmployeeLoans($start_date, $end_date)->keyBy('date');
@@ -604,7 +607,7 @@ class ReportController extends Controller
         $getOfficeLoanPayments  = $this->getOfficeLoanPayments($start_date, $end_date)->keyBy('date');
 
         $getCustomerLoans       = $this->getCustomerLoans($start_date, $end_date)->keyBy('date');
-        $getCustomerLoanPayments= $this->getCustomerLoanPayments($start_date, $end_date)->keyBy('date');
+        $getCustomerLoanPayments = $this->getCustomerLoanPayments($start_date, $end_date)->keyBy('date');
 
         $getDeposits            = $this->getDeposits($start_date, $end_date)->keyBy('date');
         $getWithdrawals         = $this->getWithdrawals($start_date, $end_date)->keyBy('date');
@@ -617,10 +620,10 @@ class ReportController extends Controller
         $pbscosts   = $this->getDailySalesOrderPBSCost($start_date, $end_date)->keyBy('date');
         // return $getSalaries;
 
-       
+
 
         $archives = $formattedDates->map(function ($date) use (
-            $quotations,            
+            $quotations,
             $orders,
             $orderReturns,
             $orderPayments,
@@ -656,7 +659,7 @@ class ReportController extends Controller
             $pbscosts
         ) {
 
-            $quotation = $quotations[$date] ?? null;           
+            $quotation = $quotations[$date] ?? null;
             $order = $orders[$date] ?? null;
             $orderReturn = $orderReturns[$date] ?? null;
             $orderPayment = $orderPayments[$date] ?? null;
@@ -696,7 +699,7 @@ class ReportController extends Controller
 
             return [
                 'date' => $date,
-                'quotation_order_amount'    => $quotation->quotation_amount ?? 0,                
+                'quotation_order_amount'    => $quotation->quotation_amount ?? 0,
                 'order_amount'              => $order->order_amount ?? 0,
                 'order_return_amount'       => $orderReturn->order_return_amount ?? 0,
                 'net_amount'                => $order->order_net_amount ?? 0,
@@ -771,9 +774,9 @@ class ReportController extends Controller
             'archives' => $archives,
             'start_date' => $start_date->format('Y-m-d'),
             'end_date' => $end_date->format('Y-m-d'),
-            'total_physical_stock'          => $this->getProductStocksValue($start_date,$end_date),
-            'total_item_physical_stock'     => $this->geItemStocksValue($start_date,$end_date),
-            'total_quotation_order_amount'  => $archives->sum('quotation_order_amount'),             
+            'total_physical_stock'          => $this->getProductStocksValue($start_date, $end_date),
+            'total_item_physical_stock'     => $this->geItemStocksValue($start_date, $end_date),
+            'total_quotation_order_amount'  => $archives->sum('quotation_order_amount'),
             'total_order_amount'            => $archives->sum('order_amount'),
             'total_order_return_amount'     => $archives->sum('order_return_amount'),
             'total_net_amount'              => $archives->sum('net_amount'),
@@ -783,7 +786,7 @@ class ReportController extends Controller
             'total_customer_due_payment'    => $archives->sum('customer_due_payment'),
             'total_marketer_commission'     => $archives->sum('marketer_commission'),
             'total_main_order_due_amount'   => (($archives->sum('net_amount')) - ($archives->sum('customer_commission') + $archives->sum('paid_amount') + $archives->sum('customer_due_payment'))),
-            'total_order_due'               => (($customerOpeningDue + $archives->sum('net_amount')) - ($archives->sum('customer_commission') + $archives->sum('paid_amount')+$archives->sum('customer_due_payment'))),
+            'total_order_due'               => (($customerOpeningDue + $archives->sum('net_amount')) - ($archives->sum('customer_commission') + $archives->sum('paid_amount') + $archives->sum('customer_due_payment'))),
             'total_product_damage'          => $archives->sum('product_damage'),
             'total_customer_product_damage' => $archives->sum('customer_product_damage'),
             'total_item_order'              => $archives->sum('item_order'),
@@ -804,7 +807,7 @@ class ReportController extends Controller
 
             'salary_advance' => $archives->sum('salary_advance_amount'),
             'employee_loan' => $archives->sum('employee_loan_amount'),
-            'salary_amount' => Employee::where('status','Active')->sum('Salary'),
+            'salary_amount' => Employee::where('status', 'Active')->sum('Salary'),
 
             'salary_payment' => $archives->sum('salary_payment_amount'),
 
@@ -846,7 +849,7 @@ class ReportController extends Controller
 
 
         if ($request->has('pdf')) {
-             $pdf = PDF::loadView('admin.reports.summery_exports', ['datas' => $data], [], [
+            $pdf = PDF::loadView('admin.reports.summery_exports', ['datas' => $data], [], [
                 'format' => 'A4', // or 'A3', 'Letter', etc.
                 'orientation' => 'L' // 'P' for Portrait, 'L' for Landscape
             ]);
@@ -872,19 +875,17 @@ class ReportController extends Controller
             $data['start_date']     = $request->start_date;
             $data['end_date']       = $request->end_date;
             $data['searching']      = "Yes";
-            
-            
+
+
             $monthclosedcount = DailyReport::count();
-            
-            if($monthclosedcount)
-            {
-                $data['availablebalance'] = DailyReport::orderBy('date','desc')->first()->account_balance;
-            }
-            else{
+
+            if ($monthclosedcount) {
+                $data['availablebalance'] = DailyReport::orderBy('date', 'desc')->first()->account_balance;
+            } else {
                 $data['availablebalance'] = Account::find(2)->opening_balance;
             }
-            
-            
+
+
 
             $data['opendingcustomerdue']    = User::where('type', 'customer')->sum('opening');
             $data['opendingsupplierdue']    = User::where('type', 'supplier')->sum('opening');
@@ -922,12 +923,12 @@ class ReportController extends Controller
             $data['salarypayment']      = SalaryPaymentHistory::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
 
             $data['payablesalary']      = $data['payable_amount'] - $data['salarypayment'];
-            $data['salaryadvance']      = SalaryAdvance::whereBetween('date',[$request->start_date, $request->end_date])->where('type','Regular')->sum('amount');
-            
-           
+            $data['salaryadvance']      = SalaryAdvance::whereBetween('date', [$request->start_date, $request->end_date])->where('type', 'Regular')->sum('amount');
+
+
 
             $data['overtimeallowance']  = OverTimeAllowance::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-            $data['loans']              = Loan::whereBetween('date', [$request->start_date, $request->end_date])->where('type','Regular')->sum('total_amount');
+            $data['loans']              = Loan::whereBetween('date', [$request->start_date, $request->end_date])->where('type', 'Regular')->sum('total_amount');
             $data['total_loan_paid']    = SalaryGenerate::sum('loan_amount');
             $data['total_loan_due']     = $data['loans'] - $data['total_loan_paid'];
 
@@ -952,19 +953,19 @@ class ReportController extends Controller
 
             // Payable Amount
             $data['totalpayableamount'] = ($data['opendingsupplierdue'] + $data['itemorderamount']) - ($data['itempayments'] + $data['supplierduepaymnet']);
-            
-            
+
+
             // Income
-            
-            $data['totalincome'] = $data['salepayments'] +  $data['customerduepayment'] +  $data['deposit'] +  $data['officeloans']  ; 
-            
+
+            $data['totalincome'] = $data['salepayments'] +  $data['customerduepayment'] +  $data['deposit'] +  $data['officeloans'];
+
             // Expense
-            
-            $data['totalexpenditure'] =   $data['itempayments'] +   $data['supplierduepaymnet'] 
-                                        + $data['expensepayments'] +  $data['assetexpensepayment'] + $data['monthlyexpensepayment'] + $data['transportexpensepayment'] 
-                                        + $data['salarypayment']  +  $data['salaryadvance'] + $data['loans'] +  $data['overtimeallowance']  
-                                        +  $data['withdrawal'] +  $data['marketercommissionpayment'] + $data['officialloanpayment'];
-            
+
+            $data['totalexpenditure'] =   $data['itempayments'] +   $data['supplierduepaymnet']
+                + $data['expensepayments'] +  $data['assetexpensepayment'] + $data['monthlyexpensepayment'] + $data['transportexpensepayment']
+                + $data['salarypayment']  +  $data['salaryadvance'] + $data['loans'] +  $data['overtimeallowance']
+                +  $data['withdrawal'] +  $data['marketercommissionpayment'] + $data['officialloanpayment'];
+
 
 
             // total product amount and total stock amount
@@ -987,9 +988,8 @@ class ReportController extends Controller
 
 
             // Account
-             
+
             $data['cashaccount']   = Account::find(2);
-            
         } else {
             $data['date'] = '';
             $data['searching'] = "No";
@@ -1006,8 +1006,8 @@ class ReportController extends Controller
             return view('admin.reports.trialbalance', $data);
         }
     }
-    
-    
+
+
     // cash register   
     public function cashregister(Request $request)
     {
@@ -1182,11 +1182,11 @@ class ReportController extends Controller
         $data['assetsamount']   = Asset::sum('price');
         $data['liabilities']    = Liabilitie::sum('amount');
         $data['assetexpenses']  = AssetExpensePayment::sum('amount');
-        $data['employeesalary'] = Employee::where('status','Active')->sum('salary');
+        $data['employeesalary'] = Employee::where('status', 'Active')->sum('salary');
         $data['monthlyexpense'] = MonthlyExpensePayment::sum('amount');
         $data['employeeloan']   = Loan::sum('amount') - SalaryGenerate::sum('loan_amount');
-        
-        $data['salaryadvances'] = SalaryAdvance::where('type','Regular')->where('month_id',1)->sum('amount');
+
+        $data['salaryadvances'] = SalaryAdvance::where('type', 'Regular')->where('month_id', 1)->sum('amount');
 
         $receivable = 0;
         $customers  = User::where('type', 'customer')->get();
@@ -1223,31 +1223,27 @@ class ReportController extends Controller
         }
 
         $data['prductstockamount']    = $prductstockvalue;
-        
-            
+
+
         $data['jamanot']            = 73400;
         $data['factoryrent']        = 50000;
-        
+
 
         // Overall
         $data['totalassets']        =  $data['assetsamount']  +  $data['assetexpenses'] + $data['salaryadvances'] +  $data['prductstockamount'] + $data['itemstockamount'] + $data['employeeloan'];
         $data['totalliabilities']   =  $data['liabilities'] +  $data['employeesalary'] +  $data['payables'] +  $data['monthlyexpense'] + $data['jamanot'] + $data['factoryrent'];
-        
+
         $data['differentvalue']     =  $data['totalassets'] - $data['totalliabilities'];
 
-        if($request->has('pdf'))
-        {
+        if ($request->has('pdf')) {
             $pdf = PDF::loadView('admin.reports.balancesheets_pdf', $data, [], [
                 'format' => 'a4',
                 'orientation' => 'portrait'
             ]);
             return $pdf->stream('balancesheets.pdf');
-        }
-        else{
+        } else {
             return view('admin.reports.balancesheets', $data);
         }
-
-       
     }
 
 
@@ -1274,9 +1270,9 @@ class ReportController extends Controller
                 ->where('type', 'customer')
                 //->whereIn('id',[140,9,165,242])
                 ->get();
-                
-            $getyear  = Date('Y',strtotime($request->date));
-            $getmonth = Date('m',strtotime($request->date));
+
+            $getyear  = Date('Y', strtotime($request->date));
+            $getmonth = Date('m', strtotime($request->date));
 
             $start_date = Carbon::create($getyear, $getmonth, 1)->startOfMonth()->toDateString();
             $end_date   = Carbon::create($getyear, $getmonth, 1)->endOfMonth()->toDateString();
@@ -1306,5 +1302,128 @@ class ReportController extends Controller
         } else {
             return view('admin.reports.customerdailyreports', $data);
         }
+    }
+ 
+    // Monthly Order Summary
+    public function monthlycustomersummary(Request $request)
+    {
+        $data['months'] = Month::orderBy('id', 'asc')->get();
+        $data['years']  = Year::orderBy('id', 'desc')->get();
+        $data['allcustomers'] = User::where('type', 'customer')
+            ->where('status', 1)
+            ->select('id', 'uid', 'name')
+            ->get();
+        $data['customers'] = User::where('type', 'customer')
+            ->where('status', 1)
+            ->where('id',$request->customer_id ? $request->customer_id : '!=',null)
+            ->get();
+
+        $data['searching'] = "No";
+        $data['rows'] = [];
+
+        if ($request->month && $request->year) {
+
+            $data['searching'] = "Yes";
+            $data['monthname'] = Month::find($request->month)->name;
+            $data['yearname']  = $request->year;
+            $invoiceMonth = (int) $request->month;
+            $invoiceYear  = (int) $request->year;
+
+            $start_date = Carbon::create($invoiceYear, $invoiceMonth, 1)->startOfMonth();
+            $end_date   = Carbon::create($invoiceYear, $invoiceMonth, 1)->endOfMonth();
+
+            // last month calc
+            if ($invoiceMonth == 1) {
+                $lastMonth = 12;
+                $lastYear  = $invoiceYear - 1;
+            } else {
+                $lastMonth = $invoiceMonth - 1;
+                $lastYear  = $invoiceYear;
+            }
+ 
+
+            foreach ($data['customers'] as $customer) {
+
+                // orders
+                $orders = Order::where('customer_id', $customer->id)
+                    ->whereBetween('date', [$start_date, $end_date])
+                    ->get();
+
+                if ($orders->isEmpty()) {
+                    continue;
+                }
+
+                // last month due
+                $lastMonthInvoice = CommissionInvoice::where('customer_id', $customer->id)
+                    ->where('month_id', $lastMonth)
+                    ->where('year', $lastYear)
+                    ->latest('id')
+                    ->first();
+
+                $last_month_due = $lastMonthInvoice ? $lastMonthInvoice->amount : 0;
+
+                // sums
+                $order_amount  = $orders->sum('sub_total');
+                $return_amount = $orders->sum('return_amount');
+                $net_amount    = $orders->sum('net_amount');
+                $paid_amount   = $orders->sum('paid_amount');
+                $commission    = $orders->sum('commission');
+                $return_commission = OrderReturn::where('customer_id', $customer->id)
+                                                ->whereBetween('date', [$start_date, $end_date])
+                                                ->sum('commission');
+                $grand_total        = $orders->sum('grand_total');
+                $order_due_amount   = $orders->sum('order_due');
+                // due payment
+                $duepayment = CustomerDuePayment::where('customer_id', $customer->id)
+                    ->whereBetween('date', [$start_date, $end_date])
+                    ->sum('amount');
+
+                // commission logic (same as store)
+                if ($customer->commission_type === "Monthly") {
+
+                    $commission_amount = $commission;
+
+                    $receivable_amount =
+                        ($last_month_due + $net_amount)
+                        - ($paid_amount + $commission + $duepayment);
+                } else {
+
+                    $commission_amount = 0;
+
+                    $receivable_amount =
+                        ($last_month_due + $net_amount)
+                        - ($paid_amount + $duepayment);
+                }
+
+                $data['rows'][] = [
+                    'uid'                  => $customer->uid,
+                    'name'                 => $customer->name,
+                    'address'              => $customer->address,
+                    'commission_type'      => $customer->commission_type,
+                    'last_month_due'       => $last_month_due,
+                    'order_amount'         => $order_amount,
+                    'return_amount'        => $return_amount,
+                    'net_amount'           => $net_amount,
+                    'commission'           => $commission,
+                    'return_commission'    => $return_commission,
+                    'grand_total'           => $grand_total,                  
+                    'receivable_amount'    => $receivable_amount,
+                    'paid_amount'          => $paid_amount,
+                    'order_due_amount'     => $order_due_amount,
+                    'due_collection'       => $duepayment,
+                    'total_due_amount'     => $receivable_amount,
+                ];
+            }
+        }
+
+        if( $request->has('pdf')) {
+            $pdf = PDF::loadView('admin.reports.monthlycustomersummary_pdf', $data, [], [
+                'format' => 'a4',
+                'orientation' => 'landscape'
+            ]);
+            return $pdf->stream('monthly_customer_summary.pdf');
+        }
+
+        return view('admin.reports.monthlycustomersummary', $data);
     }
 }

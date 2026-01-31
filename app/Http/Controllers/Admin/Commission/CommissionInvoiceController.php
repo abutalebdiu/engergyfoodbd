@@ -117,7 +117,6 @@ class CommissionInvoiceController extends Controller
             return $pdf->stream('commissioninvoice.pdf');
         } else {
             return view('admin.commissions.commissioninvoices.index', $data);
-
         }
     }
 
@@ -209,6 +208,115 @@ class CommissionInvoiceController extends Controller
         }
     }
 
+    public function store(Request $request)
+    {
+        Gate::authorize('admin.commissioninvoice.store');
+
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date'   => 'required|date',
+        ]);
+
+        try {
+
+            $invoiceMonth = (int) date('m', strtotime($request->end_date));
+            $invoiceYear  = (int) date('Y', strtotime($request->end_date));
+
+            // last month & year calculation
+            if ($invoiceMonth == 1) {
+                $lastMonth = 12;
+                $lastYear  = $invoiceYear - 1;
+            } else {
+                $lastMonth = $invoiceMonth - 1;
+                $lastYear  = $invoiceYear;
+            }
+
+            $query = User::where('type', 'customer');
+
+            if ($request->customer_id) {
+                $query->where('id', $request->customer_id);
+            }
+
+            $customers = $query->get();
+
+            foreach ($customers as $customer) {
+
+                // ✅ last month due (single value)
+                $lastMonthInvoice = CommissionInvoice::where('customer_id', $customer->id)
+                    ->where('month_id', $lastMonth)
+                    ->where('year', $lastYear)
+                    ->latest('id')
+                    ->first();
+
+                $last_month_due = $lastMonthInvoice ? $lastMonthInvoice->amount : 0;
+
+                // orders for selected period
+                $orders = Order::where('customer_id', $customer->id)
+                    ->whereBetween('date', [$request->start_date, $request->end_date])
+                    ->where('commission_invoice_id', 0)
+                    ->get();
+
+                if ($orders->isEmpty()) {
+                    continue;
+                }
+
+                $duepayment = CustomerDuePayment::where('customer_id', $customer->id)
+                    ->whereBetween('date', [$request->start_date, $request->end_date])
+                    ->sum('amount');
+
+                $invoice = new CommissionInvoice();
+                $invoice->customer_id          = $customer->id;
+                $invoice->date                 = $request->end_date;
+                $invoice->month_id             = $invoiceMonth;
+                $invoice->year                 = $invoiceYear;
+                $invoice->order_amount         = $orders->sum('sub_total');
+                $invoice->return_amount        = $orders->sum('return_amount');
+                $invoice->net_amount           = $orders->sum('net_amount');
+                $invoice->paid_amount          = $orders->sum('paid_amount');
+                $invoice->commission           = $orders->sum('commission');
+                $invoice->customer_due_payment = $duepayment;
+                $invoice->last_month_due       = $last_month_due;
+
+                if ($customer->commission_type === "Monthly") {
+
+                    $invoice->commission_amount = $orders->sum('commission');
+
+                    $invoice->receivable_amount =
+                        ($last_month_due + $orders->sum('net_amount')) - ($orders->sum('paid_amount') + $orders->sum('commission') + $duepayment);
+
+                    $invoice->amount         = $invoice->receivable_amount;
+                    $invoice->payment_status = 'Unpaid';
+                } else {
+
+                    $invoice->commission_amount = 0;
+
+                    $invoice->receivable_amount =
+                        ($last_month_due + $orders->sum('net_amount'))  - ($orders->sum('paid_amount') + $duepayment);
+
+                    $invoice->amount         = $invoice->receivable_amount;
+                    $invoice->payment_status = 'Paid';
+                }
+
+                $invoice->save();
+
+                $invoice->invoice_id = "CI00" . $invoice->id;
+                $invoice->save();
+
+                // update customer last month due
+                $customer->last_month_due = $invoice->amount;
+                $customer->save();
+
+                // update orders
+                Order::whereIn('id', $orders->pluck('id'))
+                    ->update(['commission_invoice_id' => $invoice->id]);
+            }
+
+            return back()->withNotify([['success', 'Commission Invoice created successfully']]);
+        } catch (\Exception $e) {
+            return back()->withNotify([['error', $e->getMessage()]]);
+        }
+    }
+
 
     public function show(CommissionInvoice $commissioninvoice)
     {
@@ -251,13 +359,13 @@ class CommissionInvoiceController extends Controller
 
         // last month due
         $last_month_due = CommissionInvoice::where('id', $commissioninvoice->id)
-                                            ->where('customer_id', $commissioninvoice->customer_id)
-                                            ->get();
+            ->where('customer_id', $commissioninvoice->customer_id)
+            ->get();
 
         $openingDue = $last_month_due->sum('last_month_due') ?? 0;
-        
-         $commissioninvoicepayments = CommissionInvoicePayment::latest()->where('invoice_id', $commissioninvoice->id)->get();
-        return view('admin.commissions.commissioninvoices.show', compact('commissioninvoice', 'mergedData', 'last_month_due','commissioninvoicepayments','orders','openingDue'));
+
+        $commissioninvoicepayments = CommissionInvoicePayment::latest()->where('invoice_id', $commissioninvoice->id)->get();
+        return view('admin.commissions.commissioninvoices.show', compact('commissioninvoice', 'mergedData', 'last_month_due', 'commissioninvoicepayments', 'orders', 'openingDue'));
     }
 
 
@@ -277,7 +385,7 @@ class CommissionInvoiceController extends Controller
     {
         $commissioninvoice = CommissionInvoice::find($id);
 
-         // এই মাসের orders
+        // এই মাসের orders
         $orders = $commissioninvoice->orders()->with('orderdetail', 'customer', 'orderreturn')->get();
 
         // এই মাসের customer due payments
@@ -314,13 +422,13 @@ class CommissionInvoiceController extends Controller
 
         // last month due
         $last_month_due = CommissionInvoice::where('id', $commissioninvoice->id)
-                                            ->where('customer_id', $commissioninvoice->customer_id)
-                                            ->get();
+            ->where('customer_id', $commissioninvoice->customer_id)
+            ->get();
 
         $openingDue = $last_month_due->sum('last_month_due') ?? 0;
-        
-         $commissioninvoicepayments = CommissionInvoicePayment::latest()->where('invoice_id', $commissioninvoice->id)->get();
-        $pdf = PDF::loadView('admin.commissions.commissioninvoices.invoice', compact('commissioninvoice', 'mergedData', 'last_month_due','commissioninvoicepayments','orders','openingDue'));
+
+        $commissioninvoicepayments = CommissionInvoicePayment::latest()->where('invoice_id', $commissioninvoice->id)->get();
+        $pdf = PDF::loadView('admin.commissions.commissioninvoices.invoice', compact('commissioninvoice', 'mergedData', 'last_month_due', 'commissioninvoicepayments', 'orders', 'openingDue'));
         return $pdf->stream('invoice.pdf');
 
         // return view('admin.commissions.marketercommissions.invoice',$data);

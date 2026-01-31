@@ -27,13 +27,17 @@
             <li class="{{ menuActive('admin.reports.summery') }}">
                 <a href="{{ route('admin.reports.summery') }}"><i class="fa fa-list"></i>@lang('Summery')</a>
             </li>
+            
+            <li class="{{ menuActive('admin.reports.monthlycustomersummary') }}">
+                <a href="{{ route('admin.reports.monthlycustomersummary') }}"><i class="fa fa-list"></i>@lang('Monthly Customer Summary')</a>
+            </li>
 
             @if (Auth::guard('admin')->user()->hasPermission('admin.asset.list'))
                 <li class="{{ menuActive('admin.asset.index') }}">
                     <a href="{{ route('admin.asset.index') }}"><i class="fa fa-list"></i>@lang('Asset')</a>
                 </li>
             @endif
-            
+             
             @if (Auth::guard('admin')->user()->hasPermission('admin.asset.list'))
                 <li class="{{ menuActive('admin.liabilitie.index') }}">
                     <a href="{{ route('admin.liabilitie.index') }}"><i class="fa fa-list"></i>@lang('Liabilitie')</a>
