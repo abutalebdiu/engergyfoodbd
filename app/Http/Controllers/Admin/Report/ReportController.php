@@ -1363,6 +1363,7 @@ class ReportController extends Controller
                 $last_month_due = $lastMonthInvoice ? $lastMonthInvoice->amount : 0;
 
                 // sums
+                $total_orders  = $orders->count();
                 $order_amount  = $orders->sum('sub_total');
                 $return_amount = $orders->sum('return_amount');
                 $net_amount    = $orders->sum('net_amount');
@@ -1384,14 +1385,14 @@ class ReportController extends Controller
                     $commission_amount = $commission;
 
                     $receivable_amount =
-                        ($last_month_due + $net_amount)
+                        ($last_month_due + $grand_total)
                         - ($paid_amount + $commission + $duepayment);
                 } else {
 
                     $commission_amount = 0;
 
                     $receivable_amount =
-                        ($last_month_due + $net_amount)
+                        ($last_month_due + $grand_total)
                         - ($paid_amount + $duepayment);
                 }
 
@@ -1400,6 +1401,7 @@ class ReportController extends Controller
                     'name'                 => $customer->name,
                     'address'              => $customer->address,
                     'commission_type'      => $customer->commission_type,
+                    'total_orders'         => $total_orders,
                     'last_month_due'       => $last_month_due,
                     'order_amount'         => $order_amount,
                     'return_amount'        => $return_amount,
