@@ -56,7 +56,7 @@
                           <tr>
                               <td>{{ en2bn(Date('d-m-Y', strtotime($order->date))) }}</td>
                               <td>
-                                  #{{ $order->oid }}
+                                 <a href="{{ route('admin.order.show', $order->id) }}"> #{{ $order->oid }} </a>
                                   <input type="hidden" name="order_id[]" value="{{ $order->id }}">
                               </td>
                               <td>{{ en2bn(number_format($order->previous_due, 2, '.', ',')) }}

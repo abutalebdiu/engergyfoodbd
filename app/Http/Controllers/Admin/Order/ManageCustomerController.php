@@ -79,9 +79,7 @@ class ManageCustomerController extends Controller
 
         return view('admin.customers.list', compact('users', 'marketers','distributions'));
     }
-
-
-
+ 
     public function create()
     {
         Gate::authorize('admin.customer.create');
@@ -269,24 +267,34 @@ class ManageCustomerController extends Controller
         $currentMonthStart = date('Y-m-01'); 
         $currentMonthEnd = date('Y-m-t');
 
-        $data['current_month_total_orders'] = $this->getTotalOrders($id, $currentMonthStart, $currentMonthEnd);
-        $data['current_month_total_amount'] = $this->getTotalAmount($id, $currentMonthStart, $currentMonthEnd);
-        $data['current_month_total_paid'] = $this->getTotalPaidAmount($id, $currentMonthStart, $currentMonthEnd);
-        $data['current_month_total_commission_paid'] = $this->getTotalCommission($id, $currentMonthStart, $currentMonthEnd) + $this->getTotalCommissionInvoice($id, $currentMonthStart, $currentMonthEnd);
-        $data['current_month_total_returns'] = $this->getTotalReturns($id, $currentMonthStart, $currentMonthEnd);
-        $data['current_month_total_advance'] = $this->getTotalAdvance($id, $currentMonthStart, $currentMonthEnd);
-        $data['current_month_total_due_payment'] = $this->getTotalCustomerDue($id, $currentMonthStart, $currentMonthEnd);
-        $data['current_month_total_due'] = $this->calculateTotalDue($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_total_orders']     = $this->getTotalOrders($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_sub_total_amount'] = $this->getSubTotalAmount($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_total_returns']    = $this->getTotalReturns($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_total_amount']     = $this->getTotalAmount($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_total_commission'] = $this->getTotalCommission($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_total_return_commission'] = $this->getTotalReturnCommission($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_total_grand']      = $this->getTotalOrderGrand($id, $currentMonthStart, $currentMonthEnd);
+        $data['current_month_total_paid']       = $this->getTotalPaidAmount($id, $currentMonthStart, $currentMonthEnd);  
+        $data['current_month_total_customer_due_payment']= $this->getTotalCustomerDue($id, $currentMonthStart, $currentMonthEnd);  
 
-        $data['overall_total_orders'] = $this->getTotalOrders($id, null, null);
-        $data['overall_total_amount'] = $this->getTotalAmount($id, null, null);
-        $data['overall_total_paid'] = $this->getTotalPaidAmount($id, null, null);
-        $data['overall_total_commission_paid'] = $this->getTotalCommission($id, null, null) + $this->getTotalCommissionInvoice($id, null, null);
-        $data['overall_total_returns'] = $this->getTotalReturns($id, null, null);
-        $data['overall_total_advance'] = $this->getTotalAdvance($id, null, null);
-        $data['overall_total_due_payment'] = $this->getTotalCustomerDue($id, null, null);
-        $data['overall_total_due'] = $this->calculateTotalDue($id, null, null);
+        $data['overall_total_orders']           = $this->getTotalOrders($id, null, null);
+        $data['overall_total_sub_total_amount'] = $this->getSubTotalAmount($id, null, null);
+        $data['overall_total_return_amount']    = $this->getTotalReturns($id, null, null);
+        $data['overall_total_amount']           = $this->getTotalAmount($id, null, null);
+        $data['overall_total_commission_paid']  = $this->getTotalCommission($id, null, null);
+        $data['overall_total_return_commission']= $this->getTotalReturnCommission($id, null, null);
+        $data['overall_total_grand_total']      = $this->getTotalOrderGrand($id, null, null);
+        $data['overall_total_paid']             = $this->getTotalPaidAmount($id, null, null);
+        $data['overall_total_due_payment']      = $this->getTotalCustomerDue($id, null, null);
+        
+        
+        
+        $data['overall_total_due']              = ($data['overall_total_grand_total'] + $this->getOpeningDue($id)) - ($data['overall_total_paid']  + $data['overall_total_due_payment'] + $this->getTotalCommissionInvoice($id, null, null)) ;
 
+
+        $data['overall_total_returns']      = $this->getTotalReturns($id, null, null);
+        $data['overall_total_advance']      = $this->getTotalAdvance($id, null, null);
+       
         $data['totalorders'] = $this->getTotalOrders($id, $start_date, $end_date);
         $data['totalamount'] = $this->getTotalAmount($id, $start_date, $end_date);
         $data['totalreturns'] = $this->getTotalReturns($id, $start_date, $end_date);
@@ -393,16 +401,9 @@ class ManageCustomerController extends Controller
 
         return $advances->sum('amount') - $usedAdvance->sum('used_amount');
     }
-
-    private function getTotalCustomerDue($id, $start_date = null, $end_date = null)
-    {
-        return CustomerDuePayment::where('customer_id', $id)
-            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
-                return $query->whereBetween('date', [$start_date, $end_date]);
-            })
-            ->sum('amount');
-    }
-
+    
+    
+      // Total Orders
     private function getTotalOrders($id, $start_date = null, $end_date = null)
     {
         return Order::where('customer_id', $id)
@@ -412,16 +413,27 @@ class ManageCustomerController extends Controller
             ->count();
     }
 
+    // Sub total Orders
+     private function getSubTotalAmount($id, $start_date = null, $end_date = null)
+    {
+        return Order::where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->sum('sub_total');
+    }
+
+    // total order returns
     private function getTotalReturns($id, $start_date = null, $end_date = null)
     {
         return OrderReturn::where('customer_id', $id)
             ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
                 return $query->whereBetween('date', [$start_date, $end_date]);
             })
-            ->whereIn('payment_status', ['Unpaid', 'Partial'])
-            ->sum('net_amount');
+            ->sum('sub_total');
     }
 
+    // total order net
     private function getTotalAmount($id, $start_date = null, $end_date = null)
     {
         return Order::where('customer_id', $id)
@@ -431,9 +443,35 @@ class ManageCustomerController extends Controller
             ->sum('net_amount');
     }
 
-    private function getOpeningDue($id)
+    // total commission paid
+    public function getTotalCommission($id, $start_date = null, $end_date = null)
     {
-        return $this->getCustomer($id)->opening;
+        return Order::where('commission_status', 'Paid')
+            ->where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->sum('commission');
+    }
+
+    // total commission returns paid
+    public function getTotalReturnCommission($id, $start_date = null, $end_date = null)
+    {
+        return OrderReturn::where('customer_id', $id)
+            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                return $query->whereBetween('date', [$start_date, $end_date]);
+            })
+            ->sum('commission');
+    }
+
+    // total Order Grand Total  
+    public function getTotalOrderGrand($id, $start_date = null, $end_date = null)
+    {
+        return Order::where('customer_id', $id)
+                ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
+                    return $query->whereBetween('date', [$start_date, $end_date]);
+                })
+                ->sum('grand_total');
     }
 
     private function getTotalPaidAmount($id, $start_date = null, $end_date = null)
@@ -444,26 +482,22 @@ class ManageCustomerController extends Controller
             })
             ->sum('amount');
     }
-
-    private function getTotalOrderPaid($id, $start_date = null, $end_date = null)
+    
+    private function getTotalCustomerDue($id, $start_date = null, $end_date = null)
     {
-        return OrderPayment::where('customer_id', $id)
+        return CustomerDuePayment::where('customer_id', $id)
             ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
                 return $query->whereBetween('date', [$start_date, $end_date]);
             })
-            ->where('order_id', '!=', 0)
             ->sum('amount');
     }
 
-    public function getTotalCommission($id, $start_date = null, $end_date = null)
+
+    private function getOpeningDue($id)
     {
-        return Order::where('commission_status', 'Paid')
-            ->where('customer_id', $id)
-            ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
-                return $query->whereBetween('date', [$start_date, $end_date]);
-            })
-            ->sum('commission');
+        return $this->getCustomer($id)->opening_due;
     }
+      
 
     public function getTotalCommissionInvoice($id, $start_date = null, $end_date = null)
     {
@@ -478,20 +512,22 @@ class ManageCustomerController extends Controller
     public function calculateTotalDue($id, $start_date = null, $end_date = null)
     {
         $customer = User::find($id);
-
-        $totalAmount = $this->getTotalAmount($id, $start_date, $end_date);
-        $openingDue = $this->getOpeningDue($id);
-        $order_paid = $this->getTotalOrderPaid($id, $start_date, $end_date);
-        $commission = $this->getTotalCommission($id, $start_date, $end_date);
+        
+        $totalAmount = $this->getTotalOrderGrand($id, $start_date, $end_date);
+        $openingDue  = $this->getOpeningDue($id);
+        $order_paid  = $this->getTotalPaidAmount($id, $start_date, $end_date);
+        $commission  = $this->getTotalCommission($id, $start_date, $end_date);
         $customerduepayment = $this->getTotalCustomerDue($id, $start_date, $end_date);
+        $commission_return = $this->getTotalReturnCommission($id, $start_date, $end_date);
 
+  
         if ($customer->commission_type == "Monthly") {
             $totalcommissionInvoice = $this->getTotalCommissionInvoice($id, $start_date, $end_date);
         } else {
             $totalcommissionInvoice = 0;
         }
 
-        return ($totalAmount + $openingDue) - ($order_paid + $commission + $customerduepayment + $totalcommissionInvoice);
+        return ($totalAmount);
     }
 
     // Customer List

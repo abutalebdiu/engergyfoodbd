@@ -27,7 +27,7 @@
                         <div class="col-12 col-md-3">
                             <div class="form-group">
                                 <input class="form-control" type="date" name="start_date"
-                                    value="{{ request()->start_date ?? date('Y-m-d') }}">
+                                    value="{{ request()->start_date ?? date('Y-m-01') }}">
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
@@ -65,7 +65,7 @@
                             <div class="form-group">
 
                                 <input class="form-control" type="date" name="start_date"
-                                    value="{{ request()->start_date ?? date('Y-m-d') }}">
+                                    value="{{ request()->start_date ?? date('Y-m-01') }}">
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
