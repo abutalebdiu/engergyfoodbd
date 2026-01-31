@@ -48,13 +48,24 @@
                         <b>Quotation No</b> : {{ $quotation->qid }}, <br>
                         <b>@lang('Date')</b> : {{ en2bn(Date('d-m-Y', strtotime($quotation->date))) }}
                     </p>
+
+                    @if (!empty($quotation->distribution))
+                        <h5><strong>Distribution Info</strong></h5>
+                        <p>
+                            <b>@lang('ID')</b> : #{{ optional($quotation->distribution)->id }} <br>
+                            <b>@lang('Name')</b> : {{ optional($quotation->distribution)->name }} <br>
+                            <b>@lang('Mobile')</b> : {{ optional($quotation->distribution)->mobile }} <br>
+                            <b>@lang('Address')</b> : {{ optional($quotation->distribution)->address }} <br>
+                        </p>  
+                    @endif
+
                 </div>
                 <div class="col-12 col-md-6">
                     <h5 class="border-bottom">Customer Info</h5>
                     <p>
-                        <b>@lang('ID')</b> : {{ optional($quotation->customer)->uid }}, <br>
-                        <b>@lang('Name')</b> : {{ optional($quotation->customer)->name }}, <br>
-                        <b>@lang('Mobile')</b> : {{ optional($quotation->customer)->mobile }}, <br>
+                        <b>@lang('ID')</b> : {{ optional($quotation->customer)->uid }} <br>
+                        <b>@lang('Name')</b> : {{ optional($quotation->customer)->name }} <br>
+                        <b>@lang('Mobile')</b> : {{ optional($quotation->customer)->mobile }} <br>
                         <b>@lang('Address')</b> : {{ optional($quotation->customer)->address }} <br>
                         <b>@lang('Commission Type')</b> : {{ __(optional($quotation->customer)->commission_type) }}
                     </p>
@@ -83,52 +94,80 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($quotation->quotationdetail as $odetail)
+
+                    @php
+                        $p = !empty($quotation->distribution) ? 'd_' : '';
+                    @endphp
+
+                   @foreach ($quotation->quotationdetail as $odetail)
+                        @php
+                            $priceField = $p.'price';
+                            $qtyField = 'qty';
+                            $amountField = $p.'amount';
+                            $commissionField = $p.'product_commission';
+                        @endphp
+
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td style="text-align:left">{{ optional($odetail->product)->name }}</td>
                             <td>{{ optional($odetail->product)->weight }}</td>
-                            <td>{{ en2bn($odetail->price) }}</td>
-                            <td>{{ en2bn($odetail->qty) }}</td>
-                            <td>{{ en2bn(number_format($odetail->amount, 2, '.', ',')) }}</td>
-                            <td>{{ en2bn(number_format($odetail->amount, 2, '.', ',')) }}
-                            </td>
-                            <td>{{ en2bn(number_format($odetail->product_commission, 2, '.', ',')) }}
-                            </td>
+
+                            <td>{{ en2bn($odetail->{$priceField}) }}</td>
+                            <td>{{ en2bn($odetail->{$qtyField}) }}</td>
+
+                            <td>{{ en2bn(number_format($odetail->{$amountField}, 2, '.', ',')) }}</td>
+                            <td>{{ en2bn(number_format($odetail->{$amountField}, 2, '.', ',')) }}</td>
+
+                            <td>{{ en2bn(number_format($odetail->{$commissionField}, 2, '.', ',')) }}</td>
                         </tr>
                     @endforeach
+
                 </tbody>
                 <tfoot>
+
+                    @php
+                        $subTotalField = $p.'sub_total';
+                        $netAmountField = $p.'net_amount';
+                        $commissionTotalField = $p.'commission';
+                        $grandTotalField = $p.'grand_total';
+                        $previousDueField = $p.'previous_due';
+                        $customerDueField = $p.'customer_due';
+
+                        $qtyField = 'qty';
+                        $amountField = $p.'amount';
+                        $commissionField = $p.'product_commission';
+                    @endphp
+
                     <tr class="bg-dark">
                         <td></td>
                         <td></td>
                         <td class="text-white"> @lang('Total')</td>
                         <td class="text-white"> </td>
-                        <td class="text-white">{{ en2bn($quotation->quotationdetail->sum('qty')) }}</td>
-                        <td class="text-white">{{ en2bn(number_format($quotation->quotationdetail->sum('amount'), 2, '.', ',')) }}
+                        <td class="text-white">{{ en2bn($quotation->quotationdetail->sum($qtyField)) }}</td>
+                        <td class="text-white">{{ en2bn(number_format($quotation->quotationdetail->sum($amountField), 2, '.', ',')) }}
                         </td>
-                        <td class="text-white">{{ en2bn(number_format($quotation->sub_total, 2, '.', ',')) }}</td>
+                        <td class="text-white">{{ en2bn(number_format($quotation->{$subTotalField}, 2, '.', ',')) }}</td>
                         <td class="text-white">
-                            {{ en2bn(number_format($quotation->quotationdetail->sum('product_commission'), 2, '.', ',')) }}
+                             {{ en2bn(number_format($quotation->quotationdetail->sum($commissionField), 2, '.', ',')) }}
                         </td>
                     </tr>
                     <tr>
                         <th colspan="5"></th>
                         <th>@lang('Sub Total')</th>
-                        <td> {{ en2bn(number_format($quotation->sub_total, 2, '.', ',')) }}</td>
+                        <td> {{ en2bn(number_format($quotation->{$subTotalField}, 2, '.', ',')) }}</td>
                         <td></td>
                     </tr>
 
                     <tr>
                         <th colspan="5"></th>
                        <th>@lang('Net Amount')</th>
-                       <td>{{ en2bn(number_format($quotation->net_amount, 2, '.', ',')) }}</td>
+                       <td>{{ en2bn(number_format($quotation->{$netAmountField}, 2, '.', ',')) }}</td>
                        <td></td>
                    </tr>
                     <tr>
                         <th colspan="5"></th>
                         <th>@lang('Commission')</th>
-                        <td>{{ en2bn(number_format($quotation->commission, 2, '.', ',')) }}</td>
+                        <td>{{ en2bn(number_format($quotation->{$commissionTotalField}, 2, '.', ',')) }}</td>
                         <td>
                             <span
                                 class="btn btn-{{ statusButton($quotation->commission_status) }} btn-sm">{{ $quotation->commission_status }}</span>
@@ -137,29 +176,29 @@
                     <tr>
                          <th colspan="5"></th>
                         <th>@lang('Grand Total')</th>
-                        <td>{{ en2bn(number_format($quotation->grand_total, 2, '.', ',')) }}
-                        </td>
+                        <td>{{ en2bn(number_format($quotation->{$grandTotalField}, 2, '.', ',')) }}</td>
                         <td></td>
                     </tr>
                     <tr>
-                         <th colspan="5"></th>
+                        <th colspan="5"></th>
                         <th>@lang('Previous Due')</th>
-                        <td> {{ en2bn(number_format($quotation->previous_due, 2, '.', ',')) }}
-                        </td>
+                        <td>{{ en2bn(number_format($quotation->{$previousDueField}, 2, '.', ',')) }}</td>
                         <td></td>
                     </tr>
 
                     <tr>
                         <th colspan="5"></th>
                         <th>@lang('Total Due Amount')</th>
-                        <td> {{ en2bn(number_format($quotation->customer_due, 2, '.', ',')) }}
-                        </td>
+                        <td>{{ en2bn(number_format($quotation->{$customerDueField}, 2, '.', ',')) }}</td>
                         <td></td>
                     </tr>
 
                     <tr>
-                        <td colspan="8">@lang('IN WORD') : {{ $banglanumber }}
-                            @lang('Taka Only')</td>
+                       <td colspan="8">
+                            @lang('IN WORD') :
+                            {{ !empty($quotation->distribution) ? $d_banglanumber : $banglanumber }}
+                            @lang('Taka Only')
+                        </td>
                     </tr>
                 </tfoot>
             </table>

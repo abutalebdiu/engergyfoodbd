@@ -705,6 +705,43 @@ if (!function_exists('calculateCommission')) {
 }
 
 
+
+if (!function_exists('distributorCalculateCommission')) {
+
+    function distributorCalculateCommission($product_id, $distributor_id)
+    {
+        $product = \App\Models\Product\Product::with('distributorCommission')
+            ->find($product_id);
+
+        if (!$product) {
+
+            return throw new \Exception("Product not found");
+        }
+
+        if (!$product->distributorCommission) {
+            return throw new \Exception("Distributor Commission not found for the product");
+        }
+
+        $commission = $product->distributorCommission
+            ->where('product_id', $product_id)
+            ->where('distribution_id', $distributor_id)
+            ->first();
+
+        if ($commission == null) {
+            return 0;
+        }
+
+        if ($commission->type == 'Percentage') {
+            $calculatedCommission = $commission->price * ($commission->amount / 100);
+        } else {
+            $calculatedCommission = $commission->amount;
+        }
+
+        return $calculatedCommission > 0 ? $calculatedCommission : 0;
+    }
+}
+
+
 if (!function_exists('calculateProductPrice')) {
 
     function calculateProductPrice($product_id, $user_id)
@@ -726,6 +763,27 @@ if (!function_exists('calculateProductPrice')) {
     }
 }
 
+
+if (!function_exists('distributorCalculateProductPrice')) {
+
+    function distributorCalculateProductPrice($product_id, $distributor_id)
+    {
+        $product = \App\Models\Product\Product::with('distributorCommission')
+            ->find($product_id);
+
+        if (!$product) {
+
+            return throw new \Exception("Product not found");
+        }
+
+        if (!$product->distributorCommission) {
+            return  $product->sale_price;
+        } else {
+            $refprice = $product->distributorCommission->where('product_id', $product_id)->where('distribution_id', $distributor_id)->first();
+            return  $refprice->price;
+        }
+    }
+}
 
 
 

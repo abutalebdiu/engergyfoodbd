@@ -156,288 +156,175 @@ class QuotationController extends Controller
         return view('admin.orders.quotations.create', $data);
     }
 
-    // public function store(Request $request)
-    // {
-    //   // Gate::authorize('admin.quotation.create');
-    //     // Validate the input
-    //     $request->validate([
-    //         'customer_id' => 'required|exists:users,id',
-    //         'product_id' => 'required|array',
-    //         'product_id.*' => 'exists:products,id',
-    //         'product_qty' => 'required|array'
-    //     ]);
 
-
-
-    //     $input = $request->all();
-
-    //     $filteredProductIds = [];
-    //     $filteredProductQtys = [];
-    //     $findcustomer = User::find($request->customer_id);
-        
-    //     $finddistribution = Distribution::find($findcustomer->distribution_id);
-
-    //     foreach (bn2en($input['product_qty']) as $index => $qty) {
-    //         if ($qty > 0) {
-    //             $filteredProductIds[] = $input['product_id'][$index];
-    //             $filteredProductQtys[] = $qty;
-    //         }
-    //     }
-
-    //     $input['product_id'] = $filteredProductIds;
-    //     $input['product_qty'] = $filteredProductQtys;
-
-    //     if (count($filteredProductQtys) > 0) {
-    //         DB::beginTransaction();
-    //         try {
-
-    //             $previousbalance = $findcustomer->receivable($findcustomer->id);
-
-    //             $order = Quotation::create([
-    //                 "date"              => $request->date ? $request->date : date('Y-m-d'),
-    //                 "customer_id"       => $input['customer_id'],
-    //                 "sub_total"         => 0,
-    //                 "net_amount"        => 0,
-    //                 "commission"        => 0,
-    //                 "commission_status" => "Unpaid",
-    //                 "status"            => "Active",
-    //                 "entry_id"          => auth('admin')->user()->id
-    //             ]);
-
-    //             $order->qid = "OID000" . $order->id;
-    //             $order->save();
-
-    //             $ref_commission = 0;
-
-
-    //             if ($input['product_id'] && $input['product_qty']) {
-    //                 foreach ($input['product_id'] as $key => $value) {
-    //                     $product = Product::find($value);
-    //                     $product_commission = 0;
-
-    //                     for ($i = 0; $i < $input['product_qty'][$key]; $i++) {
-    //                         if ($input['customer_id']) {
-    //                             $product_commission += calculateCommission($value, $input['customer_id']);
-    //                         }
-    //                     }
-    //                     $getproductprice =  calculateProductPrice($product->id, $input['customer_id']);
-    //                     $ref_commission += $product_commission;
-    //                     $order->quotationdetail()->create([
-    //                         "product_id"        => $product->id,
-    //                         "qty"               => $input['product_qty'][$key],
-    //                         "price"             => $getproductprice,
-    //                         "amount"            => floor($getproductprice * $input['product_qty'][$key]),
-    //                         "product_commission" => $product_commission,
-    //                         "entry_id"          => auth('admin')->user()->id
-    //                     ]);
-
-    //                     $product->qty = $product->getstock($value);
-    //                     $product->save();
-    //                 }
-    //             }
-
-    //             $order->sub_total               = $order->quotationdetail->sum('amount');
-    //             $order->net_amount              = $order->quotationdetail->sum('amount');
-    //             $order->commission              = $order->quotationdetail->sum('product_commission');
-    //             // Monthly
-
-    //             $newdue = 0;
-
-    //             if ($findcustomer->commission_type == "Monthly") {
-    //                 $order->grand_total             = $order->quotationdetail->sum('amount');
-    //                 $newdue                         = $order->quotationdetail->sum('amount');
-    //             } else {
-    //                 $order->commission_status       = "Paid";
-    //                 $order->grand_total             = $order->quotationdetail->sum('amount') - $order->quotationdetail->sum('product_commission');
-    //                 $newdue                         = $order->quotationdetail->sum('amount') - $order->quotationdetail->sum('product_commission');
-    //             }
-
-    //             $order->previous_due            = $previousbalance;
-    //             $order->order_due               = $newdue;
-    //             $order->customer_due            = $previousbalance + $newdue;
-    //             $order->save();
-                
-                
-    //             // store distribution commission
-    //             if ($finddistribution) {
-    //                 $order->distribution_id     = $finddistribution->id;                   
-    //                 $order->save();
-    //             }
-
-    //             DB::commit();
-
-
-    //             if($request->ajax()){
-    //                 return response()->json([
-    //                     "status" => true,
-    //                     "data" => [],
-    //                     "redirect"=> route('admin.quotation.show', $order->id),
-    //                     "message" => "Quotation created successfully!"
-    //                 ], 201);
-    //             }
-
-    //             $notify[] = ['success', "Quotation created successfully"];
-    //             return to_route('admin.quotation.show', $order->id)->withNotify($notify)->with('message', 'success');
-    //         } catch (\Exception $e) {
-
-    //             DB::rollBack();
-
-    //             if($request->ajax()){
-    //                 return response()->json([
-    //                     "status" => false,
-    //                     "data" => [],
-    //                     "redirect"=> '',
-    //                     "message" => "An error occurred while processing your request."
-    //                 ], 500);
-    //             }
-
-    //             $notify[] = ['error', "An error occurred while processing your request." . $e->getMessage()];
-    //             return back()->withNotify($notify);
-    //         }
-    //     } else {
-
-    //         if($request->ajax()){
-    //             return response()->json([
-    //                 "status" => false,
-    //                 "data" => [],
-    //                 "redirect"=> '',
-    //                 "message" => "Please select products"
-    //             ], 404);
-    //         }
-
-    //         $notify[] = ['error', "Please select products"];
-    //         return back()->withNotify($notify);
-    //     }
-    // }
-    
     
     public function store(Request $request)
     {
-    $request->validate([
-        'customer_id'   => 'required|exists:users,id',
-        'product_id'    => 'required|array',
-        'product_id.*'  => 'exists:products,id',
-        'product_qty'   => 'required|array'
-    ]);
-
-    $input = $request->all();
-
-    $customer       = User::findOrFail($request->customer_id);
-    $distribution   = Distribution::find($customer->distribution_id);
-    $previousDue    = $customer->receivable($customer->id);
-
-    // filter products with qty > 0
-    $products = collect($input['product_id'])
-        ->map(function ($pid, $index) use ($input) {
-            return [
-                'product_id' => $pid,
-                'qty'        => (int) bn2en($input['product_qty'][$index]),
-            ];
-        })
-        ->filter(fn ($item) => $item['qty'] > 0)
-        ->values();
-
-    if ($products->isEmpty()) {
-        return $request->ajax()
-            ? response()->json([
-                "status" => false,
-                "message" => "Please select products"
-            ], 404)
-            : back()->withNotify([['error', 'Please select products']]);
-    }
-
-    DB::beginTransaction();
-    try {
-
-        $order = Quotation::create([
-            "date"              => $request->date ?? now()->format('Y-m-d'),
-            "customer_id"       => $customer->id,
-            "sub_total"         => 0,
-            "net_amount"        => 0,
-            "commission"        => 0,
-            "commission_status" => "Unpaid",
-            "status"            => "Active",
-            "entry_id"          => auth('admin')->id(),
+        $request->validate([
+            'customer_id'   => 'required|exists:users,id',
+            'product_id'    => 'required|array',
+            'product_id.*'  => 'exists:products,id',
+            'product_qty'   => 'required|array'
         ]);
 
-        $order->update([
-            'qid' => "OID000" . $order->id
-        ]);
+        $input = $request->all();
 
-        $subTotal      = 0;
-        $totalCommission = 0;
+        $customer       = User::findOrFail($request->customer_id);
+        $distribution   = Distribution::find($customer->distribution_id);
+        $previousDue    = $customer->receivable($customer->id);
+        $dPreviousDue    = $distribution ? $customer->receivable($customer->id) : 0;
 
-        foreach ($products as $item) {
+        $products = collect($input['product_id'])
+            ->map(function ($pid, $index) use ($input) {
+                return [
+                    'product_id' => $pid,
+                    'qty'        => (int) bn2en($input['product_qty'][$index]),
+                ];
+            })
+            ->filter(fn ($item) => $item['qty'] > 0)
+            ->values();
 
-            $product = Product::findOrFail($item['product_id']);
+        if ($products->isEmpty()) {
+            return $request->ajax()
+                ? response()->json([
+                    "status" => false,
+                    "message" => "Please select products"
+                ], 404)
+                : back()->withNotify([['error', 'Please select products']]);
+        }
 
-            $price = calculateProductPrice($product->id, $customer->id);
+        DB::beginTransaction();
+        try {
 
-            // commission per product * qty
-            $commissionPerUnit = calculateCommission($product->id, $customer->id);
-            $productCommission = $commissionPerUnit * $item['qty'];
-
-            $amount = floor($price * $item['qty']);
-
-            $order->quotationdetail()->create([
-                'product_id'         => $product->id,
-                'qty'                => $item['qty'],
-                'price'              => $price,
-                'amount'             => $amount,
-                'product_commission' => $productCommission,
-                'entry_id'           => auth('admin')->id(),
+            $order = Quotation::create([
+                "date"              => $request->date ?? now()->format('Y-m-d'),
+                "customer_id"       => $customer->id,
+                "sub_total"         => 0,
+                "net_amount"        => 0,
+                "commission"        => 0,
+                "commission_status" => "Unpaid",
+                "status"            => "Active",
+                "entry_id"          => auth('admin')->id(),
             ]);
 
-            // totals
-            $subTotal        += $amount;
-            $totalCommission += $productCommission;
-             
+            $order->update([
+                'qid' => "OID000" . $order->id
+            ]);
+
+            $subTotal      = 0;
+            $totalCommission = 0;
+
+            // distributor
+            $d_subTotal      = 0;
+            $d_totalCommission = 0;
+
+            foreach ($products as $item) {
+
+                $product = Product::findOrFail($item['product_id']);
+
+                $price = calculateProductPrice($product->id, $customer->id);
+
+                // commission per product * qty
+                $commissionPerUnit = calculateCommission($product->id, $customer->id);
+                $productCommission = $commissionPerUnit * $item['qty'];
+
+                $amount = floor($price * $item['qty']);
+
+                $detail = $order->quotationdetail()->create([
+                    'product_id'         => $product->id,
+                    'qty'                => $item['qty'],
+                    'price'              => $price,
+                    'amount'             => $amount,
+                    'product_commission' => $productCommission,
+                    'entry_id'           => auth('admin')->id(),
+                ]);
+
+                // totals
+                $subTotal        += $amount;
+                $totalCommission += $productCommission;
+
+
+                if (!empty($distribution)) {
+                    $d_price = distributorCalculateProductPrice($product->id, $distribution->id);
+                    $d_commission_per_unit = distributorCalculateCommission($product->id, $distribution->id);
+                    $d_product_commission = $d_commission_per_unit * $item['qty'];
+                    $d_amount = floor($d_price * $item['qty']);
+
+                    $detail->update([
+                        'd_price'              => $d_price,
+                        'd_amount'             => $d_amount,
+                        'd_product_commission' => $d_product_commission,
+                    ]);
+
+                    $d_subTotal += $d_amount;
+                    $d_totalCommission += $d_product_commission;
+                }
+            }
+
+            // commission logic
+            if ($customer->commission_type === "Monthly") {
+                $grandTotal = $subTotal;
+                $orderDue   = $subTotal;
+
+                // when distributor
+                $dGrandTotal = $d_subTotal;
+                $dOrderDue   = $dGrandTotal;
+
+            } else {
+                
+                $order->update([
+                    'commission_status' => "Paid",
+                ]);
+
+                $grandTotal = $subTotal - $totalCommission;
+                $orderDue   = $grandTotal;
+
+                $dGrandTotal = $d_subTotal - $d_totalCommission;
+                $dOrderDue   = $dGrandTotal;
+            }
+
+            $order->update([
+                'sub_total'     => $subTotal,
+                'net_amount'    => $subTotal,
+                'commission'    => $totalCommission,
+                'grand_total'   => $grandTotal,
+                'previous_due'  => $previousDue,
+                'order_due'     => $orderDue,
+                'customer_due'  => $previousDue + $orderDue,
+                'distribution_id' => $distribution?->id,
+                'd_sub_total'     => $distribution ? $d_subTotal : 0,
+                'd_net_amount'    => $distribution ? $d_subTotal : 0,
+                'd_commission'    => $distribution ? $d_totalCommission : 0,
+                'd_grand_total'   => $dGrandTotal,
+                'd_previous_due'  => $dPreviousDue,
+                'd_order_due'     => $dOrderDue,
+                'd_customer_due'  => $dPreviousDue + $dOrderDue,
+            ]);
+
+
+            DB::commit();
+
+            return $request->ajax()
+                ? response()->json([
+                    "status" => true,
+                    "redirect" => route('admin.quotation.show', $order->id),
+                    "message" => "Quotation created successfully!"
+                ], 201)
+                : to_route('admin.quotation.show', $order->id)
+                    ->withNotify([['success', 'Quotation created successfully']]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return $request->ajax()
+                ? response()->json([
+                    "status" => false,
+                    "message" => "An error occurred while processing your request."
+                ], 500)
+                : back()->withNotify([['error', $e->getMessage()]]);
         }
-
-        // commission logic
-        if ($customer->commission_type === "Monthly") {
-            $grandTotal = $subTotal;
-            $orderDue   = $subTotal;
-        } else {
-            $order->commission_status = "Paid";
-            $grandTotal = $subTotal - $totalCommission;
-            $orderDue   = $grandTotal;
-        }
-
-        $order->update([
-            'sub_total'     => $subTotal,
-            'net_amount'    => $subTotal,
-            'commission'    => $totalCommission,
-            'grand_total'   => $grandTotal,
-            'previous_due'  => $previousDue,
-            'order_due'     => $orderDue,
-            'customer_due'  => $previousDue + $orderDue,
-            'distribution_id' => $distribution?->id,
-        ]);
-
-        DB::commit();
-
-        return $request->ajax()
-            ? response()->json([
-                "status" => true,
-                "redirect" => route('admin.quotation.show', $order->id),
-                "message" => "Quotation created successfully!"
-            ], 201)
-            : to_route('admin.quotation.show', $order->id)
-                ->withNotify([['success', 'Quotation created successfully']]);
-
-    } catch (\Exception $e) {
-
-        DB::rollBack();
-
-        return $request->ajax()
-            ? response()->json([
-                "status" => false,
-                "message" => "An error occurred while processing your request."
-            ], 500)
-            : back()->withNotify([['error', $e->getMessage()]]);
     }
-}
 
 
     public function show(Quotation $quotation)
@@ -445,6 +332,7 @@ class QuotationController extends Controller
       //  Gate::authorize('admin.quotation.show');
         $numto = new NumberToBangla();
         $data['banglanumber'] = $numto->bnWord($quotation->customer_due);
+        $data['d_banglanumber'] = $numto->bnWord($quotation->d_customer_due);
         return view('admin.orders.quotations.show', compact('quotation'), $data);
     }
 
@@ -457,245 +345,164 @@ class QuotationController extends Controller
         return view('admin.orders.quotations.edit', $data);
     }
 
-    // public function update(Request $request, Quotation $quotation)
-    // {
-    //     // Gate::authorize('admin.quotation.update');
-    //     $request->validate([
-    //         'customer_id' => 'required|exists:users,id',
-    //         'product_id' => 'required|array',
-    //         'product_id.*' => 'exists:products,id',
-    //         'product_qty' => 'required|array'
-    //     ]);
-
-    //     $input = $request->all();
-
-    //     $filteredProductIds = [];
-    //     $filteredProductQtys = [];
-    //     $findcustomer = User::find($request->customer_id);
-    //     foreach (bn2en($input['product_qty']) as $index => $qty) {
-    //         if ($qty > 0) {
-    //             $filteredProductIds[] = $input['product_id'][$index];
-    //             $filteredProductQtys[] = $qty;
-    //         }
-    //     }
-
-    //     $input['product_id'] = $filteredProductIds;
-    //     $input['product_qty'] = $filteredProductQtys;
-
-    //     if (count($filteredProductQtys) > 0) {
-    //         DB::beginTransaction();
-    //         try {
-
-    //             $previousbalance = $findcustomer->receivable($findcustomer->id);
-
-    //             $quotation->quotationdetail()->delete();
-    //             $order = Quotation::find($quotation->id);
-
-    //             $ref_commission = 0;
-
-
-    //             if ($input['product_id'] && $input['product_qty']) {
-    //                 foreach ($input['product_id'] as $key => $value) {
-    //                     $product = Product::find($value);
-    //                     $product_commission = 0;
-
-    //                     for ($i = 0; $i < $input['product_qty'][$key]; $i++) {
-    //                         if ($input['customer_id']) {
-    //                             $product_commission += calculateCommission($value, $input['customer_id']);
-    //                         }
-    //                     }
-    //                     $getproductprice =  calculateProductPrice($product->id, $input['customer_id']);
-    //                     $ref_commission += $product_commission;
-    //                     $order->quotationdetail()->create([
-    //                         "product_id"        => $product->id,
-    //                         "qty"               => $input['product_qty'][$key],
-    //                         "price"             => $getproductprice,
-    //                         "amount"            => floor($getproductprice * $input['product_qty'][$key]),
-    //                         "product_commission" => $product_commission,
-    //                         "entry_id"          => auth('admin')->user()->id
-    //                     ]);
- 
-    //                 }
-    //             }
-
-    //             $order->sub_total               = $order->quotationdetail->sum('amount');
-    //             $order->net_amount              = $order->quotationdetail->sum('amount');
-    //             $order->commission              = $order->quotationdetail->sum('product_commission');
-    //             // Monthly
-
-    //             $newdue = 0;
-
-    //             if ($findcustomer->commission_type == "Monthly") {
-    //                 $order->grand_total             = $order->quotationdetail->sum('amount');
-    //                 $newdue                         = $order->quotationdetail->sum('amount');
-    //             } else {
-    //                 $order->commission_status       = "Paid";
-    //                 $order->grand_total             = $order->quotationdetail->sum('amount') - $order->quotationdetail->sum('product_commission');
-    //                 $newdue                         = $order->quotationdetail->sum('amount') - $order->quotationdetail->sum('product_commission');
-    //             }
-
-    //             $order->previous_due            = $previousbalance;
-    //             $order->order_due               = $newdue;
-    //             $order->customer_due            = $previousbalance + $newdue;
-    //             $order->save();
-
-    //             DB::commit();
-
-    //             if($request->ajax()){
-    //                 return response()->json([
-    //                     "status" => true,
-    //                     "data" => [],
-    //                     "redirect"=> route('admin.quotation.show', $order->id),
-    //                     "message" => "Quotation updated successfully!"
-    //                 ], 201);
-    //             }
-
-
-    //             $notify[] = ['success', "Quotation created successfully"];
-    //             return to_route('admin.quotation.show', $order->id)->withNotify($notify)->with('message', 'success');
-    //         } catch (\Exception $e) {
-    //             DB::rollBack();
-
-    //             if($request->ajax()){
-    //                 return response()->json([
-    //                     "status" => false,
-    //                     "data" => [],
-    //                     "redirect"=> '',
-    //                     "message" => "An error occurred while processing your request."
-    //                 ], 201);
-    //             }
-
-    //             $notify[] = ['error', "An error occurred while processing your request." . $e->getMessage()];
-    //             return back()->withNotify($notify);
-    //         }
-    //     } else {
-    //         $notify[] = ['error', "Please select products"];
-
-    //         if($request->ajax()){
-    //             return response()->json([
-    //                 "status" => false,
-    //                 "data" => [],
-    //                 "redirect"=> '',
-    //                 "message" => "An error occurred while processing your request."
-    //             ], 201);
-    //         }
-
-    //         return back()->withNotify($notify);
-    //     }
-    // }
-    
     
     public function update(Request $request, Quotation $quotation)
     {
-    $request->validate([
-        'customer_id'  => 'required|exists:users,id',
-        'product_id'   => 'required|array',
-        'product_id.*' => 'exists:products,id',
-        'product_qty'  => 'required|array'
-    ]);
-
-    $customer = User::findOrFail($request->customer_id);
-    $previousDue = $customer->receivable($customer->id);
-
-    // filter products with qty > 0
-    $products = collect($request->product_id)
-        ->map(function ($pid, $index) use ($request) {
-            return [
-                'product_id' => $pid,
-                'qty'        => (int) bn2en($request->product_qty[$index]),
-            ];
-        })
-        ->filter(fn ($item) => $item['qty'] > 0)
-        ->values();
-
-    if ($products->isEmpty()) {
-        return $request->ajax()
-            ? response()->json([
-                "status" => false,
-                "message" => "Please select products"
-            ], 404)
-            : back()->withNotify([['error', 'Please select products']]);
-    }
-
-    DB::beginTransaction();
-    try {
-
-        // remove old details
-        $quotation->quotationdetail()->delete();
-
-        $subTotal        = 0;
-        $totalCommission = 0;
-
-        foreach ($products as $item) {
-
-            $product = Product::findOrFail($item['product_id']);
-
-            $price = calculateProductPrice($product->id, $customer->id);
-
-            // commission per unit * qty
-            $commissionPerUnit = calculateCommission($product->id, $customer->id);
-            $productCommission = $commissionPerUnit * $item['qty'];
-
-            $amount = floor($price * $item['qty']);
-
-            $quotation->quotationdetail()->create([
-                'product_id'         => $product->id,
-                'qty'                => $item['qty'],
-                'price'              => $price,
-                'amount'             => $amount,
-                'product_commission' => $productCommission,
-                'entry_id'           => auth('admin')->id(),
-            ]);
-
-            $subTotal        += $amount;
-            $totalCommission += $productCommission;
-        }
-
-        // commission logic
-        if ($customer->commission_type === "Monthly") {
-            $grandTotal = $subTotal;
-            $orderDue   = $subTotal;
-            $quotation->commission_status = "Unpaid";
-        } else {
-            $grandTotal = $subTotal - $totalCommission;
-            $orderDue   = $grandTotal;
-            $quotation->commission_status = "Paid";
-        }
-
-        $quotation->update([
-            'customer_id'   => $customer->id,
-            'sub_total'     => $subTotal,
-            'net_amount'    => $subTotal,
-            'commission'    => $totalCommission,
-            'grand_total'   => $grandTotal,
-            'previous_due'  => $previousDue,
-            'order_due'     => $orderDue,
-            'customer_due'  => $previousDue + $orderDue,
+        $request->validate([
+            'customer_id'  => 'required|exists:users,id',
+            'product_id'   => 'required|array',
+            'product_id.*' => 'exists:products,id',
+            'product_qty'  => 'required|array'
         ]);
 
-        DB::commit();
+        $customer = User::findOrFail($request->customer_id);
+        $distribution   = Distribution::find($customer->distribution_id);
+        $previousDue = $customer->receivable($customer->id);
+        $dPreviousDue    = $distribution ? $customer->receivable($customer->id) : 0;
 
-        return $request->ajax()
-            ? response()->json([
-                "status" => true,
-                "redirect" => route('admin.quotation.show', $quotation->id),
-                "message" => "Quotation updated successfully!"
-            ], 200)
-            : to_route('admin.quotation.show', $quotation->id)
-                ->withNotify([['success', 'Quotation updated successfully']]);
+        // filter products with qty > 0
+        $products = collect($request->product_id)
+            ->map(function ($pid, $index) use ($request) {
+                return [
+                    'product_id' => $pid,
+                    'qty'        => (int) bn2en($request->product_qty[$index]),
+                ];
+            })
+            ->filter(fn ($item) => $item['qty'] > 0)
+            ->values();
 
-    } catch (\Exception $e) {
+        if ($products->isEmpty()) {
+            return $request->ajax()
+                ? response()->json([
+                    "status" => false,
+                    "message" => "Please select products"
+                ], 404)
+                : back()->withNotify([['error', 'Please select products']]);
+        }
 
-        DB::rollBack();
+        DB::beginTransaction();
+        try {
 
-        return $request->ajax()
-            ? response()->json([
-                "status" => false,
-                "message" => "An error occurred while processing your request."
-            ], 500)
-            : back()->withNotify([['error', $e->getMessage()]]);
+            // remove old details
+            $quotation->quotationdetail()->delete();
+
+            $subTotal        = 0;
+            $totalCommission = 0;
+
+            // distributor
+            $d_subTotal      = 0;
+            $d_totalCommission = 0;
+
+            foreach ($products as $item) {
+
+                $product = Product::findOrFail($item['product_id']);
+
+                $price = calculateProductPrice($product->id, $customer->id);
+
+                // commission per unit * qty
+                $commissionPerUnit = calculateCommission($product->id, $customer->id);
+                $productCommission = $commissionPerUnit * $item['qty'];
+
+                $amount = floor($price * $item['qty']);
+
+                $detail = $quotation->quotationdetail()->create([
+                    'product_id'         => $product->id,
+                    'qty'                => $item['qty'],
+                    'price'              => $price,
+                    'amount'             => $amount,
+                    'product_commission' => $productCommission,
+                    'entry_id'           => auth('admin')->id(),
+                ]);
+
+                $subTotal        += $amount;
+                $totalCommission += $productCommission;
+
+
+                if (!empty($distribution)) {
+                    $d_price = distributorCalculateProductPrice($product->id, $distribution->id);
+                    $d_commission_per_unit = distributorCalculateCommission($product->id, $distribution->id);
+                    $d_product_commission = $d_commission_per_unit * $item['qty'];
+                    $d_amount = floor($d_price * $item['qty']);
+
+                    $detail->update([
+                        'd_price'              => $d_price,
+                        'd_amount'             => $d_amount,
+                        'd_product_commission' => $d_product_commission,
+                    ]);
+
+                    $d_subTotal += $d_amount;
+                    $d_totalCommission += $d_product_commission;
+                }
+            }
+
+            // commission logic
+            if ($customer->commission_type === "Monthly") {
+                $grandTotal = $subTotal;
+                $orderDue   = $subTotal;
+            
+
+                // when distributor
+                $dGrandTotal = $d_subTotal;
+                $dOrderDue   = $dGrandTotal;
+
+                $quotation->update([
+                    'commission_status' => "Unpaid",
+                ]);
+
+            } else {
+                $grandTotal = $subTotal - $totalCommission;
+                $orderDue   = $grandTotal;
+
+                $dGrandTotal = $d_subTotal - $d_totalCommission;
+                $dOrderDue   = $dGrandTotal;
+
+                $quotation->update([
+                    'commission_status' => "Paid",
+                ]);
+            }
+
+            $quotation->update([
+                'customer_id'   => $customer->id,
+                'sub_total'     => $subTotal,
+                'net_amount'    => $subTotal,
+                'commission'    => $totalCommission,
+                'grand_total'   => $grandTotal,
+                'previous_due'  => $previousDue,
+                'order_due'     => $orderDue,
+                'customer_due'  => $previousDue + $orderDue,
+                'distribution_id' => $distribution?->id,
+                'd_sub_total'     => $distribution ? $d_subTotal : 0,
+                'd_net_amount'    => $distribution ? $d_subTotal : 0,
+                'd_commission'    => $distribution ? $d_totalCommission : 0,
+                'd_grand_total'   => $dGrandTotal,
+                'd_previous_due'  => $dPreviousDue,
+                'd_order_due'     => $dOrderDue,
+                'd_customer_due'  => $dPreviousDue + $dOrderDue,
+            ]);
+
+            DB::commit();
+
+            return $request->ajax()
+                ? response()->json([
+                    "status" => true,
+                    "redirect" => route('admin.quotation.show', $quotation->id),
+                    "message" => "Quotation updated successfully!"
+                ], 200)
+                : to_route('admin.quotation.show', $quotation->id)
+                    ->withNotify([['success', 'Quotation updated successfully']]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return $request->ajax()
+                ? response()->json([
+                    "status" => false,
+                    "message" => "An error occurred while processing your request."
+                ], 500)
+                : back()->withNotify([['error', $e->getMessage()]]);
+        }
     }
-}
 
 
 
