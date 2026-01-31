@@ -254,6 +254,12 @@
                         <td style="text-align:right;padding-right:10px">
                             {{ en2bn(number_format($orders->sum('paid_amount'), 2, '.', ',')) }}</td>
                     </tr>
+                    
+                     <tr>
+                        <th style="text-align:left">@lang('Customer Due Payment')</th>
+                        <td style="text-align:right;padding-right:10px">
+                            {{ en2bn(number_format($commissioninvoice->customer_due_payment, 2, '.', ',')) }}</td>
+                    </tr>
 
                     <tr>
                         <th style="text-align:left">@lang('Current Month Due')</th>
@@ -270,11 +276,7 @@
                             @endif
                         </td>
                     </tr>
-                    <tr>
-                        <th style="text-align:left">@lang('Customer Due Payment')</th>
-                        <td style="text-align:right;padding-right:10px">
-                            {{ en2bn(number_format($commissioninvoice->customer_due_payment, 2, '.', ',')) }}</td>
-                    </tr>
+                   
                     <tr>
                         <th style="text-align:left">@lang('Total Company/Customer Receivable')</th>
                         <td style="text-align:right;padding-right:10px">

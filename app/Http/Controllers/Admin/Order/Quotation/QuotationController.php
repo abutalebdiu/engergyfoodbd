@@ -364,6 +364,8 @@ class QuotationController extends Controller
             'qid' => "OID000" . $order->id
         ]);
 
+
+
         $subTotal      = 0;
         $totalCommission = 0;
 
@@ -414,6 +416,8 @@ class QuotationController extends Controller
             'customer_due'  => $previousDue + $orderDue,
             'distribution_id' => $distribution?->id,
         ]);
+
+        
 
         DB::commit();
 
