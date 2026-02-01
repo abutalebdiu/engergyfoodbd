@@ -287,6 +287,7 @@ function validateNumber(e) {
 }
 
 function getLists(url, showID, formID = null, pageNo = null) {
+
     let formData = "";
 
     if (formID !== null) {
@@ -296,9 +297,12 @@ function getLists(url, showID, formID = null, pageNo = null) {
     let page = pageNo !== null ? pageNo : 1;
 
     let finalUrl = url + "?page=" + page;
+
     if (formData.length > 0) {
         finalUrl += "&" + formData;
     }
+
+	window.history.pushState({}, "", finalUrl);
 
     $("#manualLoader").fadeIn(200);
 
@@ -311,7 +315,9 @@ function getLists(url, showID, formID = null, pageNo = null) {
             $('#' + showID).html('<div class="text-center p-3">Loading...</div>');
         },
         success: function (res) {
+
             $("#manualLoader").fadeOut(200);
+			
             if (res.status === true) {
                 $('#' + showID).html(res.html);
             } else {

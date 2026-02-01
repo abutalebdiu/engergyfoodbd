@@ -24,31 +24,25 @@ use App\Models\Product\Product;
 use App\Models\HR\SalaryAdvance;
 use App\Models\ItemOrderPayment;
 use App\Models\HR\SalaryGenerate;
-use App\Models\ItemReturnPayment;
 use App\Models\Order\OrderReturn;
 use App\Models\Report\Liabilitie;
-use PhpParser\Node\Expr\FuncCall;
-use App\Models\Account\ModuleType;
 use App\Models\Account\Withdrawal;
 use App\Models\Report\DailyReport;
 use App\Traits\SummeryReportTrait;
 use Illuminate\Support\Facades\DB;
 use App\Exports\DailyArchiveExport;
-use App\Models\Warehouse\Transport;
 use App\Http\Controllers\Controller;
 use App\Models\Account\CustomerLoan;
 use App\Models\Account\OfficialLoan;
 use App\Models\Account\OrderPayment;
 use App\Models\HR\OverTimeAllowance;
 use App\Models\Product\ProductStock;
-use Illuminate\Support\Facades\Gate;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Product\ProductDamage;
 use App\Models\HR\FestivalBonusPayment;
 use App\Models\HR\SalaryPaymentHistory;
 use App\Models\Account\CustomerDuePayment;
 use App\Models\Account\SupplierDuePayment;
-use App\Models\Account\TransactionHistory;
 use App\Models\Account\CustomerLoanPayment;
 use App\Models\Account\OfficialLoanPayment;
 use App\Models\Expense\AssetExpensePayment;
@@ -866,135 +860,143 @@ class ReportController extends Controller
         return view('admin.reports.summery_report');
     }
 
+
+
     // trail Balance
     public function trialbalance(Request $request)
     {
-        // Check if date is provided
-        if ($request->start_date && $request->end_date) {
 
-            $data['start_date']     = $request->start_date;
-            $data['end_date']       = $request->end_date;
-            $data['searching']      = "Yes";
+        $data['start_date'] = $request->start_date
+            ? Carbon::parse($request->start_date)
+            : Carbon::now()->subMonth()->startOfMonth();
 
+        $data['end_date'] = $request->end_date
+            ? Carbon::parse($request->end_date)
+            : Carbon::now()->subMonth()->endOfMonth();
 
-            $monthclosedcount = DailyReport::count();
-
-            if ($monthclosedcount) {
-                $data['availablebalance'] = DailyReport::orderBy('date', 'desc')->first()->account_balance;
-            } else {
-                $data['availablebalance'] = Account::find(2)->opening_balance;
-            }
+        $data['searching']      = "Yes";
 
 
+        $monthclosedcount = DailyReport::count();
 
-            $data['opendingcustomerdue']    = User::where('type', 'customer')->sum('opening');
-            $data['opendingsupplierdue']    = User::where('type', 'supplier')->sum('opening');
-
-            // Orders
-            $data['totalsales']             = Order::whereBetween('date', [$request->start_date, $request->end_date])->count();
-            $data['salesamount']            = Order::whereBetween('date', [$request->start_date, $request->end_date])->sum('net_amount');
-            $data['ordercommissionamount']  = Order::whereBetween('date', [$request->start_date, $request->end_date])->sum('commission');
-            $data['unpaidcommissionamount'] = Order::whereBetween('date', [$request->start_date, $request->end_date])->where('commission_status', 'Unpaid')->sum('commission');
-            $data['salepayments']           = OrderPayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-            $data['returnamounts']          = OrderReturn::whereBetween('date', [$request->start_date, $request->end_date])->sum('totalamount');
-            $data['customerduepayment']     = CustomerDuePayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-            $data['commissioninvoicepayment']   = CommissionInvoicePayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-            $data['marketercommissionpayment']  = MarketerCommissionPayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-
-
-            // Receivable Amount
-            $data['totalreceivableamount'] = ($data['opendingcustomerdue'] +  $data['salesamount'] + $data['unpaidcommissionamount']) - ($data['salepayments'] + $data['customerduepayment']) - ($data['unpaidcommissionamount'] +  $data['marketercommissionpayment']);
-
-
-            // Items
-            $data['totalitemorder']     = ItemOrder::whereBetween('date', [$request->start_date, $request->end_date])->count();
-            $data['itemorderamount']    = ItemOrder::whereBetween('date', [$request->start_date, $request->end_date])->sum('totalamount');
-            $data['itempayments']       = ItemOrderPayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-            $data['itemreturns']        = ItemOrder::whereBetween('date', [$request->start_date, $request->end_date])->sum('return_amount');
-            $data['supplierduepaymnet'] = SupplierDuePayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-
-
-            // HR Expense
-            $data['totalsalary']        = SalaryGenerate::sum('salary_amount');
-            $data['totalloansalary']    = SalaryGenerate::sum('loan_amount');
-            $data['totaladvancesalary'] = SalaryGenerate::sum('advance_salary_amount');
-            $data['payable_amount'] = SalaryGenerate::sum('payable_amount');
-
-            $data['salarypayment']      = SalaryPaymentHistory::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-
-            $data['payablesalary']      = $data['payable_amount'] - $data['salarypayment'];
-            $data['salaryadvance']      = SalaryAdvance::whereBetween('date', [$request->start_date, $request->end_date])->where('type', 'Regular')->sum('amount');
-
-
-
-            $data['overtimeallowance']  = OverTimeAllowance::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-            $data['loans']              = Loan::whereBetween('date', [$request->start_date, $request->end_date])->where('type', 'Regular')->sum('total_amount');
-            $data['total_loan_paid']    = SalaryGenerate::sum('loan_amount');
-            $data['total_loan_due']     = $data['loans'] - $data['total_loan_paid'];
-
-
-
-            // Expense
-            $data['expense']            = Expense::whereBetween('expense_date', [$request->start_date, $request->end_date])->sum('total_amount');
-            $data['expensepayments']    = ExpensePaymentHistory::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-            $data['assetexpensepayment']        = AssetExpensePayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-            $data['monthlyexpensepayment']      = MonthlyExpensePayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-            $data['transportexpensepayment']    = TransportExpensePayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-
-            // Official & Administration
-            $data['officeloans']        = OfficialLoan::whereBetween('date', [$request->start_date, $request->end_date])->sum('total_amount');
-            $data['officialloanpayment'] = OfficialLoanPayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-            $data['payableofficeloan']  =  $data['officeloans'] -   $data['officialloanpayment'];
-            $data['deposit']            = Deposit::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-            $data['withdrawal']         = Withdrawal::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
-
-
-
-
-            // Payable Amount
-            $data['totalpayableamount'] = ($data['opendingsupplierdue'] + $data['itemorderamount']) - ($data['itempayments'] + $data['supplierduepaymnet']);
-
-
-            // Income
-
-            $data['totalincome'] = $data['salepayments'] +  $data['customerduepayment'] +  $data['deposit'] +  $data['officeloans'];
-
-            // Expense
-
-            $data['totalexpenditure'] =   $data['itempayments'] +   $data['supplierduepaymnet']
-                + $data['expensepayments'] +  $data['assetexpensepayment'] + $data['monthlyexpensepayment'] + $data['transportexpensepayment']
-                + $data['salarypayment']  +  $data['salaryadvance'] + $data['loans'] +  $data['overtimeallowance']
-                +  $data['withdrawal'] +  $data['marketercommissionpayment'] + $data['officialloanpayment'];
-
-
-
-            // total product amount and total stock amount
-            $productsstockamount    = 0;
-            $itemsstockamount       = 0;
-
-            foreach (Product::get() as $product) {
-                $productsstockamount += $product->sale_price * $product->getstock($product->id);
-            }
-
-            $data['productstockvalue'] = $productsstockamount;
-
-            foreach (Item::get() as $item) {
-                $itemsstockamount += $item->price * $item->stock($item->id);
-            }
-            $data['itemstockvalue'] = $itemsstockamount;
-
-
-            $data['assets'] = Asset::sum('price');
-
-
-            // Account
-
-            $data['cashaccount']   = Account::find(2);
+        if ($monthclosedcount) {
+            $data['availablebalance'] = DailyReport::orderBy('date', 'desc')->first()->account_balance;
         } else {
-            $data['date'] = '';
-            $data['searching'] = "No";
-            $data['salesamount'] = 0;
-            $data['salepayments'] = 0;
+            $data['availablebalance'] = Account::find(2)->opening_balance;
+        }
+
+
+
+        $data['opendingcustomerdue']    = User::where('type', 'customer')->sum('opening');
+        $data['opendingsupplierdue']    = User::where('type', 'supplier')->sum('opening');
+
+        // Orders
+        $data['totalsales']             = Order::whereBetween('date', [$request->start_date, $request->end_date])->count();
+        $data['salesamount']            = Order::whereBetween('date', [$request->start_date, $request->end_date])->sum('net_amount');
+        $data['ordercommissionamount']  = Order::whereBetween('date', [$request->start_date, $request->end_date])->sum('commission');
+        $data['unpaidcommissionamount'] = Order::whereBetween('date', [$request->start_date, $request->end_date])->where('commission_status', 'Unpaid')->sum('commission');
+        $data['salepayments']           = OrderPayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+        $data['returnamounts']          = OrderReturn::whereBetween('date', [$request->start_date, $request->end_date])->sum('totalamount');
+        $data['customerduepayment']     = CustomerDuePayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+        $data['commissioninvoicepayment']   = CommissionInvoicePayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+        $data['marketercommissionpayment']  = MarketerCommissionPayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+
+
+        // Receivable Amount
+        $data['totalreceivableamount'] = ($data['opendingcustomerdue'] +  $data['salesamount'] + $data['unpaidcommissionamount']) - ($data['salepayments'] + $data['customerduepayment']) - ($data['unpaidcommissionamount'] +  $data['marketercommissionpayment']);
+
+
+        // Items
+        $data['totalitemorder']     = ItemOrder::whereBetween('date', [$request->start_date, $request->end_date])->count();
+        $data['itemorderamount']    = ItemOrder::whereBetween('date', [$request->start_date, $request->end_date])->sum('totalamount');
+        $data['itempayments']       = ItemOrderPayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+        $data['itemreturns']        = ItemOrder::whereBetween('date', [$request->start_date, $request->end_date])->sum('return_amount');
+        $data['supplierduepaymnet'] = SupplierDuePayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+
+
+        // HR Expense
+        $data['totalsalary']        = SalaryGenerate::sum('salary_amount');
+        $data['totalloansalary']    = SalaryGenerate::sum('loan_amount');
+        $data['totaladvancesalary'] = SalaryGenerate::sum('advance_salary_amount');
+        $data['payable_amount'] = SalaryGenerate::sum('payable_amount');
+
+        $data['salarypayment']      = SalaryPaymentHistory::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+
+        $data['payablesalary']      = $data['payable_amount'] - $data['salarypayment'];
+        $data['salaryadvance']      = SalaryAdvance::whereBetween('date', [$request->start_date, $request->end_date])->where('type', 'Regular')->sum('amount');
+
+
+
+        $data['overtimeallowance']  = OverTimeAllowance::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+        $data['loans']              = Loan::whereBetween('date', [$request->start_date, $request->end_date])->where('type', 'Regular')->sum('total_amount');
+        $data['total_loan_paid']    = SalaryGenerate::sum('loan_amount');
+        $data['total_loan_due']     = $data['loans'] - $data['total_loan_paid'];
+
+
+
+        // Expense
+        $data['expense']            = Expense::whereBetween('expense_date', [$request->start_date, $request->end_date])->sum('total_amount');
+        $data['expensepayments']    = ExpensePaymentHistory::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+        $data['assetexpensepayment']        = AssetExpensePayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+        $data['monthlyexpensepayment']      = MonthlyExpensePayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+        $data['transportexpensepayment']    = TransportExpensePayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+
+        // Official & Administration
+        $data['officeloans']        = OfficialLoan::whereBetween('date', [$request->start_date, $request->end_date])->sum('total_amount');
+        $data['officialloanpayment'] = OfficialLoanPayment::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+        $data['payableofficeloan']  =  $data['officeloans'] -   $data['officialloanpayment'];
+        $data['deposit']            = Deposit::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+        $data['withdrawal']         = Withdrawal::whereBetween('date', [$request->start_date, $request->end_date])->sum('amount');
+
+
+
+
+        // Payable Amount
+        $data['totalpayableamount'] = ($data['opendingsupplierdue'] + $data['itemorderamount']) - ($data['itempayments'] + $data['supplierduepaymnet']);
+
+
+        // Income
+
+        $data['totalincome'] = $data['salepayments'] +  $data['customerduepayment'] +  $data['deposit'] +  $data['officeloans'];
+
+        // Expense
+
+        $data['totalexpenditure'] =   $data['itempayments'] +   $data['supplierduepaymnet']
+            + $data['expensepayments'] +  $data['assetexpensepayment'] + $data['monthlyexpensepayment'] + $data['transportexpensepayment']
+            + $data['salarypayment']  +  $data['salaryadvance'] + $data['loans'] +  $data['overtimeallowance']
+            +  $data['withdrawal'] +  $data['marketercommissionpayment'] + $data['officialloanpayment'];
+
+
+
+        // total product amount and total stock amount
+        $productsstockamount    = 0;
+        $itemsstockamount       = 0;
+
+        foreach (Product::get() as $product) {
+            $productsstockamount += $product->sale_price * $product->getstock($product->id);
+        }
+
+        $data['productstockvalue'] = $productsstockamount;
+
+        foreach (Item::get() as $item) {
+            $itemsstockamount += $item->price * $item->stock($item->id);
+        }
+        $data['itemstockvalue'] = $itemsstockamount;
+
+
+        $data['assets'] = Asset::sum('price');
+
+
+        // Account
+
+        $data['cashaccount']   = Account::find(2);
+
+
+        if($request->ajax()) {
+            return response()->json([
+                "status" => true,
+                "html"   => view('admin.reports.partials.trialbalance_table', $data)->render()
+            ]);
         }
 
         if ($request->has('search')) {
@@ -1011,13 +1013,14 @@ class ReportController extends Controller
     // cash register   
     public function cashregister(Request $request)
     {
-        if (!$request->start_date || !$request->end_date) {
-            return view('admin.reports.cashregister', ['searching' => 'No']);
-        }
 
-        $data['start_date'] = $request->start_date;
-        $data['end_date']   = $request->end_date;
-        $data['searching']  = "Yes";
+        $data['start_date'] = $request->start_date
+            ? Carbon::parse($request->start_date)->toDateString()
+            : Carbon::now()->subMonth()->startOfMonth()->toDateString();
+
+        $data['end_date'] = $request->end_date
+            ? Carbon::parse($request->end_date)->toDateString()
+            : Carbon::now()->subMonth()->endOfMonth()->toDateString();
 
         $lastmonthbalance = AccountCloseStatement::where('month_id', 11)->first()->amount;
         $runningBalance = $lastmonthbalance;
@@ -1158,6 +1161,13 @@ class ReportController extends Controller
 
 
 
+        if ($request->ajax()) {
+            return response()->json([
+                "status" => true,
+                "html"   => view('admin.reports.partials.cashregister_table', $data)->render()
+            ]);
+        }
+
 
         if ($request->has('search')) {
             return view('admin.reports.cashregister', $data);
@@ -1235,6 +1245,14 @@ class ReportController extends Controller
 
         $data['differentvalue']     =  $data['totalassets'] - $data['totalliabilities'];
 
+
+        if ($request->ajax()) {
+            return response()->json([
+                "status" => true,
+                "html"   => view('admin.reports.partials.balancesheets_table', $data)->render()
+            ]);
+        }
+
         if ($request->has('pdf')) {
             $pdf = PDF::loadView('admin.reports.balancesheets_pdf', $data, [], [
                 'format' => 'a4',
@@ -1309,6 +1327,8 @@ class ReportController extends Controller
     {
         $data['months'] = Month::orderBy('id', 'asc')->get();
         $data['years']  = Year::orderBy('id', 'desc')->get();
+        
+
         $data['allcustomers'] = User::where('type', 'customer')
             ->where('status', 1)
             ->select('id', 'uid', 'name')
@@ -1318,103 +1338,117 @@ class ReportController extends Controller
             ->where('id',$request->customer_id ? $request->customer_id : '!=',null)
             ->get();
 
-        $data['searching'] = "No";
         $data['rows'] = [];
 
-        if ($request->month && $request->year) {
 
-            $data['searching'] = "Yes";
-            $data['monthname'] = Month::find($request->month)->name;
-            $data['yearname']  = $request->year;
-            $invoiceMonth = (int) $request->month;
-            $invoiceYear  = (int) $request->year;
+        $data['monthname'] = Month::find($request->month)?->name;
 
-            $start_date = Carbon::create($invoiceYear, $invoiceMonth, 1)->startOfMonth();
-            $end_date   = Carbon::create($invoiceYear, $invoiceMonth, 1)->endOfMonth();
 
-            // last month calc
-            if ($invoiceMonth == 1) {
-                $lastMonth = 12;
-                $lastYear  = $invoiceYear - 1;
-            } else {
-                $lastMonth = $invoiceMonth - 1;
-                $lastYear  = $invoiceYear;
+        $data['yearname']  = $request->year;
+        $invoiceMonth = (int) $request->month;
+        $invoiceYear  = (int) $request->year;
+
+        $start_date = Carbon::create($invoiceYear, $invoiceMonth, 1)->startOfMonth();
+        $end_date   = Carbon::create($invoiceYear, $invoiceMonth, 1)->endOfMonth();
+
+        // last month calc
+        if ($invoiceMonth == 1) {
+            $lastMonth = 12;
+            $lastYear  = $invoiceYear - 1;
+        } else {
+            $lastMonth = $invoiceMonth - 1;
+            $lastYear  = $invoiceYear;
+        }
+
+
+        foreach ($data['customers'] as $customer) {
+
+            // orders
+            $orders = Order::where('customer_id', $customer->id)
+                ->whereBetween('date', [$start_date, $end_date])
+                ->get();
+
+            if ($orders->isEmpty()) {
+                continue;
             }
- 
 
-            foreach ($data['customers'] as $customer) {
+            // last month due
+            $lastMonthInvoice = CommissionInvoice::where('customer_id', $customer->id)
+                ->where('month_id', $lastMonth)
+                ->where('year', $lastYear)
+                ->latest('id')
+                ->first();
 
-                // orders
-                $orders = Order::where('customer_id', $customer->id)
-                    ->whereBetween('date', [$start_date, $end_date])
-                    ->get();
+            $last_month_due = $lastMonthInvoice ? $lastMonthInvoice->amount : 0;
 
-                if ($orders->isEmpty()) {
-                    continue;
-                }
+            // sums
+            $total_orders  = $orders->count();
+            $order_amount  = $orders->sum('sub_total');
+            $return_amount = $orders->sum('return_amount');
+            $net_amount    = $orders->sum('net_amount');
+            $paid_amount   = $orders->sum('paid_amount');
+            $commission    = $orders->sum('commission');
+            $return_commission = OrderReturn::where('customer_id', $customer->id)
+                                            ->whereBetween('date', [$start_date, $end_date])
+                                            ->sum('commission');
+            $grand_total        = $orders->sum('grand_total');
+            $order_due_amount   = $orders->sum('order_due');
+            // due payment
+            $duepayment = CustomerDuePayment::where('customer_id', $customer->id)
+                ->whereBetween('date', [$start_date, $end_date])
+                ->sum('amount');
 
-                // last month due
-                $lastMonthInvoice = CommissionInvoice::where('customer_id', $customer->id)
-                    ->where('month_id', $lastMonth)
-                    ->where('year', $lastYear)
-                    ->latest('id')
-                    ->first();
+            // commission logic (same as store)
+            if ($customer->commission_type === "Monthly") {
 
-                $last_month_due = $lastMonthInvoice ? $lastMonthInvoice->amount : 0;
+                $commission_amount = $commission;
 
-                // sums
-                $total_orders  = $orders->count();
-                $order_amount  = $orders->sum('sub_total');
-                $return_amount = $orders->sum('return_amount');
-                $net_amount    = $orders->sum('net_amount');
-                $paid_amount   = $orders->sum('paid_amount');
-                $commission    = $orders->sum('commission');
-                $return_commission = OrderReturn::where('customer_id', $customer->id)
-                                                ->whereBetween('date', [$start_date, $end_date])
-                                                ->sum('commission');
-                $grand_total        = $orders->sum('grand_total');
-                $order_due_amount   = $orders->sum('order_due');
-                // due payment
-                $duepayment = CustomerDuePayment::where('customer_id', $customer->id)
-                    ->whereBetween('date', [$start_date, $end_date])
-                    ->sum('amount');
+                $receivable_amount =
+                    ($last_month_due + $grand_total)
+                    - ($paid_amount + $commission + $duepayment);
+            } else {
 
-                // commission logic (same as store)
-                if ($customer->commission_type === "Monthly") {
+                $commission_amount = 0;
 
-                    $commission_amount = $commission;
+                $receivable_amount =
+                    ($last_month_due + $grand_total)
+                    - ($paid_amount + $duepayment);
+            }
 
-                    $receivable_amount =
-                        ($last_month_due + $grand_total)
-                        - ($paid_amount + $commission + $duepayment);
-                } else {
+            $data['rows'][] = [
+                'uid'                  => $customer->uid,
+                'name'                 => $customer->name,
+                'address'              => $customer->address,
+                'commission_type'      => $customer->commission_type,
+                'total_orders'         => $total_orders,
+                'last_month_due'       => $last_month_due,
+                'order_amount'         => $order_amount,
+                'return_amount'        => $return_amount,
+                'net_amount'           => $net_amount,
+                'commission'           => $commission,
+                'return_commission'    => $return_commission,
+                'grand_total'           => $grand_total,                  
+                'receivable_amount'    => $receivable_amount,
+                'paid_amount'          => $paid_amount,
+                'order_due_amount'     => $order_due_amount,
+                'due_collection'       => $duepayment,
+                'total_due_amount'     => $receivable_amount,
+            ];
+        }
+        
 
-                    $commission_amount = 0;
+        if ($request->ajax()) {
 
-                    $receivable_amount =
-                        ($last_month_due + $grand_total)
-                        - ($paid_amount + $duepayment);
-                }
-
-                $data['rows'][] = [
-                    'uid'                  => $customer->uid,
-                    'name'                 => $customer->name,
-                    'address'              => $customer->address,
-                    'commission_type'      => $customer->commission_type,
-                    'total_orders'         => $total_orders,
-                    'last_month_due'       => $last_month_due,
-                    'order_amount'         => $order_amount,
-                    'return_amount'        => $return_amount,
-                    'net_amount'           => $net_amount,
-                    'commission'           => $commission,
-                    'return_commission'    => $return_commission,
-                    'grand_total'           => $grand_total,                  
-                    'receivable_amount'    => $receivable_amount,
-                    'paid_amount'          => $paid_amount,
-                    'order_due_amount'     => $order_due_amount,
-                    'due_collection'       => $duepayment,
-                    'total_due_amount'     => $receivable_amount,
-                ];
+            if(!empty($data)) {
+                return response()->json([
+                    "status" => true,
+                    "html"   => view('admin.reports.partials.monthlycustomersummary_table', $data)->render()
+                ]);
+            } else {
+                return response()->json([
+                    "status" => true,
+                    "html"   => view('admin.reports.partials.table_empty')->render()
+                ]);
             }
         }
 
