@@ -80,7 +80,7 @@ class DistributorQuotationReportController extends Controller
                 DB::raw('SUM(quotation_details.qty) as total_qty'),
                 DB::raw('SUM(quotation_details.amount) as total_amount'),
                 DB::raw('SUM(quotation_details.product_commission) as product_commission'),
-                DB::raw('SUM(quotation_details.dc_price) as dc_price'),
+                DB::raw('(quotation_details.dc_price) as dc_price'),
                 DB::raw('SUM(quotation_details.dc_amount) as dc_amount'),
                 DB::raw('SUM(quotation_details.dc_product_commission) as dc_product_commission'),
                 DB::raw('SUM(quotation_details.price) as price')

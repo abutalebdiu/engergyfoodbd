@@ -727,7 +727,7 @@ if (!function_exists('distributorCalculateCommission')) {
             ->where('distribution_id', $distributor_id)
             ->first();
 
-        if ($commission == null) {
+        if ($commission == null) { 
             return 0;
         }
 

@@ -173,7 +173,7 @@ class QuotationController extends Controller
         $customer       = User::findOrFail($request->customer_id);
         $distribution   = Distribution::find($customer->distribution_id);
         $previousDue    = $customer->receivable($customer->id);
-        $dPreviousDue    = $distribution ? $customer->receivable($customer->id) : 0;
+        $dPreviousDue   = $distribution ? $customer->receivable($customer->id) : 0;
 
         $products = collect($input['product_id'])
             ->map(function ($pid, $index) use ($input) {
@@ -226,8 +226,8 @@ class QuotationController extends Controller
                 if (!empty($distribution)) {
                     $customer_price = calculateProductPrice($product->id, $customer->id);
 
-                    $distributor_customer_commissionPerUnit = calculateCommission($product->id, $customer->id);
-                    $distributor_customer_productCommission = $distributor_customer_commissionPerUnit * $item['qty'];
+                    $customer_commissionPerUnit = calculateCommission($product->id, $customer->id);
+                    $customer_productCommission = $customer_commissionPerUnit * $item['qty'];
 
                     $amount = floor($customer_price * $item['qty']);
 
@@ -241,19 +241,17 @@ class QuotationController extends Controller
                         'qty'                   => $item['qty'],
                         'price'                 => $customer_price,
                         'amount'                => $amount,
-                        'product_commission'    => $distributor_product_commission,
+                        'product_commission'    => $customer_productCommission,
                         'dc_price'              => $distributor_price, 
                         'dc_amount'             => $distributor_amount, 
-                        'dc_product_commission' => $distributor_customer_productCommission,
+                        'dc_product_commission' => $distributor_product_commission,
                         'entry_id'              => auth('admin')->id(),
                     ]);
 
-
-                    $subTotal        += $amount;
-                    $totalCommission += $distributor_product_commission;
-
-                    $dc_subTotal += $distributor_amount;
-                    $dc_totalCommission += $distributor_customer_productCommission;
+                    $subTotal            += $amount;
+                    $totalCommission     += $customer_productCommission;
+                    $dc_subTotal         += $distributor_amount;
+                    $dc_totalCommission  += $distributor_product_commission;
 
                 } else {
                     $price = calculateProductPrice($product->id, $customer->id);
